@@ -34,8 +34,23 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     |> Mix.Phoenix.prompt_for_conflicts()
   end
 
-  defp files_to_be_generated(%Context{schema: schema} = context) do
-    [{:eex, "notifier.ex", Path.join([context.dir, "#{schema.singular}_notifier.ex"])}]
+  defp files_to_be_generated(%Context{schema: schema, context_app: context_app} = context) do
+    web_prefix = Mix.Phoenix.web_path(context_app)
+    web_path = to_string(schema.web_path)
+
+    [
+      {:eex, "notifier.ex", Path.join([context.dir, "#{schema.singular}_notifier.ex"])},
+      {:eex, "confirmation_view.ex",
+       Path.join([web_prefix, "views", web_path, "#{schema.singular}_confirmation_view.ex"])},
+      {:eex, "registration_view.ex",
+       Path.join([web_prefix, "views", web_path, "#{schema.singular}_registration_view.ex"])},
+      {:eex, "reset_password_view.ex",
+       Path.join([web_prefix, "views", web_path, "#{schema.singular}_reset_password_view.ex"])},
+      {:eex, "session_view.ex",
+       Path.join([web_prefix, "views", web_path, "#{schema.singular}_session_view.ex"])},
+      {:eex, "settings_view.ex",
+       Path.join([web_prefix, "views", web_path, "#{schema.singular}_settings_view.ex"])}
+    ]
   end
 
   defp copy_new_files(%Context{} = context, binding, paths) do

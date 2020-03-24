@@ -19,6 +19,26 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
         assert file =~ "defmodule PhxGenAuth.Accounts.UserNotifier"
         assert file =~ "def deliver_confirmation_instructions(user, url)"
       end)
+
+      assert_file("lib/phx_gen_auth_web/views/user_confirmation_view.ex", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.UserConfirmationView"
+      end)
+
+      assert_file("lib/phx_gen_auth_web/views/user_registration_view.ex", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.UserRegistrationView"
+      end)
+
+      assert_file("lib/phx_gen_auth_web/views/user_reset_password_view.ex", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.UserResetPasswordView"
+      end)
+
+      assert_file("lib/phx_gen_auth_web/views/user_session_view.ex", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.UserSessionView"
+      end)
+
+      assert_file("lib/phx_gen_auth_web/views/user_settings_view.ex", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.UserSettingsView"
+      end)
     end)
   end
 end
