@@ -1,6 +1,6 @@
 defmodule <%= inspect context.module %> do
   @moduledoc """
-  The <%= inspect context.name %> context.
+  The <%= context.name %> context.
   """
 
   alias <%= inspect schema.repo %>
@@ -72,7 +72,7 @@ defmodule <%= inspect context.module %> do
       {:error, %Ecto.Changeset{}}
 
   """
-  def register_<%= schema.singular %>(attrs \\ %{}) do
+  def register_<%= schema.singular %>(attrs) do
     %<%= inspect schema.alias %>{}
     |> <%= inspect schema.alias %>.registration_changeset(attrs)
     |> Repo.insert()
@@ -130,6 +130,7 @@ defmodule <%= inspect context.module %> do
   Updates the <%= schema.singular %> e-mail in token.
 
   If the token matches, the <%= schema.singular %> email is updated and the token is deleted.
+  The confirmed_at date is also updated to the current time.
   """
   def update_<%= schema.singular %>_email(<%= schema.singular %>, token) do
     context = "change:#{<%= schema.singular %>.email}"
@@ -144,8 +145,10 @@ defmodule <%= inspect context.module %> do
   end
 
   defp <%= schema.singular %>_email_multi(<%= schema.singular %>, email, context) do
+    changeset = <%= schema.singular %> |> <%= inspect schema.alias %>.email_changeset(%{email: email}) |> <%= inspect schema.alias %>.confirm_changeset()
+
     Ecto.Multi.new()
-    |> Ecto.Multi.update(:<%= schema.singular %>, <%= inspect schema.alias %>.email_changeset(<%= schema.singular %>, %{email: email}))
+    |> Ecto.Multi.update(:<%= schema.singular %>, changeset)
     |> Ecto.Multi.delete_all(:tokens, <%= inspect schema.alias %>Token.<%= schema.singular %>_and_contexts_query(<%= schema.singular %>, [context]))
   end
 
@@ -193,11 +196,20 @@ defmodule <%= inspect context.module %> do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_<%= schema.singular %>_password(<%= schema.singular %>, password, attrs \\ %{}) do
-    <%= schema.singular %>
-    |> <%= inspect schema.alias %>.password_changeset(attrs)
-    |> <%= inspect schema.alias %>.validate_current_password(password)
-    |> Repo.update()
+  def update_<%= schema.singular %>_password(<%= schema.singular %>, password, attrs) do
+    changeset =
+      <%= schema.singular %>
+      |> <%= inspect schema.alias %>.password_changeset(attrs)
+      |> <%= inspect schema.alias %>.validate_current_password(password)
+
+    Ecto.Multi.new()
+    |> Ecto.Multi.update(:<%= schema.singular %>, changeset)
+    |> Ecto.Multi.delete_all(:tokens, <%= inspect schema.alias %>Token.<%= schema.singular %>_and_contexts_query(<%= schema.singular %>, :all))
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{<%= schema.singular %>: <%= schema.singular %>}} -> {:ok, <%= schema.singular %>}
+      {:error, :<%= schema.singular %>, changeset, _} -> {:error, changeset}
+    end
   end
 
   ## Session
@@ -234,14 +246,14 @@ defmodule <%= inspect context.module %> do
 
   ## Examples
 
-      iex> deliver_confirmation_instructions(<%= schema.singular %>, &Routes.<%= schema.singular %>_confirmation_url(conn, :confirm))
+      iex> deliver_<%= schema.singular %>_confirmation_instructions(<%= schema.singular %>, &Routes.<%= schema.singular %>_confirmation_url(conn, :confirm))
       :ok
 
-      iex> deliver_confirmation_instructions(confirmed_<%= schema.singular %>, &Routes.<%= schema.singular %>_confirmation_url(conn, :confirm))
+      iex> deliver_<%= schema.singular %>_confirmation_instructions(confirmed_<%= schema.singular %>, &Routes.<%= schema.singular %>_confirmation_url(conn, :confirm))
       {:error, :already_confirmed}
 
   """
-  def deliver_confirmation_instructions(%<%= inspect schema.alias %>{} = <%= schema.singular %>, confirmation_url_fun)
+  def deliver_<%= schema.singular %>_confirmation_instructions(%<%= inspect schema.alias %>{} = <%= schema.singular %>, confirmation_url_fun)
       when is_function(confirmation_url_fun, 1) do
     if <%= schema.singular %>.confirmed_at do
       {:error, :already_confirmed}
@@ -282,11 +294,11 @@ defmodule <%= inspect context.module %> do
 
   ## Examples
 
-      iex> deliver_reset_password_instructions(<%= schema.singular %>, &Routes.<%= schema.singular %>_reset_password_url(conn, :edit))
+      iex> deliver_<%= schema.singular %>_reset_password_instructions(<%= schema.singular %>, &Routes.<%= schema.singular %>_reset_password_url(conn, :edit))
       :ok
 
   """
-  def deliver_reset_password_instructions(%<%= inspect schema.alias %>{} = <%= schema.singular %>, reset_password_url_fun)
+  def deliver_<%= schema.singular %>_reset_password_instructions(%<%= inspect schema.alias %>{} = <%= schema.singular %>, reset_password_url_fun)
       when is_function(reset_password_url_fun, 1) do
     {encoded_token, <%= schema.singular %>_token} = <%= inspect schema.alias %>Token.build_<%= schema.singular %>_email_token(<%= schema.singular %>, "reset_password")
     Repo.insert!(<%= schema.singular %>_token)
@@ -299,10 +311,10 @@ defmodule <%= inspect context.module %> do
 
   ## Examples
 
-      iex> get_<%= schema.singular %>_by_reset_password_token("validtoken-sadsadsa")
+      iex> get_<%= schema.singular %>_by_reset_password_token("validtoken")
       %<%= inspect schema.alias %>{}
 
-      iex> get_<%= schema.singular %>_by_reset_password_token("invalidtoken-sadsadsa")
+      iex> get_<%= schema.singular %>_by_reset_password_token("invalidtoken")
       nil
 
   """
@@ -328,7 +340,7 @@ defmodule <%= inspect context.module %> do
       {:error, %Ecto.Changeset{}}
 
   """
-  def reset_<%= schema.singular %>_password(<%= schema.singular %>, attrs \\ %{}) do
+  def reset_<%= schema.singular %>_password(<%= schema.singular %>, attrs) do
     Ecto.Multi.new()
     |> Ecto.Multi.update(:<%= schema.singular %>, <%= inspect schema.alias %>.password_changeset(<%= schema.singular %>, attrs))
     |> Ecto.Multi.delete_all(:tokens, <%= inspect schema.alias %>Token.<%= schema.singular %>_and_contexts_query(<%= schema.singular %>, :all))
