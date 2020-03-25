@@ -40,6 +40,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
     [
       {:eex, "notifier.ex", Path.join([context.dir, "#{schema.singular}_notifier.ex"])},
+      {:eex, "schema.ex", Path.join([context.dir, "#{schema.singular}.ex"])},
       {:eex, "confirmation_view.ex",
        Path.join([web_prefix, "views", web_path, "#{schema.singular}_confirmation_view.ex"])},
       {:eex, "registration_view.ex",
