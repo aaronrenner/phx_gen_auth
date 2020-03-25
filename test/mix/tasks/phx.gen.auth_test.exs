@@ -15,6 +15,10 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
     in_tmp_project(config.test, fn ->
       Gen.Auth.run(~w(Accounts User users))
 
+      assert_file("lib/phx_gen_auth/accounts.ex", fn file ->
+        assert file =~ "defmodule PhxGenAuth.Accounts"
+      end)
+
       assert_file("lib/phx_gen_auth/accounts/user_notifier.ex", fn file ->
         assert file =~ "defmodule PhxGenAuth.Accounts.UserNotifier"
         assert file =~ "def deliver_confirmation_instructions(user, url)"

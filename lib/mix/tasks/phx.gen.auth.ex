@@ -39,6 +39,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     web_path = to_string(schema.web_path)
 
     [
+      {:eex, "context.ex", context.file},
       {:eex, "notifier.ex", Path.join([context.dir, "#{schema.singular}_notifier.ex"])},
       {:eex, "schema.ex", Path.join([context.dir, "#{schema.singular}.ex"])},
       {:eex, "schema_token.ex", Path.join([context.dir, "#{schema.singular}_token.ex"])},
