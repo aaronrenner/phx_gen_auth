@@ -25,6 +25,11 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
         assert file =~ ~s|schema "users"|
       end)
 
+      assert_file("lib/phx_gen_auth/accounts/user_token.ex", fn file ->
+        assert file =~ "defmodule PhxGenAuth.Accounts.UserToken"
+        assert file =~ ~s|schema "user_tokens"|
+      end)
+
       assert_file("lib/phx_gen_auth_web/views/user_confirmation_view.ex", fn file ->
         assert file =~ "defmodule PhxGenAuthWeb.UserConfirmationView"
       end)
