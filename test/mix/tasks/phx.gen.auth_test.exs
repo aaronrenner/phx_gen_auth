@@ -34,6 +34,21 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
         assert file =~ ~s|schema "user_tokens"|
       end)
 
+      assert [migration] = Path.wildcard("priv/repo/migrations/*_create_auth_tables.exs")
+
+      assert_file(migration, fn file ->
+        assert file =~ "create table(:users) do"
+        assert file =~ "create table(:user_tokens) do"
+      end)
+
+      assert_file("test/phx_gen_auth/accounts_test.exs", fn file ->
+        assert file =~ "defmodule PhxGenAuth.AccountsTest"
+      end)
+
+      assert_file("test/support/fixtures/accounts_fixtures.ex", fn file ->
+        assert file =~ "defmodule PhxGenAuth.AccountsFixtures"
+      end)
+
       assert_file("lib/phx_gen_auth_web/views/user_confirmation_view.ex", fn file ->
         assert file =~ "defmodule PhxGenAuthWeb.UserConfirmationView"
       end)
