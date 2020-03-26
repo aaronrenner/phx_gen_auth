@@ -41,23 +41,16 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     [
       {:eex, "context.ex", context.file},
       {:eex, "context_test.exs", context.test_file},
-      {:eex, "context_fixtures.ex",
-       Path.join(["test", "support", "fixtures", "#{context.basename}_fixtures.ex"])},
-      {:eex, "migration.ex",
-       Path.join(["priv", "repo", "migrations", "#{timestamp()}_create_auth_tables.exs"])},
+      {:eex, "context_fixtures.ex", Path.join(["test", "support", "fixtures", "#{context.basename}_fixtures.ex"])},
+      {:eex, "migration.ex", Path.join(["priv", "repo", "migrations", "#{timestamp()}_create_auth_tables.exs"])},
       {:eex, "notifier.ex", Path.join([context.dir, "#{schema.singular}_notifier.ex"])},
       {:eex, "schema.ex", Path.join([context.dir, "#{schema.singular}.ex"])},
       {:eex, "schema_token.ex", Path.join([context.dir, "#{schema.singular}_token.ex"])},
-      {:eex, "confirmation_view.ex",
-       Path.join([web_prefix, "views", web_path, "#{schema.singular}_confirmation_view.ex"])},
-      {:eex, "registration_view.ex",
-       Path.join([web_prefix, "views", web_path, "#{schema.singular}_registration_view.ex"])},
-      {:eex, "reset_password_view.ex",
-       Path.join([web_prefix, "views", web_path, "#{schema.singular}_reset_password_view.ex"])},
-      {:eex, "session_view.ex",
-       Path.join([web_prefix, "views", web_path, "#{schema.singular}_session_view.ex"])},
-      {:eex, "settings_view.ex",
-       Path.join([web_prefix, "views", web_path, "#{schema.singular}_settings_view.ex"])}
+      {:eex, "confirmation_view.ex", Path.join([web_prefix, "views", web_path, "#{schema.singular}_confirmation_view.ex"])},
+      {:eex, "registration_view.ex", Path.join([web_prefix, "views", web_path, "#{schema.singular}_registration_view.ex"])},
+      {:eex, "reset_password_view.ex", Path.join([web_prefix, "views", web_path, "#{schema.singular}_reset_password_view.ex"])},
+      {:eex, "session_view.ex", Path.join([web_prefix, "views", web_path, "#{schema.singular}_session_view.ex"])},
+      {:eex, "settings_view.ex", Path.join([web_prefix, "views", web_path, "#{schema.singular}_settings_view.ex"])}
     ]
   end
 
