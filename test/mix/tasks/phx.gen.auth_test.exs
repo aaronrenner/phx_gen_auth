@@ -74,6 +74,13 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
         assert file =~ "PhxGenAuthWeb.Endpoint.config("
       end)
 
+      assert_file("lib/phx_gen_auth_web/controllers/user_confirmation_controller.ex")
+      assert_file("lib/phx_gen_auth_web/templates/user_confirmation/new.html.eex")
+
+      assert_file("test/phx_gen_auth_web/controllers/user_confirmation_controller_test.exs", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.UserConfirmationControllerTest"
+      end)
+
       assert_file("lib/phx_gen_auth_web/views/user_confirmation_view.ex", fn file ->
         assert file =~ "defmodule PhxGenAuthWeb.UserConfirmationView"
       end)
