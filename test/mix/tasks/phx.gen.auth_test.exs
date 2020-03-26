@@ -11,8 +11,16 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
     :ok
   end
 
+  defp in_tmp_auth_project(test, func) do
+    in_tmp_project(test, fn ->
+      File.mkdir_p!("test/support")
+      File.touch!("test/support/conn_case.ex")
+      func.()
+    end)
+  end
+
   test "generates auth logic", config do
-    in_tmp_project(config.test, fn ->
+    in_tmp_auth_project(config.test, fn ->
       Gen.Auth.run(~w(Accounts User users))
 
       assert_file("lib/phx_gen_auth/accounts.ex", fn file ->
@@ -49,6 +57,11 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
         assert file =~ "defmodule PhxGenAuth.AccountsFixtures"
       end)
 
+      assert_file("test/support/conn_case.ex", fn file ->
+        assert file =~ "def register_and_login_user(%{conn: conn})"
+        assert file =~ "def login_user(conn, user)"
+      end)
+
       assert_file("lib/phx_gen_auth_web/views/user_confirmation_view.ex", fn file ->
         assert file =~ "defmodule PhxGenAuthWeb.UserConfirmationView"
       end)
@@ -70,4 +83,6 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
       end)
     end)
   end
+
+  # test "does not inject code if its already been injected"
 end

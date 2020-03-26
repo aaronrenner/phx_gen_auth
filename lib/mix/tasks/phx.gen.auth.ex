@@ -24,7 +24,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
     context
     |> copy_new_files(binding, paths)
-    |> maybe_inject_helpers()
+    |> inject_conn_case_helpers(paths, binding)
     |> print_shell_instructions()
   end
 
@@ -68,7 +68,15 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     context
   end
 
-  defp maybe_inject_helpers(%Context{} = context) do
+  defp inject_conn_case_helpers(%Context{} = context, paths, binding) do
+    # TODO: This needs to work with umbrella apps
+    # TODO: Figure out what happens if this file isn't here
+    test_file = "test/support/conn_case.ex"
+
+    paths
+    |> Mix.Phoenix.eval_from("priv/templates/phx.gen.auth/conn_case.exs", binding)
+    |> inject_eex_before_final_end(test_file, binding)
+
     context
   end
 
@@ -82,6 +90,28 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   # and falls back to phx_gen_auth's `priv` directory.
   defp generator_paths do
     [".", :phx_gen_auth]
+  end
+
+  defp inject_eex_before_final_end(content_to_inject, file_path, binding) do
+    file = File.read!(file_path)
+
+    if String.contains?(file, content_to_inject) do
+      :ok
+    else
+      Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path)])
+
+      file
+      |> String.trim_trailing()
+      |> String.trim_trailing("end")
+      |> EEx.eval_string(binding)
+      |> Kernel.<>(content_to_inject)
+      |> Kernel.<>("end\n")
+      |> write_file(file_path)
+    end
+  end
+
+  defp write_file(content, file) do
+    File.write!(file, content)
   end
 
   defp timestamp do
