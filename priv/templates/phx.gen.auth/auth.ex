@@ -7,7 +7,7 @@ defmodule <%= inspect auth_module %> do
 
   # Make the remember me cookie valid for 60 days.
   # If you want bump or reduce this value, also change
-  # the token expiry itself in <%= Schema.Singular %>Token.
+  # the token expiry itself in <%= inspect schema.alias %>Token.
   @max_age 60 * 60 * 24 * 60
   @remember_me_cookie "<%= schema.singular %>_remember_me"
   @remember_me_options [sign: true, max_age: @max_age]
