@@ -17,7 +17,13 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     {context, schema} = Gen.Context.build(args)
     Gen.Context.prompt_for_code_injection(context)
 
-    binding = [context: context, schema: schema]
+    binding = [
+      context: context,
+      schema: schema,
+      endpoint_module: Module.concat([context.web_module, schema.web_namespace, Endpoint]),
+      auth_module: Module.concat([context.web_module, schema.web_namespace, "#{inspect(schema.alias)}Auth"])
+    ]
+
     paths = generator_paths()
 
     prompt_for_conflicts(context)
@@ -25,6 +31,8 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     context
     |> copy_new_files(binding, paths)
     |> inject_conn_case_helpers(paths, binding)
+    |> inject_routes(paths, binding)
+    |> maybe_inject_router_import(binding)
     |> print_shell_instructions()
   end
 
@@ -36,6 +44,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
   defp files_to_be_generated(%Context{schema: schema, context_app: context_app} = context) do
     web_prefix = Mix.Phoenix.web_path(context_app)
+    web_test_prefix = Mix.Phoenix.web_test_path(context_app)
     web_path = to_string(schema.web_path)
 
     [
@@ -46,6 +55,8 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
       {:eex, "notifier.ex", Path.join([context.dir, "#{schema.singular}_notifier.ex"])},
       {:eex, "schema.ex", Path.join([context.dir, "#{schema.singular}.ex"])},
       {:eex, "schema_token.ex", Path.join([context.dir, "#{schema.singular}_token.ex"])},
+      {:eex, "auth.ex", Path.join([web_prefix, "controllers", "#{schema.singular}_auth.ex"])},
+      {:eex, "auth_test.exs", Path.join([web_test_prefix, "controllers", "#{schema.singular}_auth_test.exs"])},
       {:eex, "confirmation_view.ex", Path.join([web_prefix, "views", web_path, "#{schema.singular}_confirmation_view.ex"])},
       {:eex, "registration_view.ex", Path.join([web_prefix, "views", web_path, "#{schema.singular}_registration_view.ex"])},
       {:eex, "reset_password_view.ex", Path.join([web_prefix, "views", web_path, "#{schema.singular}_reset_password_view.ex"])},
@@ -71,6 +82,61 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     |> inject_eex_before_final_end(test_file, binding)
 
     context
+  end
+
+  defp inject_routes(%Context{context_app: ctx_app} = context, paths, binding) do
+    # TODO: Figure out what happens if this file isn't here
+    web_prefix = Mix.Phoenix.web_path(ctx_app)
+    file_path = Path.join(web_prefix, "router.ex")
+
+    paths
+    |> Mix.Phoenix.eval_from("priv/templates/phx.gen.auth/routes.ex", binding)
+    |> inject_eex_before_final_end(file_path, binding)
+
+    context
+  end
+
+  defp maybe_inject_router_import(%Context{context_app: ctx_app} = context, binding) do
+    # TODO: Figure out what happens if this file isn't here
+    web_prefix = Mix.Phoenix.web_path(ctx_app)
+    file_path = Path.join(web_prefix, "router.ex")
+    file = File.read!(file_path)
+    auth_module = Keyword.fetch!(binding, :auth_module)
+    inject = "import #{inspect(auth_module)}"
+
+    if String.contains?(file, inject) do
+      :ok
+    else
+      do_inject_router_import(context, file, file_path, auth_module, inject)
+    end
+
+    context
+  end
+
+  defp do_inject_router_import(context, file, file_path, auth_module, inject) do
+    Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path), " (imports)"])
+
+    use_line = "use #{inspect(context.web_module)}, :router"
+
+    new_file = String.replace(file, use_line, "#{use_line}\n      #{inject}")
+
+    if file != new_file do
+      File.write!(file_path, new_file)
+    else
+      Mix.shell().info("""
+
+      Add your #{inspect(auth_module)} import to #{file_path}:
+
+          defmodule #{inspect(context.web_module)}.Router do
+            #{use_line}
+
+            # Import authentication plugs
+            #{inject}
+
+            ...
+          end
+      """)
+    end
   end
 
   defp print_shell_instructions(%Context{} = context) do

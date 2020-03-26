@@ -13,8 +13,11 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
 
   defp in_tmp_auth_project(test, func) do
     in_tmp_project(test, fn ->
+      File.mkdir_p!("lib/phx_gen_auth_web")
       File.mkdir_p!("test/support")
       File.touch!("test/support/conn_case.ex")
+      File.write!("lib/phx_gen_auth_web/router.ex", routerfile_contents())
+
       func.()
     end)
   end
@@ -62,6 +65,15 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
         assert file =~ "def login_user(conn, user)"
       end)
 
+      assert_file("lib/phx_gen_auth_web/controllers/user_auth.ex", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.UserAuth"
+      end)
+
+      assert_file("test/phx_gen_auth_web/controllers/user_auth_test.exs", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.UserAuthTest"
+        assert file =~ "PhxGenAuthWeb.Endpoint.config("
+      end)
+
       assert_file("lib/phx_gen_auth_web/views/user_confirmation_view.ex", fn file ->
         assert file =~ "defmodule PhxGenAuthWeb.UserConfirmationView"
       end)
@@ -81,8 +93,44 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
       assert_file("lib/phx_gen_auth_web/views/user_settings_view.ex", fn file ->
         assert file =~ "defmodule PhxGenAuthWeb.UserSettingsView"
       end)
+
+      assert_file("lib/phx_gen_auth_web/router.ex", fn file ->
+        assert file =~ "import PhxGenAuthWeb.UserAuth"
+        assert file =~ ~s|delete "/users/logout", UserSessionController, :delete|
+      end)
     end)
   end
 
   # test "does not inject code if its already been injected"
+
+  def routerfile_contents do
+    """
+    defmodule PhxGenAuthWeb.Router do
+      use PhxGenAuthWeb, :router
+
+      pipeline :browser do
+        plug :accepts, ["html"]
+        plug :fetch_session
+        plug :fetch_flash
+        plug :protect_from_forgery
+        plug :put_secure_browser_headers
+      end
+
+      pipeline :api do
+        plug :accepts, ["json"]
+      end
+
+      scope "/", PhxGenAuthWeb do
+        pipe_through :browser
+
+        get "/", PageController, :index
+      end
+
+      # Other scopes may use custom stacks.
+      # scope "/api", DemoWeb do
+      #   pipe_through :api
+      # end
+    end
+    """
+  end
 end
