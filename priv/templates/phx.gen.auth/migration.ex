@@ -1,9 +1,11 @@
-defmodule <%= inspect schema.repo %>.Migrations.CreateAuthTables do
+defmodule <%= inspect schema.repo %>.Migrations.Create<%= inspect schema.alias %>AuthTables do
   use Ecto.Migration
 
   def change do
+    execute "CREATE EXTENSION IF NOT EXISTS citext", ""
+
     create table(:<%= schema.table %>) do
-      add :email, :string, null: false
+      add :email, :citext, null: false
       add :encrypted_password, :string, null: false
       add :confirmed_at, :naive_datetime
       timestamps()

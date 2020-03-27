@@ -1,16 +1,17 @@
 defmodule <%= inspect context.module %>.<%= inspect schema.alias %>Notifier do
-  # For simplicity, this module simply prints messages to the terminal.
+  # For simplicity, this module simply logs messages to the terminal.
   # You should replace it by a proper e-mail or notification tool, such as:
   #
-  #   * Swoosh - https://github.com/swoosh/swoosh
-  #   * Bamboo - https://github.com/thoughtbot/bamboo
+  #   * Swoosh - https://hexdocs.pm/swoosh
+  #   * Bamboo - https://hexdocs.pm/bamboo
   #
+  require Logger
 
   @doc """
   Deliver instructions to confirm account.
   """
   def deliver_confirmation_instructions(<%= schema.singular %>, url) do
-    IO.puts("""
+    Logger.warn("""
 
     ==============================
 
@@ -30,7 +31,7 @@ defmodule <%= inspect context.module %>.<%= inspect schema.alias %>Notifier do
   Deliver instructions to reset password account.
   """
   def deliver_reset_password_instructions(<%= schema.singular %>, url) do
-    IO.puts("""
+    Logger.warn("""
 
     ==============================
 
@@ -50,7 +51,7 @@ defmodule <%= inspect context.module %>.<%= inspect schema.alias %>Notifier do
   Deliver instructions to update your e-mail.
   """
   def deliver_update_email_instructions(<%= schema.singular %>, url) do
-    IO.puts("""
+    Logger.warn("""
 
     ==============================
 

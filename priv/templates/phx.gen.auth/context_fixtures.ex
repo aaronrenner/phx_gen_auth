@@ -6,17 +6,17 @@ defmodule <%= inspect context.module %>Fixtures do
     {:ok, <%= schema.singular %>} =
       attrs
       |> Enum.into(%{
-          email: unique_<%= schema.singular %>_email(),
-          password: valid_<%= schema.singular %>_password()
-                   })
-                   |> <%= inspect context.module %>.register_<%= schema.singular %>()
+        email: unique_<%= schema.singular %>_email(),
+        password: valid_<%= schema.singular %>_password()
+      })
+      |> <%= inspect context.module %>.register_<%= schema.singular %>()
 
-      <%= schema.singular %>
+    <%= schema.singular %>
   end
 
   def capture_<%= schema.singular %>_token(fun) do
     captured =
-      ExUnit.CaptureIO.capture_io(fn ->
+      ExUnit.CaptureLog.capture_log(fn ->
         fun.(&"[TOKEN]#{&1}[TOKEN]")
       end)
 

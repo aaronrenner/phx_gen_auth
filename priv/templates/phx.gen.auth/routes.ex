@@ -1,3 +1,4 @@
+
   ## Authentication routes
 
   scope "/", <%= inspect context.web_module %> do

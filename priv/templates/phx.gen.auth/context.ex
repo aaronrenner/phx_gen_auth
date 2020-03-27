@@ -287,7 +287,7 @@ defmodule <%= inspect context.module %> do
     |> Ecto.Multi.delete_all(:tokens, <%= inspect schema.alias %>Token.<%= schema.singular %>_and_contexts_query(<%= schema.singular %>, ["confirm"]))
   end
 
-  ## Reset passwword
+  ## Reset password
 
   @doc """
   Delivers the reset password e-mail to the given <%= schema.singular %>.
@@ -331,7 +331,6 @@ defmodule <%= inspect context.module %> do
   Returns an `%Ecto.Changeset{}` for tracking <%= schema.singular %> reset password.
 
   ## Examples
-
 
       iex> reset_<%= schema.singular %>_password(<%= schema.singular %>, %{password: "new long password", password_confirmation: "new long password"})
       {:ok, %<%= inspect schema.alias %>{}}

@@ -47,7 +47,7 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
         assert file =~ ~s|schema "user_tokens"|
       end)
 
-      assert [migration] = Path.wildcard("priv/repo/migrations/*_create_auth_tables.exs")
+      assert [migration] = Path.wildcard("priv/repo/migrations/*_create_user_auth_tables.exs")
 
       assert_file(migration, fn file ->
         assert file =~ "create table(:users) do"

@@ -77,6 +77,10 @@ defmodule <%= inspect context.module %>Test do
       %{email: email} = <%= schema.singular %>_fixture()
       {:error, changeset} = <%= inspect context.alias %>.register_<%= schema.singular %>(%{email: email})
       assert "has already been taken" in errors_on(changeset).email
+
+      # Now try with the upcase e-mail too
+      {:error, changeset} = <%= inspect context.alias %>.register_<%= schema.singular %>(%{email: String.upcase(email)})
+      assert "has already been taken" in errors_on(changeset).email
     end
 
     test "registers <%= schema.plural %> with an encrypted password" do
@@ -328,7 +332,8 @@ defmodule <%= inspect context.module %>Test do
     test "sends token through notification", %{<%= schema.singular %>: <%= schema.singular %>} do
       token =
         capture_<%= schema.singular %>_token(fn url ->
-          assert <%= inspect context.alias %>.deliver_<%= schema.singular %>_confirmation_instructions(<%= schema.singular %>, url) == :ok
+          assert <%= inspect context.alias %>.deliver_<%= schema.singular %>_confirmation_instructions(<%= schema.singular %>, url) ==
+                   :ok
         end)
 
       {:ok, token} = Base.url_decode64(token, padding: false)
@@ -381,7 +386,8 @@ defmodule <%= inspect context.module %>Test do
     test "sends token through notification", %{<%= schema.singular %>: <%= schema.singular %>} do
       token =
         capture_<%= schema.singular %>_token(fn url ->
-          assert <%= inspect context.alias %>.deliver_<%= schema.singular %>_reset_password_instructions(<%= schema.singular %>, url) == :ok
+          assert <%= inspect context.alias %>.deliver_<%= schema.singular %>_reset_password_instructions(<%= schema.singular %>, url) ==
+                   :ok
         end)
 
       {:ok, token} = Base.url_decode64(token, padding: false)
