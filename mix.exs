@@ -34,7 +34,7 @@ defmodule Phx.Gen.Auth.MixProject do
         "cmd 'cd test_apps/demo && git restore . && git clean -d -f && MIX_ENV=test mix ecto.drop'"
       ],
       "test.integration.setup": [
-        "cmd 'cd test_apps/demo && mix compile --force --warnings-as-errors && mix phx.gen.auth Accounts User users'"
+        "cmd 'cd test_apps/demo && mix phx.gen.auth Accounts User users' && mix compile --force --warnings-as-errors"
       ],
       "test.integration.run": [
         "cmd 'cd test_apps/demo && mix test'"

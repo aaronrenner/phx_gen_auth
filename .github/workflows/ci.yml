@@ -107,8 +107,8 @@ jobs:
         working-directory: ./test_apps/demo
       - run: mix phx.gen.auth Accounts User users
         working-directory: ./test_apps/demo
-      # - name: Compile app
-      #   run: mix compile --force --warnings-as-errors
-      #   working-directory: ./test_apps/demo
+      - name: Compile app
+        run: mix compile --force --warnings-as-errors
+        working-directory: ./test_apps/demo
       - run: mix test
         working-directory: ./test_apps/demo
