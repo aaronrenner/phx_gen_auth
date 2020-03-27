@@ -110,6 +110,13 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
         assert file =~ "defmodule PhxGenAuthWeb.UserSettingsView"
       end)
 
+      assert_file("lib/phx_gen_auth_web/controllers/user_settings_controller.ex")
+      assert_file("lib/phx_gen_auth_web/templates/user_settings/edit.html.eex")
+
+      assert_file("test/phx_gen_auth_web/controllers/user_settings_controller_test.exs", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.UserSettingsControllerTest"
+      end)
+
       assert_file("lib/phx_gen_auth_web/router.ex", fn file ->
         assert file =~ "import PhxGenAuthWeb.UserAuth"
         assert file =~ "plug :fetch_current_user"
