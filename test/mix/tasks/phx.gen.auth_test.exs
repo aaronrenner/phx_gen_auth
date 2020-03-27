@@ -106,6 +106,13 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
         assert file =~ "defmodule PhxGenAuthWeb.UserSessionView"
       end)
 
+      assert_file("lib/phx_gen_auth_web/controllers/user_session_controller.ex")
+      assert_file("lib/phx_gen_auth_web/templates/user_session/new.html.eex")
+
+      assert_file("test/phx_gen_auth_web/controllers/user_session_controller_test.exs", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.UserSessionControllerTest"
+      end)
+
       assert_file("lib/phx_gen_auth_web/views/user_settings_view.ex", fn file ->
         assert file =~ "defmodule PhxGenAuthWeb.UserSettingsView"
       end)
