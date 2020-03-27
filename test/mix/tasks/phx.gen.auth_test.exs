@@ -102,6 +102,14 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
         assert file =~ "defmodule PhxGenAuthWeb.UserResetPasswordView"
       end)
 
+      assert_file("lib/phx_gen_auth_web/controllers/user_reset_password_controller.ex")
+      assert_file("lib/phx_gen_auth_web/templates/user_reset_password/new.html.eex")
+      assert_file("lib/phx_gen_auth_web/templates/user_reset_password/edit.html.eex")
+
+      assert_file("test/phx_gen_auth_web/controllers/user_reset_password_controller_test.exs", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.UserResetPasswordControllerTest"
+      end)
+
       assert_file("lib/phx_gen_auth_web/views/user_session_view.ex", fn file ->
         assert file =~ "defmodule PhxGenAuthWeb.UserSessionView"
       end)
