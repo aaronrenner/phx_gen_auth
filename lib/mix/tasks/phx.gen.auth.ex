@@ -33,6 +33,8 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     |> inject_conn_case_helpers(paths, binding)
     |> inject_routes(paths, binding)
     |> maybe_inject_router_import(binding)
+    |> maybe_inject_router_plug(binding)
+    |> maybe_inject_app_layout_menu(binding)
     |> print_shell_instructions()
   end
 
@@ -61,6 +63,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
       {:eex, "confirmation_new.html.eex", Path.join([web_prefix, "templates", web_path, "#{schema.singular}_confirmation", "new.html.eex"])},
       {:eex, "confirmation_controller.ex", Path.join([web_prefix, "controllers", "#{schema.singular}_confirmation_controller.ex"])},
       {:eex, "confirmation_controller_test.exs", Path.join([web_test_prefix, "controllers", "#{schema.singular}_confirmation_controller_test.exs"])},
+      {:eex, "_menu.html.eex", Path.join([web_prefix, "templates", web_path, "layout", "_#{schema.singular}_menu.html.eex"])},
       {:eex, "registration_view.ex", Path.join([web_prefix, "views", web_path, "#{schema.singular}_registration_view.ex"])},
       {:eex, "reset_password_view.ex", Path.join([web_prefix, "views", web_path, "#{schema.singular}_reset_password_view.ex"])},
       {:eex, "session_view.ex", Path.join([web_prefix, "views", web_path, "#{schema.singular}_session_view.ex"])},
@@ -121,7 +124,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
     use_line = "use #{inspect(context.web_module)}, :router"
 
-    new_file = String.replace(file, use_line, "#{use_line}\n      #{inject}")
+    new_file = String.replace(file, use_line, "#{use_line}\n\n  #{inject}")
 
     if file != new_file do
       File.write!(file_path, new_file)
@@ -138,6 +141,95 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
             ...
           end
+      """)
+    end
+  end
+
+  defp maybe_inject_router_plug(%Context{context_app: ctx_app} = context, binding) do
+    # TODO: Figure out what happens if this file isn't here
+    web_prefix = Mix.Phoenix.web_path(ctx_app)
+    file_path = Path.join(web_prefix, "router.ex")
+    file = File.read!(file_path)
+    schema = Keyword.fetch!(binding, :schema)
+    plug_name = ":fetch_current_#{schema.singular}"
+    inject = "plug #{plug_name}"
+
+    if String.contains?(file, inject) do
+      :ok
+    else
+      do_inject_router_plug(context, file, file_path, plug_name, inject)
+    end
+
+    context
+  end
+
+  defp do_inject_router_plug(_context, file, file_path, plug_name, inject) do
+    Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path), " (plug)"])
+
+    anchor_line = "plug :put_secure_browser_headers"
+
+    new_file = String.replace(file, anchor_line, "#{anchor_line}\n    #{inject}")
+
+    if file != new_file do
+      File.write!(file_path, new_file)
+    else
+      Mix.shell().info("""
+
+      Add the #{plug_name} plug to the browser pipeline in #{file_path}:
+
+        pipeline :browser do
+          ...
+          #{anchor_line}
+          #{inject}
+        end
+
+        ...
+      end
+      """)
+    end
+  end
+
+  defp maybe_inject_app_layout_menu(%Context{context_app: ctx_app} = context, binding) do
+    # TODO: Figure out what happens if this file isn't here
+    web_prefix = Mix.Phoenix.web_path(ctx_app)
+    file_path = Path.join([web_prefix, "templates", "layout", "app.html.eex"])
+    file = File.read!(file_path)
+    schema = Keyword.fetch!(binding, :schema)
+    menu_name = "_#{schema.singular}_menu.html"
+    inject = "<%= render \"#{menu_name}\", assigns %>"
+
+    if String.contains?(file, inject) do
+      :ok
+    else
+      do_inject_app_layout_menu(context, file, file_path, menu_name, inject)
+    end
+
+    context
+  end
+
+  defp do_inject_app_layout_menu(_context, file, file_path, menu_name, inject) do
+    Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path)])
+
+    # This matches all characters that have a preceding
+    # <nav role="navigation"> and a trailing </nav>
+    # (Positive look ahead and positive look behind).
+    new_file =
+      Regex.replace(
+        ~r|(?<=<nav role="navigation">).*(?=</nav>)|s,
+        file,
+        "\n          #{inject}\n        "
+      )
+
+    if file != new_file do
+      File.write!(file_path, new_file)
+    else
+      Mix.shell().info("""
+
+      Add a render call for #{inspect(menu_name)} to #{file_path}:
+
+        <nav role="navigation">
+          #{inject}
+        </nav>
       """)
     end
   end

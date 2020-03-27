@@ -14,9 +14,11 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
   defp in_tmp_auth_project(test, func) do
     in_tmp_project(test, fn ->
       File.mkdir_p!("lib/phx_gen_auth_web")
+      File.mkdir_p!("lib/phx_gen_auth_web/templates/layout")
       File.mkdir_p!("test/support")
       File.touch!("test/support/conn_case.ex")
       File.write!("lib/phx_gen_auth_web/router.ex", routerfile_contents())
+      File.write!("lib/phx_gen_auth_web/templates/layout/app.html.eex", app_layout_contents())
 
       func.()
     end)
@@ -103,14 +105,21 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
 
       assert_file("lib/phx_gen_auth_web/router.ex", fn file ->
         assert file =~ "import PhxGenAuthWeb.UserAuth"
+        assert file =~ "plug :fetch_current_user"
         assert file =~ ~s|delete "/users/logout", UserSessionController, :delete|
+      end)
+
+      assert_file("lib/phx_gen_auth_web/templates/layout/_user_menu.html.eex")
+
+      assert_file("lib/phx_gen_auth_web/templates/layout/app.html.eex", fn file ->
+        assert file =~ ~s|<%= render "_user_menu.html", assigns %>|
       end)
     end)
   end
 
   # test "does not inject code if its already been injected"
 
-  def routerfile_contents do
+  defp routerfile_contents do
     """
     defmodule PhxGenAuthWeb.Router do
       use PhxGenAuthWeb, :router
@@ -138,6 +147,42 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
       #   pipe_through :api
       # end
     end
+    """
+  end
+
+  defp app_layout_contents do
+    """
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>Demo · Phoenix Framework</title>
+        <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
+        <%= csrf_meta_tag() %>
+        <script defer type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
+      </head>
+      <body>
+        <header>
+          <section class="container">
+            <nav role="navigation">
+              <ul>
+                <li><a href="https://hexdocs.pm/phoenix/overview.html">Get Started</a></li>
+              </ul>
+            </nav>
+            <a href="https://phoenixframework.org/" class="phx-logo">
+              <img src="<%= Routes.static_path(@conn, "/images/phoenix.png") %>" alt="Phoenix Framework Logo"/>
+            </a>
+          </section>
+        </header>
+        <main role="main" class="container">
+          <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
+          <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
+          <%= @inner_content %>
+        </main>
+      </body>
+    </html>
     """
   end
 end
