@@ -32,6 +32,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     |> copy_new_files(binding, paths)
     |> inject_conn_case_helpers(paths, binding)
     |> inject_routes(paths, binding)
+    |> inject_config()
     |> maybe_inject_router_import(binding)
     |> maybe_inject_router_plug(binding)
     |> maybe_inject_app_layout_menu(binding)
@@ -245,6 +246,42 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
           #{inject}
         </nav>
       """)
+    end
+  end
+
+  defp inject_config(context) do
+    project_path = File.cwd!()
+
+    config_inject(project_path, "config/test.exs", """
+    # Only in tests, remove the complexity from the password encryption algorithm
+    config :bcrypt_elixir, :log_rounds, 1
+    """)
+
+    context
+  end
+
+  defp config_inject(path, file, to_inject) do
+    file = Path.join(path, file)
+
+    contents =
+      case File.read(file) do
+        {:ok, bin} -> bin
+        {:error, _} -> "use Mix.Config\n"
+      end
+
+    with :error <- split_with_self(contents, "use Mix.Config\n"),
+         :error <- split_with_self(contents, "import Config\n") do
+      Mix.raise(~s[Could not find "use Mix.Config" or "import Config" in #{inspect(file)}])
+    else
+      [left, middle, right] ->
+        File.write!(file, [left, middle, ?\n, String.trim(to_inject), ?\n, right])
+    end
+  end
+
+  defp split_with_self(contents, text) do
+    case :binary.split(contents, text) do
+      [left, right] -> [left, text, right]
+      [_] -> :error
     end
   end
 

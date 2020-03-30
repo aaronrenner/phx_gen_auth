@@ -13,6 +13,7 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
 
   defp in_tmp_auth_project(test, func) do
     in_tmp_project(test, fn ->
+      File.mkdir_p!("config")
       File.mkdir_p!("lib/phx_gen_auth_web")
       File.mkdir_p!("lib/phx_gen_auth_web/templates/layout")
       File.mkdir_p!("test/support")
@@ -27,6 +28,10 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
   test "generates auth logic", config do
     in_tmp_auth_project(config.test, fn ->
       Gen.Auth.run(~w(Accounts User users))
+
+      assert_file("config/test.exs", fn file ->
+        assert file =~ "config :bcrypt_elixir, :log_rounds, 1"
+      end)
 
       assert_file("lib/phx_gen_auth/accounts.ex", fn file ->
         assert file =~ "defmodule PhxGenAuth.Accounts"
