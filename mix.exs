@@ -21,7 +21,8 @@ defmodule Phx.Gen.Auth.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:phoenix, github: "phoenixframework/phoenix"}
+      {:phoenix, github: "phoenixframework/phoenix"},
+      {:phx_new, github: "phoenixframework/phoenix", sparse: "installer", only: [:dev, :test]}
     ]
   end
 end
