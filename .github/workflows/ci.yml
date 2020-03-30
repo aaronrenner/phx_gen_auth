@@ -69,10 +69,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Excluding Elixir 1.7.4 for the moment because it doesn't
-        # work with phoenix_live_dashboard:
-        # https://github.com/phoenixframework/phoenix_live_dashboard/pull/38
-        elixir: ["1.10.2", "1.9.4", "1.8.2"] # "1.7.4"
+        elixir: ["1.10.2", "1.9.4", "1.8.2", "1.7.4"]
         include:
           - elixir: "1.10.2"
             otp: "22.2.8"
@@ -80,8 +77,8 @@ jobs:
             otp: "22.2.8"
           - elixir: "1.8.2"
             otp: "22.2.8"
-          # - elixir: "1.7.4"
-          #   otp: "22.2.8"
+          - elixir: "1.7.4"
+            otp: "22.2.8"
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-elixir@v1.0.0
