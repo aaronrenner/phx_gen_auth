@@ -33,6 +33,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     |> inject_conn_case_helpers(paths, binding)
     |> inject_routes(paths, binding)
     |> inject_config()
+    |> maybe_inject_mix_dependency()
     |> maybe_inject_router_import(binding)
     |> maybe_inject_router_plug(binding)
     |> maybe_inject_app_layout_menu(binding)
@@ -115,6 +116,45 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     |> inject_eex_before_final_end(file_path, binding)
 
     context
+  end
+
+  defp maybe_inject_mix_dependency(%Context{} = context) do
+    # TODO: Figure out what happens if this file isn't here
+    file_path = Path.expand("mix.exs")
+    file = File.read!(file_path)
+    inject = "{:bcrypt_elixir, \"~> 2.0\"},"
+
+    if String.contains?(file, inject) do
+      :ok
+    else
+      do_inject_mix_dependency(file, file_path, inject)
+    end
+
+    context
+  end
+
+  defp do_inject_mix_dependency(file, file_path, inject) do
+    Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path)])
+
+    [before_line, phoenix_line, after_line] = Regex.split(~r|(?<phx_dep>\{:phoenix,.*\})|, file, include_captures: true, on: [:phx_dep])
+
+    new_file = IO.iodata_to_binary([before_line, inject, ?\n, "    ", phoenix_line, after_line])
+
+    if file != new_file do
+      File.write!(file_path, new_file)
+    else
+      Mix.shell().info("""
+
+      Add your #{inspect(inject)} dependency to #{file_path}:
+
+          defp deps do
+            [
+              #{inject}
+              ...
+            ]
+          end
+      """)
+    end
   end
 
   defp maybe_inject_router_import(%Context{context_app: ctx_app} = context, binding) do
