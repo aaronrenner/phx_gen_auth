@@ -28,6 +28,19 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
     end)
   end
 
+  test "new umbrella project with default context and names" do
+    in_test_umbrella_app("rainy_day", fn ->
+      File.cd!("apps/rainy_day_web", fn ->
+        mix_run!(["phx.gen.auth", "Accounts", "User", "users"])
+      end)
+
+      mix_deps_get_and_compile()
+
+      assert_no_compilation_warnings()
+      assert_mix_test_succeeds()
+    end)
+  end
+
   defp in_test_app(app_name, opts \\ [], function) when is_list(opts) when is_function(function, 0) do
     in_test_apps(fn ->
       test_app_path = Path.join(test_apps_path(), app_name)
@@ -38,6 +51,24 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
 
       File.cd!(test_app_path, fn ->
         inject_phx_gen_auth_dependency()
+        mix_deps_get_and_compile()
+        ecto_drop()
+        git_init_and_commit()
+        function.()
+      end)
+    end)
+  end
+
+  defp in_test_umbrella_app(app_name, opts \\ [], function) when is_list(opts) when is_function(function, 0) do
+    in_test_apps(fn ->
+      test_app_path = Path.join(test_apps_path(), "#{app_name}_umbrella")
+
+      delete_old_app(test_app_path)
+
+      generate_new_app(app_name, ["--umbrella" | opts])
+
+      File.cd!(test_app_path, fn ->
+        inject_phx_gen_auth_dependency_in_umbrella(app_name)
         mix_deps_get_and_compile()
         ecto_drop()
         git_init_and_commit()
@@ -74,6 +105,25 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
 
     inject = """
     {:phx_gen_auth, path: "../..", only: [:dev, :test], runtime: false},
+    """
+
+    anchor = """
+    {:phoenix, github: "phoenixframework/phoenix", override: true},
+    """
+
+    unless String.contains?(file, inject) do
+      new_file = String.replace(file, anchor, "#{anchor}\n      #{inject}")
+
+      File.write!(file_path, new_file)
+    end
+  end
+
+  defp inject_phx_gen_auth_dependency_in_umbrella(app_name) do
+    file_path = Path.join(["apps", "#{app_name}_web", "mix.exs"])
+    file = File.read!(file_path)
+
+    inject = """
+    {:phx_gen_auth, path: "../../../../", only: [:dev, :test], runtime: false},
     """
 
     anchor = """

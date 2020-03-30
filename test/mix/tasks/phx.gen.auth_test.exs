@@ -26,6 +26,20 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
     end)
   end
 
+  defp in_tmp_auth_umbrella_project(test, func) do
+    in_tmp_umbrella_project(test, fn ->
+      File.mkdir_p!("../config")
+      File.mkdir_p!("phx_gen_auth/lib/phx_gen_auth")
+      File.mkdir_p!("phx_gen_auth_web/lib/phx_gen_auth_web")
+      File.mkdir_p!("phx_gen_auth_web/test/support")
+      File.write!("phx_gen_auth/mix.exs", mixfile_contents())
+      File.touch!("phx_gen_auth_web/test/support/conn_case.ex")
+      File.write!("phx_gen_auth_web/lib/phx_gen_auth_web/router.ex", routerfile_contents())
+
+      func.()
+    end)
+  end
+
   test "generates auth logic", config do
     in_tmp_auth_project(config.test, fn ->
       Gen.Auth.run(~w(Accounts User users))
@@ -99,6 +113,45 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
       end)
 
       assert_file("test/support/fixtures/accounts_fixtures.ex")
+    end)
+  end
+
+  # TODO Figure out how to get these umbrella tests working
+  @tag :skip
+  test "in umbrella app", config do
+    in_tmp_auth_umbrella_project(config.test, fn ->
+      File.cd!("phx_gen_auth_web")
+
+      # Mix.Project.in_project(:phx_gen_auth_web, ".", fn _module ->
+      Gen.Auth.run(~w(Accounts User users))
+
+      # end)
+
+      assert_file("../phx_gen_auth/mix.exs", fn file ->
+        assert file =~ ~s|{:bcrypt_elixir, "~> 2.0"}|
+      end)
+
+      assert_file("../config/test.exs", fn file ->
+        assert file =~ "config :bcrypt_elixir, :log_rounds, 1"
+      end)
+
+      assert [migration] = Path.wildcard("phx_gen_auth/priv/repo/migrations/*_create_user_auth_tables.exs")
+
+      assert_file(migration, fn file ->
+        assert file =~ "create table(:users) do"
+        assert file =~ "create table(:user_tokens) do"
+      end)
+
+      assert_file("lib/phx_gen_auth_web/router.ex", fn file ->
+        assert file =~ "import PhxGenAuthWeb.UserAuth"
+        assert file =~ "plug :fetch_current_user"
+        assert file =~ ~s|delete "/users/logout", UserSessionController, :delete|
+      end)
+
+      assert_file("phoenix_gen_auth/test/support/conn_case.ex", fn file ->
+        assert file =~ "def register_and_login_user"
+        assert file =~ "def login_user"
+      end)
     end)
   end
 

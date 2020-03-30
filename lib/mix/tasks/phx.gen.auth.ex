@@ -15,6 +15,10 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
   @doc false
   def run(args) do
+    if Mix.Project.umbrella?() do
+      Mix.raise("mix phx.gen.auth can only be run inside an application directory")
+    end
+
     {context, schema} = Gen.Context.build(args)
     Gen.Context.prompt_for_code_injection(context)
 
@@ -50,13 +54,14 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   defp files_to_be_generated(%Context{schema: schema, context_app: context_app} = context) do
     web_prefix = Mix.Phoenix.web_path(context_app)
     web_test_prefix = Mix.Phoenix.web_test_path(context_app)
+    migrations_prefix = Mix.Phoenix.context_app_path(context_app, "priv/repo/migrations")
     web_path = to_string(schema.web_path)
 
     [
       {:eex, "context.ex", context.file},
       {:eex, "context_test.exs", context.test_file},
       {:eex, "context_fixtures.ex", Path.join(["test", "support", "fixtures", "#{context.basename}_fixtures.ex"])},
-      {:eex, "migration.ex", Path.join(["priv", "repo", "migrations", "#{timestamp()}_create_#{schema.singular}_auth_tables.exs"])},
+      {:eex, "migration.ex", Path.join([migrations_prefix, "#{timestamp()}_create_#{schema.singular}_auth_tables.exs"])},
       {:eex, "notifier.ex", Path.join([context.dir, "#{schema.singular}_notifier.ex"])},
       {:eex, "schema.ex", Path.join([context.dir, "#{schema.singular}.ex"])},
       {:eex, "schema_token.ex", Path.join([context.dir, "#{schema.singular}_token.ex"])},
@@ -98,6 +103,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   defp inject_conn_case_helpers(%Context{} = context, paths, binding) do
     # TODO: This needs to work with umbrella apps
     # TODO: Figure out what happens if this file isn't here
+    # TODO: Need a web_app_path helper?
     test_file = "test/support/conn_case.ex"
 
     paths
@@ -285,7 +291,12 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   end
 
   defp inject_config(context) do
-    project_path = File.cwd!()
+    project_path =
+      if Mix.Phoenix.in_umbrella?(File.cwd!()) do
+        Path.expand("../../")
+      else
+        File.cwd!()
+      end
 
     config_inject(project_path, "config/test.exs", """
     # Only in tests, remove the complexity from the password encryption algorithm
