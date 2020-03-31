@@ -11,6 +11,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
   alias Mix.Phoenix.{Context}
   alias Mix.Tasks.Phx.Gen
+  alias Mix.Phx.Gen.Auth.Injector
 
   @doc false
   def run(args) do
@@ -118,43 +119,37 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     context
   end
 
-  defp maybe_inject_mix_dependency(%Context{} = context) do
+  defp maybe_inject_mix_dependency(%Context{context_app: ctx_app} = context) do
     # TODO: Figure out what happens if this file isn't here
-    file_path = Path.expand("mix.exs")
-    file = File.read!(file_path)
-    inject = "{:bcrypt_elixir, \"~> 2.0\"},"
+    # TODO: Figure out how to make this show up in the right place in test
+    file_path = Mix.Phoenix.context_app_path(ctx_app, "mix.exs")
 
-    if String.contains?(file, inject) do
-      :ok
-    else
-      do_inject_mix_dependency(file, file_path, inject)
+    file = File.read!(file_path)
+    inject = "{:bcrypt_elixir, \"~> 2.0\"}"
+
+    case Injector.inject_mix_dependency(file, inject) do
+      {:ok, new_file} ->
+        Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path)])
+        File.write!(file_path, new_file)
+
+      :already_injected ->
+        :ok
+
+      {:error, :unable_to_inject} ->
+        Mix.shell().info("""
+
+        Add your #{inspect(inject)} dependency to #{file_path}:
+
+            defp deps do
+              [
+                #{inject},
+                ...
+              ]
+            end
+        """)
     end
 
     context
-  end
-
-  defp do_inject_mix_dependency(file, file_path, inject) do
-    Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path)])
-
-    [before_line, phoenix_line, after_line] = Regex.split(~r|(?<phx_dep>\{:phoenix,.*\})|, file, include_captures: true, on: [:phx_dep])
-
-    new_file = IO.iodata_to_binary([before_line, inject, ?\n, "    ", phoenix_line, after_line])
-
-    if file != new_file do
-      File.write!(file_path, new_file)
-    else
-      Mix.shell().info("""
-
-      Add your #{inspect(inject)} dependency to #{file_path}:
-
-          defp deps do
-            [
-              #{inject}
-              ...
-            ]
-          end
-      """)
-    end
   end
 
   defp maybe_inject_router_import(%Context{context_app: ctx_app} = context, binding) do
