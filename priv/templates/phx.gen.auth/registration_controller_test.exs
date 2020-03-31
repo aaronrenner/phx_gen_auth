@@ -3,7 +3,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
 
   import <%= inspect context.module %>Fixtures
 
-  describe "GET /<%= schema.plural %>/register" do
+  describe "GET <%= web_path_prefix %>/<%= schema.plural %>/register" do
     test "renders registration page", %{conn: conn} do
       conn = get(conn, Routes.<%= schema.route_helper %>_registration_path(conn, :new))
       response = html_response(conn, 200)
@@ -18,7 +18,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     end
   end
 
-  describe "POST /<%= schema.plural %>/register" do
+  describe "POST <%= web_path_prefix %>/<%= schema.plural %>/register" do
     @tag :capture_log
     test "creates account and logs the <%= schema.singular %> in", %{conn: conn} do
       email = unique_<%= schema.singular %>_email()

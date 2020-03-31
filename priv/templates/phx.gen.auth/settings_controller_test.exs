@@ -6,7 +6,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
 
   setup :register_and_login_<%= schema.singular %>
 
-  describe "GET /<%= schema.plural %>/settings" do
+  describe "GET <%= web_path_prefix %>/<%= schema.plural %>/settings" do
     test "renders settings page", %{conn: conn} do
       conn = get(conn, Routes.<%= schema.route_helper %>_settings_path(conn, :edit))
       response = html_response(conn, 200)
@@ -16,11 +16,11 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     test "redirects if <%= schema.singular %> is not logged in" do
       conn = build_conn()
       conn = get(conn, Routes.<%= schema.route_helper %>_settings_path(conn, :edit))
-      assert redirected_to(conn) == "/<%= schema.plural %>/login"
+      assert redirected_to(conn) == "<%= web_path_prefix %>/<%= schema.plural %>/login"
     end
   end
 
-  describe "PUT /<%= schema.plural %>/settings/update_password" do
+  describe "PUT <%= web_path_prefix %>/<%= schema.plural %>/settings/update_password" do
     test "updates the <%= schema.singular %> password and resets tokens", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
       new_password_conn =
         put(conn, Routes.<%= schema.route_helper %>_settings_path(conn, :update_password), %{
@@ -31,7 +31,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
           }
         })
 
-      assert redirected_to(new_password_conn) == "/<%= schema.plural %>/settings"
+      assert redirected_to(new_password_conn) == "<%= web_path_prefix %>/<%= schema.plural %>/settings"
       assert get_session(new_password_conn, :<%= schema.singular %>_token) != get_session(conn, :<%= schema.singular %>_token)
       assert get_flash(new_password_conn, :info) =~ "Password updated successfully"
       assert <%= inspect context.alias %>.get_<%= schema.singular %>_by_email_and_password(<%= schema.singular %>.email, "new valid password")
@@ -57,7 +57,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     end
   end
 
-  describe "PUT /<%= schema.plural %>/settings/update_email" do
+  describe "PUT <%= web_path_prefix %>/<%= schema.plural %>/settings/update_email" do
     @tag :capture_log
     test "updates the <%= schema.singular %> email", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
       conn =
@@ -66,7 +66,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
           "<%= schema.singular %>" => %{"email" => unique_<%= schema.singular %>_email()}
         })
 
-      assert redirected_to(conn) == "/<%= schema.plural %>/settings"
+      assert redirected_to(conn) == "<%= web_path_prefix %>/<%= schema.plural %>/settings"
       assert get_flash(conn, :info) =~ "A link to confirm your e-mail"
       assert <%= inspect context.alias %>.get_<%= schema.singular %>_by_email(<%= schema.singular %>.email)
     end
@@ -85,7 +85,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     end
   end
 
-  describe "GET /<%= schema.plural %>/settings/confirm_email/:token" do
+  describe "GET <%= web_path_prefix %>/<%= schema.plural %>/settings/confirm_email/:token" do
     setup %{<%= schema.singular %>: <%= schema.singular %>} do
       email = unique_<%= schema.singular %>_email()
 
@@ -99,19 +99,19 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
 
     test "updates the <%= schema.singular %> email once", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>, token: token, email: email} do
       conn = get(conn, Routes.<%= schema.route_helper %>_settings_path(conn, :confirm_email, token))
-      assert redirected_to(conn) == "/<%= schema.plural %>/settings"
+      assert redirected_to(conn) == "<%= web_path_prefix %>/<%= schema.plural %>/settings"
       assert get_flash(conn, :info) =~ "E-mail changed successfully"
       refute <%= inspect context.alias %>.get_<%= schema.singular %>_by_email(<%= schema.singular %>.email)
       assert <%= inspect context.alias %>.get_<%= schema.singular %>_by_email(email)
 
       conn = get(conn, Routes.<%= schema.route_helper %>_settings_path(conn, :confirm_email, token))
-      assert redirected_to(conn) == "/<%= schema.plural %>/settings"
+      assert redirected_to(conn) == "<%= web_path_prefix %>/<%= schema.plural %>/settings"
       assert get_flash(conn, :error) =~ "Email change token is invalid or it has expired"
     end
 
     test "does not update email with invalid token", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
       conn = get(conn, Routes.<%= schema.route_helper %>_settings_path(conn, :confirm_email, "oops"))
-      assert redirected_to(conn) == "/<%= schema.plural %>/settings"
+      assert redirected_to(conn) == "<%= web_path_prefix %>/<%= schema.plural %>/settings"
       assert get_flash(conn, :error) =~ "Email change token is invalid or it has expired"
       assert <%= inspect context.alias %>.get_<%= schema.singular %>_by_email(<%= schema.singular %>.email)
     end
@@ -119,7 +119,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     test "redirects if <%= schema.singular %> is not logged in", %{token: token} do
       conn = build_conn()
       conn = get(conn, Routes.<%= schema.route_helper %>_settings_path(conn, :confirm_email, token))
-      assert redirected_to(conn) == "/<%= schema.plural %>/login"
+      assert redirected_to(conn) == "<%= web_path_prefix %>/<%= schema.plural %>/login"
     end
   end
 end

@@ -40,7 +40,7 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
     end)
   end
 
-  test "generates auth logic", config do
+  test "generates auth logic and creates a new context", config do
     in_tmp_auth_project(config.test, fn ->
       Gen.Auth.run(~w(Accounts User users))
 
@@ -75,6 +75,7 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
 
       assert_file("lib/phx_gen_auth_web/router.ex", fn file ->
         assert file =~ "import PhxGenAuthWeb.UserAuth"
+        assert file =~ ~s|scope "/", PhxGenAuthWeb do|
         assert file =~ "plug :fetch_current_user"
         assert file =~ ~s|delete "/users/logout", UserSessionController, :delete|
       end)
@@ -104,6 +105,128 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
       assert_file("test/phx_gen_auth_web/controllers/user_settings_controller_test.exs")
 
       assert_file("test/phx_gen_auth_web/controllers/user_auth_test.exs", fn file ->
+        assert file =~ "PhxGenAuthWeb.Endpoint.config("
+      end)
+
+      assert_file("test/support/conn_case.ex", fn file ->
+        assert file =~ "def register_and_login_user"
+        assert file =~ "def login_user"
+      end)
+
+      assert_file("test/support/fixtures/accounts_fixtures.ex")
+    end)
+  end
+
+  test "with --web namespace generates nameespaced web modules and directories", config do
+    in_tmp_auth_project(config.test, fn ->
+      Gen.Auth.run(~w(Accounts User users --web Warehouse))
+
+      assert_file("mix.exs", fn file ->
+        assert file =~ ~s|{:bcrypt_elixir, "~> 2.0"}|
+      end)
+
+      assert_file("config/test.exs", fn file ->
+        assert file =~ "config :bcrypt_elixir, :log_rounds, 1"
+      end)
+
+      assert_file("lib/phx_gen_auth/accounts.ex")
+      assert_file("lib/phx_gen_auth/accounts/user_notifier.ex")
+      assert_file("lib/phx_gen_auth/accounts/user.ex")
+      assert_file("lib/phx_gen_auth/accounts/user_token.ex")
+
+      assert [migration] = Path.wildcard("priv/repo/migrations/*_create_user_auth_tables.exs")
+
+      assert_file(migration, fn file ->
+        assert file =~ "create table(:users) do"
+        assert file =~ "create table(:user_tokens) do"
+      end)
+
+      assert_file("test/phx_gen_auth/accounts_test.exs")
+
+      assert_file("lib/phx_gen_auth_web/controllers/warehouse/user_auth.ex", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.Warehouse.UserAuth"
+      end)
+
+      assert_file("lib/phx_gen_auth_web/controllers/warehouse/user_confirmation_controller.ex", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.Warehouse.UserConfirmationController"
+      end)
+
+      assert_file("lib/phx_gen_auth_web/controllers/warehouse/user_registration_controller.ex", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.Warehouse.UserRegistrationController"
+      end)
+
+      assert_file("lib/phx_gen_auth_web/controllers/warehouse/user_reset_password_controller.ex", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.Warehouse.UserResetPasswordController"
+      end)
+
+      assert_file("lib/phx_gen_auth_web/controllers/warehouse/user_session_controller.ex", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.Warehouse.UserSessionController"
+      end)
+
+      assert_file("lib/phx_gen_auth_web/controllers/warehouse/user_settings_controller.ex", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.Warehouse.UserSettingsController"
+      end)
+
+      assert_file("lib/phx_gen_auth_web/router.ex", fn file ->
+        assert file =~ "import PhxGenAuthWeb.Warehouse.UserAuth"
+        assert file =~ ~s|scope "/warehouse", PhxGenAuthWeb.Warehouse, as: :warehouse do|
+        assert file =~ "plug :fetch_current_user"
+        assert file =~ ~s|delete "/users/logout", UserSessionController, :delete|
+      end)
+
+      assert_file("lib/phx_gen_auth_web/templates/layout/_user_menu.html.eex")
+      assert_file("lib/phx_gen_auth_web/templates/warehouse/user_confirmation/new.html.eex")
+      assert_file("lib/phx_gen_auth_web/templates/warehouse/user_registration/new.html.eex")
+      assert_file("lib/phx_gen_auth_web/templates/warehouse/user_reset_password/new.html.eex")
+      assert_file("lib/phx_gen_auth_web/templates/warehouse/user_reset_password/edit.html.eex")
+      assert_file("lib/phx_gen_auth_web/templates/warehouse/user_session/new.html.eex")
+      assert_file("lib/phx_gen_auth_web/templates/warehouse/user_settings/edit.html.eex")
+
+      assert_file("lib/phx_gen_auth_web/templates/layout/app.html.eex", fn file ->
+        assert file =~ ~s|<%= render "_user_menu.html", assigns %>|
+      end)
+
+      assert_file("lib/phx_gen_auth_web/views/warehouse/user_confirmation_view.ex", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.Warehouse.UserConfirmationView"
+      end)
+
+      assert_file("lib/phx_gen_auth_web/views/warehouse/user_registration_view.ex", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.Warehouse.UserRegistrationView"
+      end)
+
+      assert_file("lib/phx_gen_auth_web/views/warehouse/user_reset_password_view.ex", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.Warehouse.UserResetPasswordView"
+      end)
+
+      assert_file("lib/phx_gen_auth_web/views/warehouse/user_session_view.ex", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.Warehouse.UserSessionView"
+      end)
+
+      assert_file("lib/phx_gen_auth_web/views/warehouse/user_settings_view.ex", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.Warehouse.UserSettingsView"
+      end)
+
+      assert_file("test/phx_gen_auth_web/controllers/warehouse/user_confirmation_controller_test.exs", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.Warehouse.UserConfirmationControllerTest"
+      end)
+
+      assert_file("test/phx_gen_auth_web/controllers/warehouse/user_reset_password_controller_test.exs", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.Warehouse.UserResetPasswordControllerTest"
+      end)
+
+      assert_file("test/phx_gen_auth_web/controllers/warehouse/user_registration_controller_test.exs", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.Warehouse.UserRegistrationControllerTest"
+      end)
+
+      assert_file("test/phx_gen_auth_web/controllers/warehouse/user_session_controller_test.exs", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.Warehouse.UserSessionControllerTest"
+      end)
+
+      assert_file("test/phx_gen_auth_web/controllers/warehouse/user_settings_controller_test.exs", fn file ->
+        assert file =~ "defmodule PhxGenAuthWeb.Warehouse.UserSettingsControllerTest"
+      end)
+
+      assert_file("test/phx_gen_auth_web/controllers/warehouse/user_auth_test.exs", fn file ->
         assert file =~ "PhxGenAuthWeb.Endpoint.config("
       end)
 

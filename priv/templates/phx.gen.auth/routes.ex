@@ -1,7 +1,7 @@
 
   ## Authentication routes
 
-  scope "/", <%= inspect context.web_module %> do
+  scope <%= router_scope %> do
     pipe_through [:browser, :redirect_if_<%= schema.singular %>_is_authenticated]
 
     get "/<%= schema.plural %>/register", <%= inspect schema.alias %>RegistrationController, :new
@@ -14,7 +14,7 @@
     put "/<%= schema.plural %>/reset_password/:token", <%= inspect schema.alias %>ResetPasswordController, :update
   end
 
-  scope "/", <%= inspect context.web_module %> do
+  scope <%= router_scope %> do
     pipe_through [:browser, :require_authenticated_<%= schema.singular %>]
 
     delete "/<%= schema.plural %>/logout", <%= inspect schema.alias %>SessionController, :delete
@@ -24,7 +24,7 @@
     get "/<%= schema.plural %>/settings/confirm_email/:token", <%= inspect schema.alias %>SettingsController, :confirm_email
   end
 
-  scope "/", <%= inspect context.web_module %> do
+  scope <%= router_scope %> do
     pipe_through [:browser]
 
     get "/<%= schema.plural %>/confirm", <%= inspect schema.alias %>ConfirmationController, :new

@@ -9,7 +9,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     %{<%= schema.singular %>: <%= schema.singular %>_fixture()}
   end
 
-  describe "GET /<%= schema.plural %>/reset_password" do
+  describe "GET <%= web_path_prefix %>/<%= schema.plural %>/reset_password" do
     test "renders the reset password page", %{conn: conn} do
       conn = get(conn, Routes.<%= schema.route_helper %>_reset_password_path(conn, :new))
       response = html_response(conn, 200)
@@ -17,7 +17,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     end
   end
 
-  describe "POST /<%= schema.plural %>/reset_password" do
+  describe "POST <%= web_path_prefix %>/<%= schema.plural %>/reset_password" do
     @tag :capture_log
     test "sends a new reset password token", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
       conn =
@@ -42,7 +42,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     end
   end
 
-  describe "GET /<%= schema.plural %>/reset_password/:token" do
+  describe "GET <%= web_path_prefix %>/<%= schema.plural %>/reset_password/:token" do
     setup %{<%= schema.singular %>: <%= schema.singular %>} do
       token =
         capture_<%= schema.singular %>_token(fn url ->
@@ -64,7 +64,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     end
   end
 
-  describe "PUT /<%= schema.plural %>/reset_password/:token" do
+  describe "PUT <%= web_path_prefix %>/<%= schema.plural %>/reset_password/:token" do
     setup %{<%= schema.singular %>: <%= schema.singular %>} do
       token =
         capture_<%= schema.singular %>_token(fn url ->
@@ -83,7 +83,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
           }
         })
 
-      assert redirected_to(conn) == "/<%= schema.plural %>/login"
+      assert redirected_to(conn) == "<%= web_path_prefix %>/<%= schema.plural %>/login"
       refute get_session(conn, :<%= schema.singular %>_token)
       assert get_flash(conn, :info) =~ "Password reset successfully"
       assert <%= inspect context.alias %>.get_<%= schema.singular %>_by_email_and_password(<%= schema.singular %>.email, "new valid password")

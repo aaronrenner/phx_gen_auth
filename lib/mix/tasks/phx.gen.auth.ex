@@ -9,7 +9,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
   use Mix.Task
 
-  alias Mix.Phoenix.{Context}
+  alias Mix.Phoenix.{Context, Schema}
   alias Mix.Tasks.Phx.Gen
   alias Mix.Phx.Gen.Auth.Injector
 
@@ -25,8 +25,10 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     binding = [
       context: context,
       schema: schema,
-      endpoint_module: Module.concat([context.web_module, schema.web_namespace, Endpoint]),
-      auth_module: Module.concat([context.web_module, schema.web_namespace, "#{inspect(schema.alias)}Auth"])
+      endpoint_module: Module.concat([context.web_module, Endpoint]),
+      auth_module: Module.concat([context.web_module, schema.web_namespace, "#{inspect(schema.alias)}Auth"]),
+      router_scope: router_scope(context),
+      web_path_prefix: web_path_prefix(schema)
     ]
 
     paths = generator_paths()
@@ -65,30 +67,30 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
       {:eex, "notifier.ex", Path.join([context.dir, "#{schema.singular}_notifier.ex"])},
       {:eex, "schema.ex", Path.join([context.dir, "#{schema.singular}.ex"])},
       {:eex, "schema_token.ex", Path.join([context.dir, "#{schema.singular}_token.ex"])},
-      {:eex, "auth.ex", Path.join([web_prefix, "controllers", "#{schema.singular}_auth.ex"])},
-      {:eex, "auth_test.exs", Path.join([web_test_prefix, "controllers", "#{schema.singular}_auth_test.exs"])},
+      {:eex, "auth.ex", Path.join([web_prefix, "controllers", web_path, "#{schema.singular}_auth.ex"])},
+      {:eex, "auth_test.exs", Path.join([web_test_prefix, "controllers", web_path, "#{schema.singular}_auth_test.exs"])},
       {:eex, "confirmation_view.ex", Path.join([web_prefix, "views", web_path, "#{schema.singular}_confirmation_view.ex"])},
       {:eex, "confirmation_new.html.eex", Path.join([web_prefix, "templates", web_path, "#{schema.singular}_confirmation", "new.html.eex"])},
-      {:eex, "confirmation_controller.ex", Path.join([web_prefix, "controllers", "#{schema.singular}_confirmation_controller.ex"])},
-      {:eex, "confirmation_controller_test.exs", Path.join([web_test_prefix, "controllers", "#{schema.singular}_confirmation_controller_test.exs"])},
-      {:eex, "_menu.html.eex", Path.join([web_prefix, "templates", web_path, "layout", "_#{schema.singular}_menu.html.eex"])},
+      {:eex, "confirmation_controller.ex", Path.join([web_prefix, "controllers", web_path, "#{schema.singular}_confirmation_controller.ex"])},
+      {:eex, "confirmation_controller_test.exs", Path.join([web_test_prefix, "controllers", web_path, "#{schema.singular}_confirmation_controller_test.exs"])},
+      {:eex, "_menu.html.eex", Path.join([web_prefix, "templates", "layout", "_#{schema.singular}_menu.html.eex"])},
       {:eex, "registration_new.html.eex", Path.join([web_prefix, "templates", web_path, "#{schema.singular}_registration", "new.html.eex"])},
-      {:eex, "registration_controller.ex", Path.join([web_prefix, "controllers", "#{schema.singular}_registration_controller.ex"])},
-      {:eex, "registration_controller_test.exs", Path.join([web_test_prefix, "controllers", "#{schema.singular}_registration_controller_test.exs"])},
+      {:eex, "registration_controller.ex", Path.join([web_prefix, "controllers", web_path, "#{schema.singular}_registration_controller.ex"])},
+      {:eex, "registration_controller_test.exs", Path.join([web_test_prefix, "controllers", web_path, "#{schema.singular}_registration_controller_test.exs"])},
       {:eex, "registration_view.ex", Path.join([web_prefix, "views", web_path, "#{schema.singular}_registration_view.ex"])},
       {:eex, "reset_password_view.ex", Path.join([web_prefix, "views", web_path, "#{schema.singular}_reset_password_view.ex"])},
-      {:eex, "reset_password_controller.ex", Path.join([web_prefix, "controllers", "#{schema.singular}_reset_password_controller.ex"])},
+      {:eex, "reset_password_controller.ex", Path.join([web_prefix, "controllers", web_path, "#{schema.singular}_reset_password_controller.ex"])},
       {:eex, "reset_password_controller_test.exs",
        Path.join([web_test_prefix, "controllers", web_path, "#{schema.singular}_reset_password_controller_test.exs"])},
       {:eex, "reset_password_edit.html.eex", Path.join([web_prefix, "templates", web_path, "#{schema.singular}_reset_password", "edit.html.eex"])},
       {:eex, "reset_password_new.html.eex", Path.join([web_prefix, "templates", web_path, "#{schema.singular}_reset_password", "new.html.eex"])},
       {:eex, "session_view.ex", Path.join([web_prefix, "views", web_path, "#{schema.singular}_session_view.ex"])},
-      {:eex, "session_controller.ex", Path.join([web_prefix, "controllers", "#{schema.singular}_session_controller.ex"])},
+      {:eex, "session_controller.ex", Path.join([web_prefix, "controllers", web_path, "#{schema.singular}_session_controller.ex"])},
       {:eex, "session_controller_test.exs", Path.join([web_test_prefix, "controllers", web_path, "#{schema.singular}_session_controller_test.exs"])},
       {:eex, "session_new.html.eex", Path.join([web_prefix, "templates", web_path, "#{schema.singular}_session", "new.html.eex"])},
       {:eex, "settings_view.ex", Path.join([web_prefix, "views", web_path, "#{schema.singular}_settings_view.ex"])},
       {:eex, "settings_edit.html.eex", Path.join([web_prefix, "templates", web_path, "#{schema.singular}_settings", "edit.html.eex"])},
-      {:eex, "settings_controller.ex", Path.join([web_prefix, "controllers", "#{schema.singular}_settings_controller.ex"])},
+      {:eex, "settings_controller.ex", Path.join([web_prefix, "controllers", web_path, "#{schema.singular}_settings_controller.ex"])},
       {:eex, "settings_controller_test.exs", Path.join([web_test_prefix, "controllers", web_path, "#{schema.singular}_settings_controller_test.exs"])}
     ]
   end
@@ -334,6 +336,19 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   defp print_shell_instructions(%Context{} = context) do
     context
   end
+
+  defp router_scope(%Context{schema: schema} = context) do
+    prefix = Module.concat(context.web_module, schema.web_namespace)
+
+    if schema.web_namespace do
+      ~s|"/#{schema.web_path}", #{inspect(prefix)}, as: :#{schema.web_path}|
+    else
+      ~s|"/", #{inspect(context.web_module)}|
+    end
+  end
+
+  defp web_path_prefix(%Schema{web_path: nil}), do: ""
+  defp web_path_prefix(%Schema{web_path: web_path}), do: "/" <> web_path
 
   # The paths to look for template files for generators.
   #

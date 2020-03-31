@@ -117,7 +117,7 @@ defmodule <%= inspect auth_module %>Test do
     test "redirects if <%= schema.singular %> is not authenticated", %{conn: conn} do
       conn = conn |> fetch_flash() |> <%= inspect schema.alias %>Auth.require_authenticated_<%= schema.singular %>([])
       assert conn.halted
-      assert redirected_to(conn) == "/<%= schema.plural %>/login"
+      assert redirected_to(conn) == "<%= web_path_prefix %>/<%= schema.plural %>/login"
       assert get_flash(conn, :error) == "You must login to access this page."
     end
 

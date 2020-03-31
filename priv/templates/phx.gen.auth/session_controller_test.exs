@@ -7,7 +7,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     %{<%= schema.singular %>: <%= schema.singular %>_fixture()}
   end
 
-  describe "GET /<%= schema.plural %>/login" do
+  describe "GET <%= web_path_prefix %>/<%= schema.plural %>/login" do
     test "renders login page", %{conn: conn} do
       conn = get(conn, Routes.<%= schema.route_helper %>_session_path(conn, :new))
       response = html_response(conn, 200)
@@ -22,7 +22,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     end
   end
 
-  describe "POST /<%= schema.plural %>/login" do
+  describe "POST <%= web_path_prefix %>/<%= schema.plural %>/login" do
     test "logs the <%= schema.singular %> in", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
       conn =
         post(conn, Routes.<%= schema.route_helper %>_session_path(conn, :create), %{
@@ -66,10 +66,10 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     end
   end
 
-  describe "DELETE /<%= schema.plural %>/logout" do
+  describe "DELETE <%= web_path_prefix %>/<%= schema.plural %>/logout" do
     test "redirects if not logged in", %{conn: conn} do
       conn = delete(conn, Routes.<%= schema.route_helper %>_session_path(conn, :delete))
-      assert redirected_to(conn) == "/<%= schema.plural %>/login"
+      assert redirected_to(conn) == "<%= web_path_prefix %>/<%= schema.plural %>/login"
     end
 
     test "logs the <%= schema.singular %> out", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do

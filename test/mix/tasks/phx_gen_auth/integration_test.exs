@@ -28,6 +28,16 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
     end)
   end
 
+  test "single project with web module" do
+    in_test_app("single_app_with_web_module", fn ->
+      mix_run!(~w(phx.gen.auth Accounts User users --web Warehouse))
+      mix_deps_get_and_compile()
+
+      assert_no_compilation_warnings()
+      assert_mix_test_succeeds()
+    end)
+  end
+
   test "new umbrella project with default context and names" do
     in_test_umbrella_app("rainy_day", fn ->
       File.cd!("apps/rainy_day_web", fn ->
