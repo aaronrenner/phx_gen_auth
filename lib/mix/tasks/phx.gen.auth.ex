@@ -4,7 +4,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   @moduledoc """
   Generates authentication logic for a resource
 
-    mix phx.gen.auth Accounts User users
+      mix phx.gen.auth Accounts User users
   """
 
   use Mix.Task

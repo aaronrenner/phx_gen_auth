@@ -1,12 +1,16 @@
 defmodule Phx.Gen.Auth.MixProject do
   use Mix.Project
 
+  @version "0.1.0-alpha.0"
+
   def project do
     [
       app: :phx_gen_auth,
       version: "0.1.0",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
+      preferred_cli_env: [docs: :docs],
+      docs: docs(),
       deps: deps()
     ]
   end
@@ -22,7 +26,15 @@ defmodule Phx.Gen.Auth.MixProject do
   defp deps do
     [
       {:phoenix, github: "phoenixframework/phoenix"},
-      {:phx_new, github: "phoenixframework/phoenix", sparse: "installer", only: [:dev, :test]}
+      {:phx_new, github: "phoenixframework/phoenix", sparse: "installer", only: [:dev, :test]},
+      # Docs dependencies
+      {:ex_doc, "~> 0.20", only: :docs}
+    ]
+  end
+
+  defp docs do
+    [
+      source_ref: "v#{@version}"
     ]
   end
 end
