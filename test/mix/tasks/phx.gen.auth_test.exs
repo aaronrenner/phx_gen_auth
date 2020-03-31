@@ -38,24 +38,10 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
         assert file =~ "config :bcrypt_elixir, :log_rounds, 1"
       end)
 
-      assert_file("lib/phx_gen_auth/accounts.ex", fn file ->
-        assert file =~ "defmodule PhxGenAuth.Accounts"
-      end)
-
-      assert_file("lib/phx_gen_auth/accounts/user_notifier.ex", fn file ->
-        assert file =~ "defmodule PhxGenAuth.Accounts.UserNotifier"
-        assert file =~ "def deliver_confirmation_instructions(user, url)"
-      end)
-
-      assert_file("lib/phx_gen_auth/accounts/user.ex", fn file ->
-        assert file =~ "defmodule PhxGenAuth.Accounts.User"
-        assert file =~ ~s|schema "users"|
-      end)
-
-      assert_file("lib/phx_gen_auth/accounts/user_token.ex", fn file ->
-        assert file =~ "defmodule PhxGenAuth.Accounts.UserToken"
-        assert file =~ ~s|schema "user_tokens"|
-      end)
+      assert_file("lib/phx_gen_auth/accounts.ex")
+      assert_file("lib/phx_gen_auth/accounts/user_notifier.ex")
+      assert_file("lib/phx_gen_auth/accounts/user.ex")
+      assert_file("lib/phx_gen_auth/accounts/user_token.ex")
 
       assert [migration] = Path.wildcard("priv/repo/migrations/*_create_user_auth_tables.exs")
 
@@ -64,83 +50,14 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
         assert file =~ "create table(:user_tokens) do"
       end)
 
-      assert_file("test/phx_gen_auth/accounts_test.exs", fn file ->
-        assert file =~ "defmodule PhxGenAuth.AccountsTest"
-      end)
+      assert_file("test/phx_gen_auth/accounts_test.exs")
 
-      assert_file("test/support/fixtures/accounts_fixtures.ex", fn file ->
-        assert file =~ "defmodule PhxGenAuth.AccountsFixtures"
-      end)
-
-      assert_file("test/support/conn_case.ex", fn file ->
-        assert file =~ "def register_and_login_user(%{conn: conn})"
-        assert file =~ "def login_user(conn, user)"
-      end)
-
-      assert_file("lib/phx_gen_auth_web/controllers/user_auth.ex", fn file ->
-        assert file =~ "defmodule PhxGenAuthWeb.UserAuth"
-      end)
-
-      assert_file("test/phx_gen_auth_web/controllers/user_auth_test.exs", fn file ->
-        assert file =~ "defmodule PhxGenAuthWeb.UserAuthTest"
-        assert file =~ "PhxGenAuthWeb.Endpoint.config("
-      end)
-
+      assert_file("lib/phx_gen_auth_web/controllers/user_auth.ex")
       assert_file("lib/phx_gen_auth_web/controllers/user_confirmation_controller.ex")
-      assert_file("lib/phx_gen_auth_web/templates/user_confirmation/new.html.eex")
-
-      assert_file("test/phx_gen_auth_web/controllers/user_confirmation_controller_test.exs", fn file ->
-        assert file =~ "defmodule PhxGenAuthWeb.UserConfirmationControllerTest"
-      end)
-
       assert_file("lib/phx_gen_auth_web/controllers/user_registration_controller.ex")
-      assert_file("lib/phx_gen_auth_web/templates/user_registration/new.html.eex")
-
-      assert_file("test/phx_gen_auth_web/controllers/user_registration_controller_test.exs", fn file ->
-        assert file =~ "defmodule PhxGenAuthWeb.UserRegistrationControllerTest"
-      end)
-
-      assert_file("lib/phx_gen_auth_web/views/user_confirmation_view.ex", fn file ->
-        assert file =~ "defmodule PhxGenAuthWeb.UserConfirmationView"
-      end)
-
-      assert_file("lib/phx_gen_auth_web/views/user_registration_view.ex", fn file ->
-        assert file =~ "defmodule PhxGenAuthWeb.UserRegistrationView"
-      end)
-
-      assert_file("lib/phx_gen_auth_web/views/user_reset_password_view.ex", fn file ->
-        assert file =~ "defmodule PhxGenAuthWeb.UserResetPasswordView"
-      end)
-
       assert_file("lib/phx_gen_auth_web/controllers/user_reset_password_controller.ex")
-      assert_file("lib/phx_gen_auth_web/templates/user_reset_password/new.html.eex")
-      assert_file("lib/phx_gen_auth_web/templates/user_reset_password/edit.html.eex")
-
-      assert_file("test/phx_gen_auth_web/controllers/user_reset_password_controller_test.exs", fn file ->
-        assert file =~ "defmodule PhxGenAuthWeb.UserResetPasswordControllerTest"
-      end)
-
-      assert_file("lib/phx_gen_auth_web/views/user_session_view.ex", fn file ->
-        assert file =~ "defmodule PhxGenAuthWeb.UserSessionView"
-      end)
-
       assert_file("lib/phx_gen_auth_web/controllers/user_session_controller.ex")
-      assert_file("lib/phx_gen_auth_web/templates/user_session/new.html.eex")
-
-      assert_file("test/phx_gen_auth_web/controllers/user_session_controller_test.exs", fn file ->
-        assert file =~ "defmodule PhxGenAuthWeb.UserSessionControllerTest"
-      end)
-
-      assert_file("lib/phx_gen_auth_web/views/user_settings_view.ex", fn file ->
-        assert file =~ "defmodule PhxGenAuthWeb.UserSettingsView"
-      end)
-
       assert_file("lib/phx_gen_auth_web/controllers/user_settings_controller.ex")
-      assert_file("lib/phx_gen_auth_web/templates/user_settings/edit.html.eex")
-
-      assert_file("test/phx_gen_auth_web/controllers/user_settings_controller_test.exs", fn file ->
-        assert file =~ "defmodule PhxGenAuthWeb.UserSettingsControllerTest"
-      end)
 
       assert_file("lib/phx_gen_auth_web/router.ex", fn file ->
         assert file =~ "import PhxGenAuthWeb.UserAuth"
@@ -149,10 +66,39 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
       end)
 
       assert_file("lib/phx_gen_auth_web/templates/layout/_user_menu.html.eex")
+      assert_file("lib/phx_gen_auth_web/templates/user_confirmation/new.html.eex")
+      assert_file("lib/phx_gen_auth_web/templates/user_registration/new.html.eex")
+      assert_file("lib/phx_gen_auth_web/templates/user_reset_password/new.html.eex")
+      assert_file("lib/phx_gen_auth_web/templates/user_reset_password/edit.html.eex")
+      assert_file("lib/phx_gen_auth_web/templates/user_session/new.html.eex")
+      assert_file("lib/phx_gen_auth_web/templates/user_settings/edit.html.eex")
 
       assert_file("lib/phx_gen_auth_web/templates/layout/app.html.eex", fn file ->
         assert file =~ ~s|<%= render "_user_menu.html", assigns %>|
       end)
+
+      assert_file("lib/phx_gen_auth_web/views/user_confirmation_view.ex")
+      assert_file("lib/phx_gen_auth_web/views/user_registration_view.ex")
+      assert_file("lib/phx_gen_auth_web/views/user_reset_password_view.ex")
+      assert_file("lib/phx_gen_auth_web/views/user_session_view.ex")
+      assert_file("lib/phx_gen_auth_web/views/user_settings_view.ex")
+
+      assert_file("test/phx_gen_auth_web/controllers/user_confirmation_controller_test.exs")
+      assert_file("test/phx_gen_auth_web/controllers/user_reset_password_controller_test.exs")
+      assert_file("test/phx_gen_auth_web/controllers/user_registration_controller_test.exs")
+      assert_file("test/phx_gen_auth_web/controllers/user_session_controller_test.exs")
+      assert_file("test/phx_gen_auth_web/controllers/user_settings_controller_test.exs")
+
+      assert_file("test/phx_gen_auth_web/controllers/user_auth_test.exs", fn file ->
+        assert file =~ "PhxGenAuthWeb.Endpoint.config("
+      end)
+
+      assert_file("test/support/conn_case.ex", fn file ->
+        assert file =~ "def register_and_login_user"
+        assert file =~ "def login_user"
+      end)
+
+      assert_file("test/support/fixtures/accounts_fixtures.ex")
     end)
   end
 
