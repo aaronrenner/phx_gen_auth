@@ -44,7 +44,7 @@ defmodule <%= inspect auth_module %> do
   # you must explicitly fetch the session data before clearing
   # and then immediately set it after clearing, for example:
   #
-  #     def renew_session(conn) do
+  #     defp renew_session(conn) do
   #       preferred_locale = get_session(conn, :preferred_locale)
   #
   #       conn
@@ -99,7 +99,7 @@ defmodule <%= inspect auth_module %> do
   end
 
   @doc """
-  Used for routes that requires the <%= schema.singular %> to not be authenticated.
+  Used for routes that require the <%= schema.singular %> to not be authenticated.
   """
   def redirect_if_<%= schema.singular %>_is_authenticated(conn, _opts) do
     if conn.assigns[:current_<%= schema.singular %>] do
@@ -112,7 +112,7 @@ defmodule <%= inspect auth_module %> do
   end
 
   @doc """
-  Used for routes that requires the <%= schema.singular %> to be authenticated.
+  Used for routes that require the <%= schema.singular %> to be authenticated.
 
   If you want to enforce the <%= schema.singular %> e-mail is confirmed before
   they use the application at all, here would be a good place.

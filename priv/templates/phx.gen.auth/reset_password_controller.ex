@@ -21,7 +21,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     conn
     |> put_flash(
       :info,
-      "If your e-mail is in our system, you receive instructions to reset your password shortly."
+      "If your e-mail is in our system, you will receive instructions to reset your password shortly."
     )
     |> redirect(to: "/")
   end
