@@ -83,7 +83,7 @@ defmodule <%= inspect context.module %>Test do
       assert "has already been taken" in errors_on(changeset).email
     end
 
-    test "registers <%= schema.plural %> with an encrypted password" do
+    test "registers <%= schema.plural %> with a hashed password" do
       email = unique_<%= schema.singular %>_email()
       {:ok, <%= schema.singular %>} = <%= inspect context.alias %>.register_<%= schema.singular %>(%{email: email, password: valid_<%= schema.singular %>_password()})
       assert <%= schema.singular %>.email == email
@@ -290,7 +290,7 @@ defmodule <%= inspect context.module %>Test do
       assert <%= schema.singular %>_token = Repo.get_by(<%= inspect schema.alias %>Token, token: token)
       assert <%= schema.singular %>_token.context == "session"
 
-      # Creating the same token for another user fail
+      # Creating the same token for another user should fail
       assert_raise Ecto.ConstraintError, fn ->
         Repo.insert!(%<%= inspect schema.alias %>Token{
           token: <%= schema.singular %>_token.token,
