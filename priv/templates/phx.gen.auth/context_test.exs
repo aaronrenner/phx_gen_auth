@@ -87,7 +87,7 @@ defmodule <%= inspect context.module %>Test do
       email = unique_<%= schema.singular %>_email()
       {:ok, <%= schema.singular %>} = <%= inspect context.alias %>.register_<%= schema.singular %>(%{email: email, password: valid_<%= schema.singular %>_password()})
       assert <%= schema.singular %>.email == email
-      assert is_binary(<%= schema.singular %>.encrypted_password)
+      assert is_binary(<%= schema.singular %>.hashed_password)
       assert is_nil(<%= schema.singular %>.confirmed_at)
     end
   end
