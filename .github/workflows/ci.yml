@@ -69,6 +69,12 @@ jobs:
           - 5432:5432
         env:
           POSTGRES_PASSWORD: postgres
+      mysql:
+        image: mysql
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     strategy:
       fail-fast: false
       matrix:

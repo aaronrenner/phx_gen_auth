@@ -11,7 +11,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
   alias Mix.Phoenix.{Context, Schema}
   alias Mix.Tasks.Phx.Gen
-  alias Mix.Phx.Gen.Auth.Injector
+  alias Mix.Phx.Gen.Auth.{Injector, Migration}
 
   @doc false
   def run(args) do
@@ -19,12 +19,20 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
       Mix.raise("mix phx.gen.auth can only be run inside an application directory")
     end
 
+    Mix.Task.run("compile")
+
     {context, schema} = Gen.Context.build(args)
     Gen.Context.prompt_for_code_injection(context)
+
+    migration =
+      schema
+      |> get_ecto_adapter!()
+      |> Migration.build()
 
     binding = [
       context: context,
       schema: schema,
+      migration: migration,
       endpoint_module: Module.concat([context.web_module, Endpoint]),
       auth_module: Module.concat([context.web_module, schema.web_namespace, "#{inspect(schema.alias)}Auth"]),
       router_scope: router_scope(context),
@@ -387,4 +395,12 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
   defp pad(i) when i < 10, do: <<?0, ?0 + i>>
   defp pad(i), do: to_string(i)
+
+  defp get_ecto_adapter!(%Schema{repo: repo}) do
+    if Code.ensure_loaded?(repo) do
+      repo.__adapter__()
+    else
+      Mix.raise("Unable to find #{inspect(repo)}")
+    end
+  end
 end
