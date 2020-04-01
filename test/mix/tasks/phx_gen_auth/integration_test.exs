@@ -60,29 +60,34 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
       generate_new_app(app_name, opts)
 
       File.cd!(test_app_path, fn ->
-        inject_phx_gen_auth_dependency()
-        mix_deps_get_and_compile()
-        ecto_drop()
-        git_init_and_commit()
-        function.()
+        with_cached_build_and_deps(app_name, fn ->
+          inject_phx_gen_auth_dependency()
+          mix_deps_get_and_compile()
+          ecto_drop()
+          git_init_and_commit()
+          function.()
+        end)
       end)
     end)
   end
 
   defp in_test_umbrella_app(app_name, opts \\ [], function) when is_list(opts) when is_function(function, 0) do
     in_test_apps(fn ->
-      test_app_path = Path.join(test_apps_path(), "#{app_name}_umbrella")
+      umbrella_app_name = "#{app_name}_umbrella"
+      test_app_path = Path.join(test_apps_path(), umbrella_app_name)
 
       delete_old_app(test_app_path)
 
       generate_new_app(app_name, ["--umbrella" | opts])
 
       File.cd!(test_app_path, fn ->
-        inject_phx_gen_auth_dependency_in_umbrella(app_name)
-        mix_deps_get_and_compile()
-        ecto_drop()
-        git_init_and_commit()
-        function.()
+        with_cached_build_and_deps(umbrella_app_name, fn ->
+          inject_phx_gen_auth_dependency_in_umbrella(app_name)
+          mix_deps_get_and_compile()
+          ecto_drop()
+          git_init_and_commit()
+          function.()
+        end)
       end)
     end)
   end
@@ -91,6 +96,27 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
     path = test_apps_path()
     File.mkdir_p!(path)
     File.cd!(path, function)
+  end
+
+  defp with_cached_build_and_deps(app_name, function) do
+    path_cache_pairs =
+      for project_path <- ~w(_build deps) do
+        cache_path = Path.join([test_apps_path(), "cache", app_name, project_path]) |> Path.expand()
+        {project_path, cache_path}
+      end
+
+    for {project_path, cache_path} <- path_cache_pairs do
+      File.mkdir_p!(cache_path)
+      File.cp_r!(cache_path, project_path)
+    end
+
+    function.()
+
+    for {project_path, cache_path} <- path_cache_pairs do
+      File.rm_rf!(cache_path)
+      File.mkdir_p!(cache_path)
+      File.cp_r!(project_path, cache_path)
+    end
   end
 
   defp test_apps_path do

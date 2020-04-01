@@ -95,6 +95,11 @@ jobs:
         with:
           path: _build/${{ env.MIX_ENV }}
           key: ${{ env.CACHE_VERSION }}-_build-${{ env.MIX_ENV }}-${{ matrix.otp }}-${{ matrix.elixir }}-
+      - name: Cache test_apps/cache
+        uses: actions/cache@v1
+        with:
+          path: test_apps/cache
+          key: ${{ env.CACHE_VERSION }}-integration-test-apps-cache-${{ env.MIX_ENV }}-${{ matrix.otp }}-${{ matrix.elixir }}
       - name: Install Dependencies
         run: mix deps.get
       - name: Compile app
