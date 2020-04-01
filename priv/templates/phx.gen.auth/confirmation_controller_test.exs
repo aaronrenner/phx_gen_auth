@@ -58,7 +58,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
   describe "GET /<%= schema.singular %>s/confirm/:token" do
     test "confirms the given token once", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
       token =
-        capture_<%= schema.singular %>_token(fn url ->
+        extract_<%= schema.singular %>_token(fn url ->
           <%= inspect context.alias %>.deliver_<%= schema.singular %>_confirmation_instructions(<%= schema.singular %>, url)
         end)
 

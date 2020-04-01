@@ -13,7 +13,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
   def create(conn, %{"<%= schema.singular %>" => <%= schema.singular %>_params}) do
     case <%= inspect context.alias %>.register_<%= schema.singular %>(<%= schema.singular %>_params) do
       {:ok, <%= schema.singular %>} ->
-        :ok =
+        {:ok, _} =
           <%= inspect context.alias %>.deliver_<%= schema.singular %>_confirmation_instructions(
             <%= schema.singular %>,
             &Routes.<%= schema.route_helper %>_confirmation_url(conn, :confirm, &1)

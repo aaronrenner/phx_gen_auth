@@ -45,7 +45,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
   describe "GET <%= web_path_prefix %>/<%= schema.plural %>/reset_password/:token" do
     setup %{<%= schema.singular %>: <%= schema.singular %>} do
       token =
-        capture_<%= schema.singular %>_token(fn url ->
+        extract_<%= schema.singular %>_token(fn url ->
           <%= inspect context.alias %>.deliver_<%= schema.singular %>_reset_password_instructions(<%= schema.singular %>, url)
         end)
 
@@ -67,7 +67,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
   describe "PUT <%= web_path_prefix %>/<%= schema.plural %>/reset_password/:token" do
     setup %{<%= schema.singular %>: <%= schema.singular %>} do
       token =
-        capture_<%= schema.singular %>_token(fn url ->
+        extract_<%= schema.singular %>_token(fn url ->
           <%= inspect context.alias %>.deliver_<%= schema.singular %>_reset_password_instructions(<%= schema.singular %>, url)
         end)
 

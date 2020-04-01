@@ -158,7 +158,7 @@ defmodule <%= inspect context.module %> do
   ## Examples
 
       iex> deliver_update_email_instructions(<%= schema.singular %>, current_email, &Routes.<%= schema.singular %>_update_email_url(conn, :edit))
-      :ok
+      {:ok, %{to: ..., body: ...}}
 
   """
   def deliver_update_email_instructions(%<%= inspect schema.alias %>{} = <%= schema.singular %>, current_email, update_email_url_fun)
@@ -168,7 +168,6 @@ defmodule <%= inspect context.module %> do
 
     Repo.insert!(<%= schema.singular %>_token)
     <%= inspect schema.alias %>Notifier.deliver_update_email_instructions(<%= schema.singular %>, update_email_url_fun.(encoded_token))
-    :ok
   end
 
   @doc """
@@ -247,7 +246,7 @@ defmodule <%= inspect context.module %> do
   ## Examples
 
       iex> deliver_<%= schema.singular %>_confirmation_instructions(<%= schema.singular %>, &Routes.<%= schema.singular %>_confirmation_url(conn, :confirm))
-      :ok
+      {:ok, %{to: ..., body: ...}}
 
       iex> deliver_<%= schema.singular %>_confirmation_instructions(confirmed_<%= schema.singular %>, &Routes.<%= schema.singular %>_confirmation_url(conn, :confirm))
       {:error, :already_confirmed}
@@ -261,7 +260,6 @@ defmodule <%= inspect context.module %> do
       {encoded_token, <%= schema.singular %>_token} = <%= inspect schema.alias %>Token.build_<%= schema.singular %>_email_token(<%= schema.singular %>, "confirm")
       Repo.insert!(<%= schema.singular %>_token)
       <%= inspect schema.alias %>Notifier.deliver_confirmation_instructions(<%= schema.singular %>, confirmation_url_fun.(encoded_token))
-      :ok
     end
   end
 
@@ -295,7 +293,7 @@ defmodule <%= inspect context.module %> do
   ## Examples
 
       iex> deliver_<%= schema.singular %>_reset_password_instructions(<%= schema.singular %>, &Routes.<%= schema.singular %>_reset_password_url(conn, :edit))
-      :ok
+      {:ok, %{to: ..., body: ...}}
 
   """
   def deliver_<%= schema.singular %>_reset_password_instructions(%<%= inspect schema.alias %>{} = <%= schema.singular %>, reset_password_url_fun)
@@ -303,7 +301,6 @@ defmodule <%= inspect context.module %> do
     {encoded_token, <%= schema.singular %>_token} = <%= inspect schema.alias %>Token.build_<%= schema.singular %>_email_token(<%= schema.singular %>, "reset_password")
     Repo.insert!(<%= schema.singular %>_token)
     <%= inspect schema.alias %>Notifier.deliver_reset_password_instructions(<%= schema.singular %>, reset_password_url_fun.(encoded_token))
-    :ok
   end
 
   @doc """

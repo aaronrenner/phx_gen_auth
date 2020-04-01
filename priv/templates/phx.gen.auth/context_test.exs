@@ -163,9 +163,8 @@ defmodule <%= inspect context.module %>Test do
 
     test "sends token through notification", %{<%= schema.singular %>: <%= schema.singular %>} do
       token =
-        capture_<%= schema.singular %>_token(fn url ->
-          assert <%= inspect context.alias %>.deliver_update_email_instructions(<%= schema.singular %>, "current@example.com", url) ==
-                   :ok
+        extract_<%= schema.singular %>_token(fn url ->
+          <%= inspect context.alias %>.deliver_update_email_instructions(<%= schema.singular %>, "current@example.com", url)
         end)
 
       {:ok, token} = Base.url_decode64(token, padding: false)
@@ -182,7 +181,7 @@ defmodule <%= inspect context.module %>Test do
       email = unique_<%= schema.singular %>_email()
 
       token =
-        capture_<%= schema.singular %>_token(fn url ->
+        extract_<%= schema.singular %>_token(fn url ->
           <%= inspect context.alias %>.deliver_update_email_instructions(%{<%= schema.singular %> | email: email}, <%= schema.singular %>.email, url)
         end)
 
@@ -340,9 +339,8 @@ defmodule <%= inspect context.module %>Test do
 
     test "sends token through notification", %{<%= schema.singular %>: <%= schema.singular %>} do
       token =
-        capture_<%= schema.singular %>_token(fn url ->
-          assert <%= inspect context.alias %>.deliver_<%= schema.singular %>_confirmation_instructions(<%= schema.singular %>, url) ==
-                   :ok
+        extract_<%= schema.singular %>_token(fn url ->
+          <%= inspect context.alias %>.deliver_<%= schema.singular %>_confirmation_instructions(<%= schema.singular %>, url)
         end)
 
       {:ok, token} = Base.url_decode64(token, padding: false)
@@ -358,7 +356,7 @@ defmodule <%= inspect context.module %>Test do
       <%= schema.singular %> = <%= schema.singular %>_fixture()
 
       token =
-        capture_<%= schema.singular %>_token(fn url ->
+        extract_<%= schema.singular %>_token(fn url ->
           <%= inspect context.alias %>.deliver_<%= schema.singular %>_confirmation_instructions(<%= schema.singular %>, url)
         end)
 
@@ -394,9 +392,8 @@ defmodule <%= inspect context.module %>Test do
 
     test "sends token through notification", %{<%= schema.singular %>: <%= schema.singular %>} do
       token =
-        capture_<%= schema.singular %>_token(fn url ->
-          assert <%= inspect context.alias %>.deliver_<%= schema.singular %>_reset_password_instructions(<%= schema.singular %>, url) ==
-                   :ok
+        extract_<%= schema.singular %>_token(fn url ->
+          <%= inspect context.alias %>.deliver_<%= schema.singular %>_reset_password_instructions(<%= schema.singular %>, url)
         end)
 
       {:ok, token} = Base.url_decode64(token, padding: false)
@@ -412,7 +409,7 @@ defmodule <%= inspect context.module %>Test do
       <%= schema.singular %> = <%= schema.singular %>_fixture()
 
       token =
-        capture_<%= schema.singular %>_token(fn url ->
+        extract_<%= schema.singular %>_token(fn url ->
           <%= inspect context.alias %>.deliver_<%= schema.singular %>_reset_password_instructions(<%= schema.singular %>, url)
         end)
 

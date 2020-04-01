@@ -90,7 +90,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
       email = unique_<%= schema.singular %>_email()
 
       token =
-        capture_<%= schema.singular %>_token(fn url ->
+        extract_<%= schema.singular %>_token(fn url ->
           <%= inspect context.alias %>.deliver_update_email_instructions(%{<%= schema.singular %> | email: email}, <%= schema.singular %>.email, url)
         end)
 

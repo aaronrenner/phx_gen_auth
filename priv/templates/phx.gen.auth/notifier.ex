@@ -5,13 +5,18 @@ defmodule <%= inspect context.module %>.<%= inspect schema.alias %>Notifier do
   #   * Swoosh - https://hexdocs.pm/swoosh
   #   * Bamboo - https://hexdocs.pm/bamboo
   #
-  require Logger
+
+  defp deliver(to, body) do
+    require Logger
+    Logger.debug(body)
+    {:ok, %{to: to, body: body}}
+  end
 
   @doc """
   Deliver instructions to confirm account.
   """
   def deliver_confirmation_instructions(<%= schema.singular %>, url) do
-    Logger.warn("""
+    deliver(<%= schema.singular %>.email, """
 
     ==============================
 
@@ -31,7 +36,7 @@ defmodule <%= inspect context.module %>.<%= inspect schema.alias %>Notifier do
   Deliver instructions to reset password account.
   """
   def deliver_reset_password_instructions(<%= schema.singular %>, url) do
-    Logger.warn("""
+    deliver(<%= schema.singular %>.email, """
 
     ==============================
 
@@ -51,7 +56,7 @@ defmodule <%= inspect context.module %>.<%= inspect schema.alias %>Notifier do
   Deliver instructions to update your e-mail.
   """
   def deliver_update_email_instructions(<%= schema.singular %>, url) do
-    Logger.warn("""
+    deliver(<%= schema.singular %>.email, """
 
     ==============================
 
