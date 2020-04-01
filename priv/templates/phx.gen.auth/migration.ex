@@ -21,6 +21,6 @@ defmodule <%= inspect schema.repo %>.Migrations.Create<%= inspect schema.alias %
       add :inserted_at, :naive_datetime
     end
 
-    create index(:<%= schema.singular %>_tokens, [:<%= schema.singular %>_id, :token])
+    create unique_index(:<%= schema.singular %>_tokens, [:context, :token])
   end
 end

@@ -290,6 +290,15 @@ defmodule <%= inspect context.module %>Test do
       token = <%= inspect context.alias %>.generate_session_token(<%= schema.singular %>)
       assert <%= schema.singular %>_token = Repo.get_by(<%= inspect schema.alias %>Token, token: token)
       assert <%= schema.singular %>_token.context == "session"
+
+      # Creating the same token for another user fail
+      assert_raise Ecto.ConstraintError, fn ->
+        Repo.insert!(%<%= inspect schema.alias %>Token{
+          token: <%= schema.singular %>_token.token,
+          <%= schema.singular %>_id: <%= schema.singular %>_fixture().id,
+          context: "session"
+        })
+      end
     end
   end
 
