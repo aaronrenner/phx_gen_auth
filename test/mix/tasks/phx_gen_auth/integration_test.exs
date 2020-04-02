@@ -6,6 +6,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
   import MixHelper
 
   alias Mix.Tasks.Phx.New
+  alias Mix.Phx.Gen.Auth.Injector
 
   @moduletag timeout: :infinity
   @moduletag :integration
@@ -248,38 +249,20 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
     file_path = "mix.exs"
     file = File.read!(file_path)
 
-    inject = """
-    {:phx_gen_auth, path: "../..", only: [:dev, :test], runtime: false},
-    """
+    inject = ~s|{:phx_gen_auth, path: "../..", only: [:dev, :test], runtime: false}|
 
-    anchor = """
-    {:phoenix, github: "phoenixframework/phoenix", override: true},
-    """
-
-    unless String.contains?(file, inject) do
-      new_file = String.replace(file, anchor, "#{anchor}\n      #{inject}")
-
-      File.write!(file_path, new_file)
-    end
+    {:ok, new_file} = Injector.inject_mix_dependency(file, inject)
+    File.write!(file_path, new_file)
   end
 
   defp inject_phx_gen_auth_dependency_in_umbrella(app_name) do
     file_path = Path.join(["apps", "#{app_name}_web", "mix.exs"])
     file = File.read!(file_path)
 
-    inject = """
-    {:phx_gen_auth, path: "../../../../", only: [:dev, :test], runtime: false},
-    """
+    inject = ~s|{:phx_gen_auth, path: "../../../../", only: [:dev, :test], runtime: false}|
 
-    anchor = """
-    {:phoenix, github: "phoenixframework/phoenix", override: true},
-    """
-
-    unless String.contains?(file, inject) do
-      new_file = String.replace(file, anchor, "#{anchor}\n      #{inject}")
-
-      File.write!(file_path, new_file)
-    end
+    {:ok, new_file} = Injector.inject_mix_dependency(file, inject)
+    File.write!(file_path, new_file)
   end
 
   defp git_init_and_commit() do
