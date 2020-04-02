@@ -48,6 +48,16 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
     end)
   end
 
+  test "single project with mssql" do
+    in_test_app("demo_mssql", ~w(--database mssql), fn ->
+      mix_run!(["phx.gen.auth", "Accounts", "User", "users"])
+      mix_deps_get_and_compile()
+
+      assert_no_compilation_warnings()
+      assert_mix_test_succeeds()
+    end)
+  end
+
   test "new umbrella project with default context and names" do
     in_test_umbrella_app("rainy_day", fn ->
       File.cd!("apps/rainy_day_web", fn ->
