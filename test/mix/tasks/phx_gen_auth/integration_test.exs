@@ -99,23 +99,23 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
   end
 
   defp with_cached_build_and_deps(app_name, function) do
-    path_cache_pairs =
-      for project_path <- ~w(_build deps) do
-        cache_path = Path.join([test_apps_path(), "cache", app_name, project_path]) |> Path.expand()
-        {project_path, cache_path}
+    cache_path = Path.join(test_apps_path(), "cache")
+    cache_archive_path = Path.join(cache_path, "#{app_name}.tar") |> Path.expand()
+
+    try do
+      if File.exists?(cache_archive_path) do
+        :ok = :erl_tar.extract(cache_archive_path)
       end
 
-    for {project_path, cache_path} <- path_cache_pairs do
-      File.mkdir_p!(cache_path)
-      File.cp_r!(cache_path, project_path)
-    end
+      function.()
+    after
+      paths =
+        Path.wildcard("{_build,deps}/**", match_dot: true)
+        |> Enum.filter(&(!File.dir?(&1)))
+        |> Enum.map(&to_charlist/1)
 
-    function.()
-
-    for {project_path, cache_path} <- path_cache_pairs do
-      File.rm_rf!(cache_path)
-      File.mkdir_p!(cache_path)
-      File.cp_r!(project_path, cache_path)
+      :ok = File.mkdir_p!(cache_path)
+      :ok = :erl_tar.create(cache_archive_path, paths)
     end
   end
 
