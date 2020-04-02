@@ -3,7 +3,7 @@ name: Continuous Integration
 on: [push, pull_request]
 
 env:
-  CACHE_VERSION: 1
+  CACHE_VERSION: 2
 
 jobs:
   test:
@@ -40,6 +40,9 @@ jobs:
         with:
           path: deps
           key: ${{ env.CACHE_VERSION }}-deps-build-${{ env.MIX_ENV }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            ${{ env.CACHE_VERSION }}-deps-build-${{ env.MIX_ENV }}-${{ matrix.otp }}-${{ matrix.elixir }}-
+
       - name: Cache _build
         uses: actions/cache@v1
         with:
@@ -90,6 +93,8 @@ jobs:
         with:
           path: deps
           key: ${{ env.CACHE_VERSION }}-deps-build-${{ env.MIX_ENV }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            ${{ env.CACHE_VERSION }}-deps-build-${{ env.MIX_ENV }}-${{ matrix.otp }}-${{ matrix.elixir }}-
       - name: Cache _build
         uses: actions/cache@v1
         with:
@@ -99,7 +104,9 @@ jobs:
         uses: actions/cache@v1
         with:
           path: test_apps/cache
-          key: ${{ env.CACHE_VERSION }}-integration-test-apps-cache-${{ env.MIX_ENV }}-${{ matrix.otp }}-${{ matrix.elixir }}
+          key: ${{ env.CACHE_VERSION }}-integration-test-apps-cache-${{ env.MIX_ENV }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('**.ex?') }}
+          restore-keys: |
+            ${{ env.CACHE_VERSION }}-integration-test-apps-cache-${{ env.MIX_ENV }}-${{ matrix.otp }}-${{ matrix.elixir }}-
       - name: Install Dependencies
         run: mix deps.get
       - name: Compile app
