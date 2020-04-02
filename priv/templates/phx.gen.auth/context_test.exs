@@ -1,5 +1,5 @@
 defmodule <%= inspect context.module %>Test do
-  use <%= inspect context.base_module %>.DataCase
+  use <%= inspect context.base_module %>.DataCase<%= test_case_options %>
 
   import <%= inspect context.module %>Fixtures
   alias <%= inspect context.module %>

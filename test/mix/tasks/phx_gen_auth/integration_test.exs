@@ -3,14 +3,45 @@ Code.require_file("../../../mix_helper.exs", __DIR__)
 defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
   use ExUnit.Case
 
+  import MixHelper
+
   alias Mix.Tasks.Phx.New
 
   @moduletag timeout: :infinity
   @moduletag :integration
 
-  test "single project with default schema and context names" do
+  test "single project with postgres, default schema and context names" do
     in_test_app("demo", fn ->
       mix_run!(["phx.gen.auth", "Accounts", "User", "users"])
+
+      assert_file("test/demo/accounts_test.exs", fn file ->
+        assert file =~ ~r/use Demo\.DataCase, async: true$/m
+      end)
+
+      assert_file("test/demo_web/controllers/user_auth_test.exs", fn file ->
+        assert file =~ ~r/use DemoWeb\.ConnCase, async: true$/m
+      end)
+
+      assert_file("test/demo_web/controllers/user_confirmation_controller_test.exs", fn file ->
+        assert file =~ ~r/use DemoWeb\.ConnCase, async: true$/m
+      end)
+
+      assert_file("test/demo_web/controllers/user_registration_controller_test.exs", fn file ->
+        assert file =~ ~r/use DemoWeb\.ConnCase, async: true$/m
+      end)
+
+      assert_file("test/demo_web/controllers/user_reset_password_controller_test.exs", fn file ->
+        assert file =~ ~r/use DemoWeb\.ConnCase, async: true$/m
+      end)
+
+      assert_file("test/demo_web/controllers/user_session_controller_test.exs", fn file ->
+        assert file =~ ~r/use DemoWeb\.ConnCase, async: true$/m
+      end)
+
+      assert_file("test/demo_web/controllers/user_settings_controller_test.exs", fn file ->
+        assert file =~ ~r/use DemoWeb\.ConnCase, async: true$/m
+      end)
+
       mix_deps_get_and_compile()
 
       assert_no_compilation_warnings()
@@ -41,6 +72,35 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
   test "single project with mysql" do
     in_test_app("demo_mysql", ~w(--database mysql), fn ->
       mix_run!(["phx.gen.auth", "Accounts", "User", "users"])
+
+      assert_file("test/demo_mysql/accounts_test.exs", fn file ->
+        assert file =~ ~r/use DemoMysql\.DataCase$/m
+      end)
+
+      assert_file("test/demo_mysql_web/controllers/user_auth_test.exs", fn file ->
+        assert file =~ ~r/use DemoMysqlWeb\.ConnCase$/m
+      end)
+
+      assert_file("test/demo_mysql_web/controllers/user_confirmation_controller_test.exs", fn file ->
+        assert file =~ ~r/use DemoMysqlWeb\.ConnCase$/m
+      end)
+
+      assert_file("test/demo_mysql_web/controllers/user_registration_controller_test.exs", fn file ->
+        assert file =~ ~r/use DemoMysqlWeb\.ConnCase$/m
+      end)
+
+      assert_file("test/demo_mysql_web/controllers/user_reset_password_controller_test.exs", fn file ->
+        assert file =~ ~r/use DemoMysqlWeb\.ConnCase$/m
+      end)
+
+      assert_file("test/demo_mysql_web/controllers/user_session_controller_test.exs", fn file ->
+        assert file =~ ~r/use DemoMysqlWeb\.ConnCase$/m
+      end)
+
+      assert_file("test/demo_mysql_web/controllers/user_settings_controller_test.exs", fn file ->
+        assert file =~ ~r/use DemoMysqlWeb\.ConnCase$/m
+      end)
+
       mix_deps_get_and_compile()
 
       assert_no_compilation_warnings()
@@ -51,6 +111,35 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
   test "single project with mssql" do
     in_test_app("demo_mssql", ~w(--database mssql), fn ->
       mix_run!(["phx.gen.auth", "Accounts", "User", "users"])
+
+      assert_file("test/demo_mssql/accounts_test.exs", fn file ->
+        assert file =~ ~r/use DemoMssql\.DataCase$/m
+      end)
+
+      assert_file("test/demo_mssql_web/controllers/user_auth_test.exs", fn file ->
+        assert file =~ ~r/use DemoMssqlWeb\.ConnCase$/m
+      end)
+
+      assert_file("test/demo_mssql_web/controllers/user_confirmation_controller_test.exs", fn file ->
+        assert file =~ ~r/use DemoMssqlWeb\.ConnCase$/m
+      end)
+
+      assert_file("test/demo_mssql_web/controllers/user_registration_controller_test.exs", fn file ->
+        assert file =~ ~r/use DemoMssqlWeb\.ConnCase$/m
+      end)
+
+      assert_file("test/demo_mssql_web/controllers/user_reset_password_controller_test.exs", fn file ->
+        assert file =~ ~r/use DemoMssqlWeb\.ConnCase$/m
+      end)
+
+      assert_file("test/demo_mssql_web/controllers/user_session_controller_test.exs", fn file ->
+        assert file =~ ~r/use DemoMssqlWeb\.ConnCase$/m
+      end)
+
+      assert_file("test/demo_mssql_web/controllers/user_settings_controller_test.exs", fn file ->
+        assert file =~ ~r/use DemoMssqlWeb\.ConnCase$/m
+      end)
+
       mix_deps_get_and_compile()
 
       assert_no_compilation_warnings()

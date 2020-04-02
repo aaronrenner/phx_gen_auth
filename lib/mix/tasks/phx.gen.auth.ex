@@ -24,10 +24,8 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     {context, schema} = Gen.Context.build(args)
     Gen.Context.prompt_for_code_injection(context)
 
-    migration =
-      schema
-      |> get_ecto_adapter!()
-      |> Migration.build()
+    ecto_adapter = get_ecto_adapter!(schema)
+    migration = Migration.build(ecto_adapter)
 
     binding = [
       context: context,
@@ -36,7 +34,8 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
       endpoint_module: Module.concat([context.web_module, Endpoint]),
       auth_module: Module.concat([context.web_module, schema.web_namespace, "#{inspect(schema.alias)}Auth"]),
       router_scope: router_scope(context),
-      web_path_prefix: web_path_prefix(schema)
+      web_path_prefix: web_path_prefix(schema),
+      test_case_options: test_case_options(ecto_adapter)
     ]
 
     paths = generator_paths()
@@ -403,4 +402,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
       Mix.raise("Unable to find #{inspect(repo)}")
     end
   end
+
+  defp test_case_options(Ecto.Adapters.Postgres), do: ", async: true"
+  defp test_case_options(adapter) when is_atom(adapter), do: ""
 end

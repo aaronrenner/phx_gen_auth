@@ -1,5 +1,5 @@
 defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web_namespace, schema.alias) %>ConfirmationControllerTest do
-  use <%= inspect context.web_module %>.ConnCase
+  use <%= inspect context.web_module %>.ConnCase<%= test_case_options %>
 
   alias <%= inspect context.module %>
   alias <%= inspect schema.repo %>
