@@ -8,12 +8,14 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
   alias Mix.Tasks.Phx.New
   alias Mix.Phx.Gen.Auth.Injector
 
+  require Logger
+
   @moduletag timeout: :infinity
   @moduletag :integration
 
   test "single project with postgres, default schema and context names" do
     in_test_app("demo", fn ->
-      mix_run!(["phx.gen.auth", "Accounts", "User", "users"])
+      mix_run!(~w(phx.gen.auth Accounts User users))
 
       assert_file("test/demo/accounts_test.exs", fn file ->
         assert file =~ ~r/use Demo\.DataCase, async: true$/m
@@ -52,7 +54,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
 
   test "single project with alternative schema and context names" do
     in_test_app("single_app_with_alternative_context_schema", fn ->
-      mix_run!(["phx.gen.auth", "Users", "Admin", "admin"])
+      mix_run!(~w(phx.gen.auth Users Admin admin))
       mix_deps_get_and_compile()
 
       assert_no_compilation_warnings()
@@ -72,7 +74,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
 
   test "single project with mysql" do
     in_test_app("demo_mysql", ~w(--database mysql), fn ->
-      mix_run!(["phx.gen.auth", "Accounts", "User", "users"])
+      mix_run!(~w(phx.gen.auth Accounts User users))
 
       assert_file("test/demo_mysql/accounts_test.exs", fn file ->
         assert file =~ ~r/use DemoMysql\.DataCase$/m
@@ -111,7 +113,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
 
   test "single project with mssql" do
     in_test_app("demo_mssql", ~w(--database mssql), fn ->
-      mix_run!(["phx.gen.auth", "Accounts", "User", "users"])
+      mix_run!(~w(phx.gen.auth Accounts User users))
 
       assert_file("test/demo_mssql/accounts_test.exs", fn file ->
         assert file =~ ~r/use DemoMssql\.DataCase$/m
@@ -151,7 +153,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
   test "new umbrella project with default context and names" do
     in_test_umbrella_app("rainy_day", fn ->
       File.cd!("apps/rainy_day_web", fn ->
-        mix_run!(["phx.gen.auth", "Accounts", "User", "users"])
+        mix_run!(~w(phx.gen.auth Accounts User users))
       end)
 
       mix_deps_get_and_compile()
@@ -277,29 +279,34 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
 
   defp mix_deps_get_and_compile do
     mix_run!(["do", "deps.get", "--no-archives-check,", "deps.compile"])
-    :ok
   end
 
   defp ecto_drop, do: mix_run!(["ecto.drop"])
 
   defp mix_run!(args) when is_list(args) do
-    {_, 0} = System.cmd("mix", args, env: [{"MIX_ENV", "test"}], into: IO.stream(:stdio, :line))
-    :ok
-  end
-
-  defp assert_mix_test_succeeds do
-    case System.cmd("mix", ["test"]) do
-      {_output, 0} ->
+    case mix_run(args) do
+      {_, 0} ->
         :ok
 
       {output, exit_code} ->
         flunk("""
-        mix test failed with exit code: #{inspect(exit_code)}
+        mix command failed with exit code: #{inspect(exit_code)}
+
+        mix #{Enum.join(args, " ")}
 
         #{output}
 
         """)
     end
+  end
+
+  defp mix_run(args) when is_list(args) do
+    Logger.debug("Running mix #{Enum.join(args, " ")}")
+    System.cmd("mix", args, env: [{"MIX_ENV", "test"}], stderr_to_stdout: true)
+  end
+
+  defp assert_mix_test_succeeds do
+    mix_run!(~w(test))
   end
 
   defp assert_no_compilation_warnings do
