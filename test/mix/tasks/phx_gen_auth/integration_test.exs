@@ -193,7 +193,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
   end
 
   defp with_compilation_error(path, function) do
-    with_file_content_change(path, & Kernel.<>(&1, "boom"), function)
+    with_file_content_change(path, &Kernel.<>(&1, "boom"), function)
   end
 
   defp with_file_removed(path, function) when is_function(function, 0) do
@@ -220,7 +220,6 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
       File.write!(path, original_content)
     end
   end
-
 
   defp in_test_app(app_name, opts \\ [], function) when is_list(opts) when is_function(function, 0) do
     in_test_apps(fn ->
@@ -281,7 +280,6 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
       end)
     end)
   end
-
 
   defp in_test_apps(function) do
     path = test_apps_path()
