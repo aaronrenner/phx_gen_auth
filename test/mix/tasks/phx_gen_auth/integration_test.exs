@@ -163,6 +163,13 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
     end)
   end
 
+  test "error messages" do
+    in_test_umbrella_app("stormy_day", fn ->
+      assert {output, 1} = mix_run(~w(phx.gen.auth Accounts User users))
+      assert output =~ "mix phx.gen.auth can only be run inside an application directory"
+    end)
+  end
+
   defp in_test_app(app_name, opts \\ [], function) when is_list(opts) when is_function(function, 0) do
     in_test_apps(fn ->
       test_app_path = Path.join(test_apps_path(), app_name)

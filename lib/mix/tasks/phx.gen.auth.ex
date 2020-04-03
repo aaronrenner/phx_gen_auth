@@ -19,10 +19,12 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
       Mix.raise("mix phx.gen.auth can only be run inside an application directory")
     end
 
-    Mix.Task.run("compile")
-
     {context, schema} = Gen.Context.build(args)
     Gen.Context.prompt_for_code_injection(context)
+
+    # Needed so we can get the ecto adapter and ensure other
+    # libraries are loaded
+    Mix.Task.run("compile")
 
     ecto_adapter = get_ecto_adapter!(schema)
     migration = Migration.build(ecto_adapter)
