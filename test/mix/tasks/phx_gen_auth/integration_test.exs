@@ -167,8 +167,52 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
     in_test_umbrella_app("stormy_day", fn ->
       assert {output, 1} = mix_run(~w(phx.gen.auth Accounts User users))
       assert output =~ "mix phx.gen.auth can only be run inside an application directory"
+
+      with_compilation_error("apps/stormy_day/lib/stormy_day/repo.ex", fn ->
+        File.cd!("apps/stormy_day_web", fn ->
+          {output, 1} = mix_run(~w(phx.gen.auth Accounts User users))
+          assert output =~ "Compilation error in file"
+        end)
+      end)
+
+      with_file_removed("apps/stormy_day/lib/stormy_day/repo.ex", fn ->
+        File.cd!("apps/stormy_day_web", fn ->
+          {output, 1} = mix_run(~w(phx.gen.auth Accounts User users))
+          assert output =~ "Unable to find StormyDay.Repo"
+        end)
+      end)
     end)
   end
+
+  defp with_compilation_error(path, function) do
+    with_file_content_change(path, & Kernel.<>(&1, "boom"), function)
+  end
+
+  defp with_file_removed(path, function) when is_function(function, 0) do
+    content = File.read!(path)
+
+    try do
+      File.rm!(path)
+
+      function.()
+    after
+      File.write!(path, content)
+    end
+  end
+
+  defp with_file_content_change(path, new_content_function, function) when is_function(new_content_function, 1) and is_function(function, 0) do
+    original_content = File.read!(path)
+    new_content = new_content_function.(original_content)
+
+    try do
+      File.write!(path, new_content)
+
+      function.()
+    after
+      File.write!(path, original_content)
+    end
+  end
+
 
   defp in_test_app(app_name, opts \\ [], function) when is_list(opts) when is_function(function, 0) do
     in_test_apps(fn ->
