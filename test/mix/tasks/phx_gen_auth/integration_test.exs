@@ -334,21 +334,21 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
 
   defp inject_phx_gen_auth_dependency do
     file_path = "mix.exs"
-    file = File.read!(file_path)
-
     inject = ~s|{:phx_gen_auth, path: "../..", only: [:dev, :test], runtime: false}|
 
-    {:ok, new_file} = Injector.inject_mix_dependency(file, inject)
-    File.write!(file_path, new_file)
+    inject_dependency(file_path, inject)
   end
 
   defp inject_phx_gen_auth_dependency_in_umbrella(app_name) do
     file_path = Path.join(["apps", "#{app_name}_web", "mix.exs"])
-    file = File.read!(file_path)
-
     inject = ~s|{:phx_gen_auth, path: "../../../../", only: [:dev, :test], runtime: false}|
 
-    {:ok, new_file} = Injector.inject_mix_dependency(file, inject)
+    inject_dependency(file_path, inject)
+  end
+
+  defp inject_dependency(file_path, dependency) do
+    file = File.read!(file_path)
+    {:ok, new_file} = Injector.inject_mix_dependency(file, dependency)
     File.write!(file_path, new_file)
   end
 
