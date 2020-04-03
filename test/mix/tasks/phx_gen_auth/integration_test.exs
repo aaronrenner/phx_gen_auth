@@ -184,6 +184,14 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
     end)
   end
 
+  test "errors in basic mix project" do
+    in_test_mix_app("basic_mix", fn ->
+      {output, 1} = mix_run(~w(phx.gen.auth Accounts User users))
+      # TODO: figure out how to return a better error here
+      assert output =~ "Unable to find BasicMix.Repo"
+    end)
+  end
+
   defp with_compilation_error(path, function) do
     with_file_content_change(path, & Kernel.<>(&1, "boom"), function)
   end
@@ -254,6 +262,26 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
       end)
     end)
   end
+
+  defp in_test_mix_app(app_name, opts \\ [], function) when is_list(opts) when is_function(function, 0) do
+    in_test_apps(fn ->
+      test_app_path = Path.join(test_apps_path(), app_name)
+
+      delete_old_app(test_app_path)
+
+      mix_run!(~w(new #{app_name}))
+
+      File.cd!(test_app_path, fn ->
+        with_cached_build_and_deps(app_name, fn ->
+          inject_phx_gen_auth_dependency()
+          mix_deps_get_and_compile()
+          git_init_and_commit()
+          function.()
+        end)
+      end)
+    end)
+  end
+
 
   defp in_test_apps(function) do
     path = test_apps_path()
