@@ -188,7 +188,15 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
     in_test_mix_app("basic_mix", fn ->
       {output, 1} = mix_run(~w(phx.gen.auth Accounts User users))
       # TODO: figure out how to return a better error here
-      assert output =~ "Unable to find BasicMix.Repo"
+      assert output =~ "mix phx.gen.auth requires ecto_sql"
+    end)
+  end
+
+  test "errors in phoenix project with --no-ecto" do
+    in_test_app("app_with_no_ecto", ~w(--no-ecto), fn ->
+      assert {output, 1} = mix_run(~w(phx.gen.auth Accounts User users))
+      # TODO: come up with a better error here
+      assert output =~ "mix phx.gen.auth requires ecto_sql"
     end)
   end
 
@@ -233,7 +241,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
         with_cached_build_and_deps(app_name, fn ->
           inject_phx_gen_auth_dependency()
           mix_deps_get_and_compile()
-          ecto_drop()
+          unless "--no-ecto" in opts, do: ecto_drop()
           git_init_and_commit()
           function.()
         end)

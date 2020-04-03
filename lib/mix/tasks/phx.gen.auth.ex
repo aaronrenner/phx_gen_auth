@@ -26,6 +26,8 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     # libraries are loaded
     Mix.Task.run("compile")
 
+    validate_required_dependencies!()
+
     ecto_adapter = get_ecto_adapter!(schema)
     migration = Migration.build(ecto_adapter)
 
@@ -54,6 +56,13 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     |> maybe_inject_router_plug(binding)
     |> maybe_inject_app_layout_menu(binding)
     |> print_shell_instructions()
+  end
+
+  defp validate_required_dependencies! do
+    unless Code.ensure_loaded?(Ecto.Adapters.SQL) do
+      # TODO: Make this error better
+      Mix.raise("mix phx.gen.auth requires ecto_sql")
+    end
   end
 
   defp prompt_for_conflicts(context) do
