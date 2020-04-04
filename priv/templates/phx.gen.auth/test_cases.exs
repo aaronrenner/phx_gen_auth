@@ -1,8 +1,5 @@
-defmodule <%= inspect context.module %>Test do
-  use <%= inspect context.base_module %>.DataCase<%= test_case_options %>
 
   import <%= inspect context.module %>Fixtures
-  alias <%= inspect context.module %>
   alias <%= inspect context.module %>.{<%= inspect schema.alias %>, <%= inspect schema.alias %>Token}
 
   describe "get_<%= schema.singular %>_by_email/1" do
@@ -468,4 +465,3 @@ defmodule <%= inspect context.module %>Test do
       refute Repo.get_by(<%= inspect schema.alias %>Token, <%= schema.singular %>_id: <%= schema.singular %>.id)
     end
   end
-end

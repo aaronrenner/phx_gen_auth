@@ -78,8 +78,6 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     web_path = to_string(schema.web_path)
 
     [
-      {:eex, "context.ex", context.file},
-      {:eex, "context_test.exs", context.test_file},
       {:eex, "context_fixtures.ex", Path.join(["test", "support", "fixtures", "#{context.basename}_fixtures.ex"])},
       {:eex, "migration.ex", Path.join([migrations_prefix, "#{timestamp()}_create_#{schema.singular}_auth_tables.exs"])},
       {:eex, "notifier.ex", Path.join([context.dir, "#{schema.singular}_notifier.ex"])},
@@ -116,8 +114,30 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   defp copy_new_files(%Context{} = context, binding, paths) do
     files = files_to_be_generated(context)
     Mix.Phoenix.copy_from(paths, "priv/templates/phx.gen.auth", binding, files)
+    inject_context_functions(context, paths, binding)
+    inject_tests(context, paths, binding)
 
     context
+  end
+
+  defp inject_context_functions(%Context{file: file} = context, paths, binding) do
+    unless Context.pre_existing?(context) do
+      Mix.Generator.create_file(file, Mix.Phoenix.eval_from(paths, "priv/templates/phx.gen.context/context.ex", binding))
+    end
+
+    paths
+    |> Mix.Phoenix.eval_from("priv/templates/phx.gen.auth/context_functions.ex", binding)
+    |> inject_before_final_end(file)
+  end
+
+  defp inject_tests(%Context{test_file: test_file} = context, paths, binding) do
+    unless Context.pre_existing_tests?(context) do
+      Mix.Generator.create_file(test_file, Mix.Phoenix.eval_from(paths, "priv/templates/phx.gen.context/context_test.exs", binding))
+    end
+
+    paths
+    |> Mix.Phoenix.eval_from("priv/templates/phx.gen.auth/test_cases.exs", binding)
+    |> inject_before_final_end(test_file)
   end
 
   defp inject_conn_case_helpers(%Context{} = context, paths, binding) do
@@ -373,7 +393,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   # Defaults to checking the current app's `priv` directory,
   # and falls back to phx_gen_auth's `priv` directory.
   defp generator_paths do
-    [".", :phx_gen_auth]
+    [".", :phx_gen_auth, :phoenix]
   end
 
   defp inject_before_final_end(content_to_inject, file_path) do

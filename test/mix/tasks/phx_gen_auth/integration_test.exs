@@ -17,10 +17,6 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
     in_test_app("demo", fn ->
       mix_run!(~w(phx.gen.auth Accounts User users))
 
-      assert_file("test/demo/accounts_test.exs", fn file ->
-        assert file =~ ~r/use Demo\.DataCase, async: true$/m
-      end)
-
       assert_file("test/demo_web/controllers/user_auth_test.exs", fn file ->
         assert file =~ ~r/use DemoWeb\.ConnCase, async: true$/m
       end)
@@ -76,10 +72,6 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
     in_test_app("demo_mysql", ~w(--database mysql), fn ->
       mix_run!(~w(phx.gen.auth Accounts User users))
 
-      assert_file("test/demo_mysql/accounts_test.exs", fn file ->
-        assert file =~ ~r/use DemoMysql\.DataCase$/m
-      end)
-
       assert_file("test/demo_mysql_web/controllers/user_auth_test.exs", fn file ->
         assert file =~ ~r/use DemoMysqlWeb\.ConnCase$/m
       end)
@@ -114,10 +106,6 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
   test "single project with mssql" do
     in_test_app("demo_mssql", ~w(--database mssql), fn ->
       mix_run!(~w(phx.gen.auth Accounts User users))
-
-      assert_file("test/demo_mssql/accounts_test.exs", fn file ->
-        assert file =~ ~r/use DemoMssql\.DataCase$/m
-      end)
 
       assert_file("test/demo_mssql_web/controllers/user_auth_test.exs", fn file ->
         assert file =~ ~r/use DemoMssqlWeb\.ConnCase$/m

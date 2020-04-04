@@ -1,9 +1,4 @@
-defmodule <%= inspect context.module %> do
-  @moduledoc """
-  The <%= context.name %> context.
-  """
 
-  alias <%= inspect schema.repo %>
   alias <%= inspect context.module %>.{<%= inspect schema.alias %>, <%= inspect schema.alias %>Token, <%= inspect schema.alias %>Notifier}
 
   ## Database getters
@@ -346,4 +341,3 @@ defmodule <%= inspect context.module %> do
       {:error, :<%= schema.singular %>, changeset, _} -> {:error, changeset}
     end
   end
-end
