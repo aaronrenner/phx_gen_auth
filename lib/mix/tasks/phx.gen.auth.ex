@@ -128,7 +128,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
     paths
     |> Mix.Phoenix.eval_from("priv/templates/phx.gen.auth/conn_case.exs", binding)
-    |> inject_eex_before_final_end(test_file, binding)
+    |> inject_before_final_end(test_file)
 
     context
   end
@@ -140,7 +140,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
     paths
     |> Mix.Phoenix.eval_from("priv/templates/phx.gen.auth/routes.ex", binding)
-    |> inject_eex_before_final_end(file_path, binding)
+    |> inject_before_final_end(file_path)
 
     context
   end
@@ -376,7 +376,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     [".", :phx_gen_auth]
   end
 
-  defp inject_eex_before_final_end(content_to_inject, file_path, binding) do
+  defp inject_before_final_end(content_to_inject, file_path) do
     file = File.read!(file_path)
 
     if String.contains?(file, content_to_inject) do
@@ -387,7 +387,6 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
       file
       |> String.trim_trailing()
       |> String.trim_trailing("end")
-      |> EEx.eval_string(binding)
       |> Kernel.<>(content_to_inject)
       |> Kernel.<>("end\n")
       |> write_file(file_path)
