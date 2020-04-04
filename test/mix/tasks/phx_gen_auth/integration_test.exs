@@ -395,14 +395,6 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
   end
 
   defp assert_no_compilation_warnings do
-    {_, 0} =
-      System.cmd(
-        "mix",
-        ["compile", "--warnings-as-errors"],
-        env: [{"MIX_ENV", "test"}],
-        into: IO.stream(:stdio, :line)
-      )
-
-    :ok
+    mix_run!(~w(compile --warnings-as-errors))
   end
 end
