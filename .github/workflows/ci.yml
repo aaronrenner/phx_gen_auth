@@ -124,4 +124,4 @@ jobs:
         run: mix deps.get
       - name: Compile app
         run: mix compile --force --warnings-as-errors
-      - run: mix test --only integration
+      - run: mix test --only integration --trace
