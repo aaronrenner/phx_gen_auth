@@ -8,6 +8,7 @@ defmodule Phx.Gen.Auth.MixProject do
       app: :phx_gen_auth,
       version: "0.1.0",
       elixir: "~> 1.7",
+      elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       preferred_cli_env: [docs: :docs],
       docs: docs(),
@@ -21,6 +22,9 @@ defmodule Phx.Gen.Auth.MixProject do
       extra_applications: [:logger]
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
