@@ -156,18 +156,20 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
       assert {output, 1} = mix_run(~w(phx.gen.auth Accounts User users))
       assert output =~ "mix phx.gen.auth can only be run inside an application directory"
 
-      with_compilation_error("apps/stormy_day/lib/stormy_day/repo.ex", fn ->
-        File.cd!("apps/stormy_day_web", fn ->
-          {output, 1} = mix_run(~w(phx.gen.auth Accounts User users))
-          assert output =~ "Compilation error in file"
-        end)
+      inject_compilation_error("apps/stormy_day/lib/stormy_day/repo.ex")
+
+      File.cd!("apps/stormy_day_web", fn ->
+        {output, 1} = mix_run(~w(phx.gen.auth Accounts User users))
+        assert output =~ "Compilation error in file"
       end)
 
-      with_file_removed("apps/stormy_day/lib/stormy_day/repo.ex", fn ->
-        File.cd!("apps/stormy_day_web", fn ->
-          {output, 1} = mix_run(~w(phx.gen.auth Accounts User users))
-          assert output =~ "Unable to find StormyDay.Repo"
-        end)
+      revert_to_clean_phoenix_app()
+
+      File.rm!("apps/stormy_day/lib/stormy_day/repo.ex")
+
+      File.cd!("apps/stormy_day_web", fn ->
+        {output, 1} = mix_run(~w(phx.gen.auth Accounts User users))
+        assert output =~ "Unable to find StormyDay.Repo"
       end)
     end)
   end
@@ -186,35 +188,6 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
       # TODO: come up with a better error here
       assert output =~ "mix phx.gen.auth requires ecto_sql"
     end)
-  end
-
-  defp with_compilation_error(path, function) do
-    with_file_content_change(path, &Kernel.<>(&1, "boom"), function)
-  end
-
-  defp with_file_removed(path, function) when is_function(function, 0) do
-    content = File.read!(path)
-
-    try do
-      File.rm!(path)
-
-      function.()
-    after
-      File.write!(path, content)
-    end
-  end
-
-  defp with_file_content_change(path, new_content_function, function) when is_function(new_content_function, 1) and is_function(function, 0) do
-    original_content = File.read!(path)
-    new_content = new_content_function.(original_content)
-
-    try do
-      File.write!(path, new_content)
-
-      function.()
-    after
-      File.write!(path, original_content)
-    end
   end
 
   defp in_test_app(app_name, opts \\ [], function) when is_list(opts) when is_function(function, 0) do
@@ -281,6 +254,24 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
     path = test_apps_path()
     File.mkdir_p!(path)
     File.cd!(path, function)
+  end
+
+  defp inject_compilation_error(path) do
+    path
+    |> File.read!()
+    |> Kernel.<>("boom")
+    |> write_file!(path)
+  end
+
+  defp write_file!(content, path) do
+    File.write!(path, content)
+  end
+
+  defp revert_to_clean_phoenix_app do
+    {_, 0} = System.cmd("git", ["clean", "-df"])
+    {_, 0} = System.cmd("git", ["checkout", "--", "."])
+
+    :ok
   end
 
   defp with_cached_build_and_deps(app_name, function) do
