@@ -10,18 +10,24 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
     in_test_apps(fn ->
       test_app_path = Path.join(test_apps_path(), app_name)
 
-      delete_old_app(test_app_path)
+      if File.exists?(test_app_path) do
+        File.cd!(test_app_path, fn ->
+          revert_to_clean_phoenix_app()
+          mix_deps_get_and_compile()
+        end)
+      else
+        generate_new_app(app_name, opts)
 
-      generate_new_app(app_name, opts)
-
-      File.cd!(test_app_path, fn ->
-        with_cached_build_and_deps(app_name, fn ->
+        File.cd!(test_app_path, fn ->
           inject_phx_gen_auth_dependency()
           mix_deps_get_and_compile()
-          unless "--no-ecto" in opts, do: ecto_drop()
           git_init_and_commit()
-          function.()
         end)
+      end
+
+      File.cd!(test_app_path, fn ->
+        unless "--no-ecto" in opts, do: ecto_drop()
+        function.()
       end)
     end)
   end
@@ -31,18 +37,24 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
       umbrella_app_name = "#{app_name}_umbrella"
       test_app_path = Path.join(test_apps_path(), umbrella_app_name)
 
-      delete_old_app(test_app_path)
+      if File.exists?(test_app_path) do
+        File.cd!(test_app_path, fn ->
+          revert_to_clean_phoenix_app()
+          mix_deps_get_and_compile()
+        end)
+      else
+        generate_new_app(app_name, ["--umbrella" | opts])
 
-      generate_new_app(app_name, ["--umbrella" | opts])
-
-      File.cd!(test_app_path, fn ->
-        with_cached_build_and_deps(umbrella_app_name, fn ->
+        File.cd!(test_app_path, fn ->
           inject_phx_gen_auth_dependency_in_umbrella(app_name)
           mix_deps_get_and_compile()
-          ecto_drop()
           git_init_and_commit()
-          function.()
         end)
+      end
+
+      File.cd!(test_app_path, fn ->
+        unless "--no-ecto" in opts, do: ecto_drop()
+        function.()
       end)
     end)
   end
@@ -51,17 +63,23 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
     in_test_apps(fn ->
       test_app_path = Path.join(test_apps_path(), app_name)
 
-      delete_old_app(test_app_path)
+      if File.exists?(test_app_path) do
+        File.cd!(test_app_path, fn ->
+          revert_to_clean_phoenix_app()
+          mix_deps_get_and_compile()
+        end)
+      else
+        mix_run!(~w(new #{app_name}))
 
-      mix_run!(~w(new #{app_name}))
-
-      File.cd!(test_app_path, fn ->
-        with_cached_build_and_deps(app_name, fn ->
+        File.cd!(test_app_path, fn ->
           inject_phx_gen_auth_dependency()
           mix_deps_get_and_compile()
           git_init_and_commit()
-          function.()
         end)
+      end
+
+      File.cd!(test_app_path, fn ->
+        function.()
       end)
     end)
   end
@@ -127,33 +145,8 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
     :ok
   end
 
-  defp with_cached_build_and_deps(app_name, function) do
-    cache_path = Path.join(test_apps_path(), ".cache")
-    cache_archive_path = Path.join(cache_path, "#{app_name}.tar") |> Path.expand()
-
-    try do
-      if File.exists?(cache_archive_path) do
-        :ok = :erl_tar.extract(cache_archive_path)
-      end
-
-      function.()
-    after
-      paths =
-        Path.wildcard("{_build,deps}/**", match_dot: true)
-        |> Enum.filter(&(!File.dir?(&1)))
-        |> Enum.map(&to_charlist/1)
-
-      :ok = File.mkdir_p!(cache_path)
-      :ok = :erl_tar.create(cache_archive_path, paths)
-    end
-  end
-
   defp test_apps_path do
     Path.expand("../../test_apps", __DIR__)
-  end
-
-  defp delete_old_app(test_app_path) do
-    File.rm_rf!(test_app_path)
   end
 
   defp generate_new_app(app_name, opts) when is_list(opts) do
@@ -180,8 +173,14 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
 
   defp inject_dependency(file_path, dependency) do
     file = File.read!(file_path)
-    {:ok, new_file} = Injector.inject_mix_dependency(file, dependency)
-    File.write!(file_path, new_file)
+
+    case Injector.inject_mix_dependency(file, dependency) do
+      {:ok, new_file} ->
+        File.write!(file_path, new_file)
+
+      :already_injected ->
+        :ok
+    end
   end
 
   defp git_init_and_commit() do
