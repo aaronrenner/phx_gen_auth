@@ -128,7 +128,7 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
   end
 
   defp with_cached_build_and_deps(app_name, function) do
-    cache_path = Path.join(test_apps_path(), "cache")
+    cache_path = Path.join(test_apps_path(), ".cache")
     cache_archive_path = Path.join(cache_path, "#{app_name}.tar") |> Path.expand()
 
     try do
