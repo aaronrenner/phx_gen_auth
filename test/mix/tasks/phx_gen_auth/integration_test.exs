@@ -150,24 +150,24 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
   end
 
   test "error messages" do
-    in_test_umbrella_app("stormy_day", fn ->
+    in_test_umbrella_app("rainy_day", fn ->
       assert {output, 1} = mix_run(~w(phx.gen.auth Accounts User users))
       assert output =~ "mix phx.gen.auth can only be run inside an application directory"
 
-      inject_compilation_error("apps/stormy_day/lib/stormy_day/repo.ex")
+      inject_compilation_error("apps/rainy_day/lib/rainy_day/repo.ex")
 
-      File.cd!("apps/stormy_day_web", fn ->
+      File.cd!("apps/rainy_day_web", fn ->
         {output, 1} = mix_run(~w(phx.gen.auth Accounts User users))
         assert output =~ "Compilation error in file"
       end)
 
       revert_to_clean_phoenix_app()
 
-      File.rm!("apps/stormy_day/lib/stormy_day/repo.ex")
+      File.rm!("apps/rainy_day/lib/rainy_day/repo.ex")
 
-      File.cd!("apps/stormy_day_web", fn ->
+      File.cd!("apps/rainy_day_web", fn ->
         {output, 1} = mix_run(~w(phx.gen.auth Accounts User users))
-        assert output =~ "Unable to find StormyDay.Repo"
+        assert output =~ "Unable to find RainyDay.Repo"
       end)
     end)
   end
