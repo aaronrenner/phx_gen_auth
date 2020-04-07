@@ -103,6 +103,47 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
 
   test "single project with mssql" do
     in_test_app("demo_mssql", ~w(--database mssql), fn ->
+      update_file_contents!("config/test.exs", fn file ->
+        anchor = "pool: Ecto.Adapters.SQL.Sandbox"
+
+        String.replace(file, anchor, "#{anchor},\n  set_allow_snapshot_isolation: :on")
+      end)
+
+      mix_run!(~w(phx.gen.auth Accounts User users))
+
+      assert_file("test/demo_mssql_web/controllers/user_auth_test.exs", fn file ->
+        assert file =~ ~r/use DemoMssqlWeb\.ConnCase, async: true$/m
+      end)
+
+      assert_file("test/demo_mssql_web/controllers/user_confirmation_controller_test.exs", fn file ->
+        assert file =~ ~r/use DemoMssqlWeb\.ConnCase, async: true$/m
+      end)
+
+      assert_file("test/demo_mssql_web/controllers/user_registration_controller_test.exs", fn file ->
+        assert file =~ ~r/use DemoMssqlWeb\.ConnCase, async: true$/m
+      end)
+
+      assert_file("test/demo_mssql_web/controllers/user_reset_password_controller_test.exs", fn file ->
+        assert file =~ ~r/use DemoMssqlWeb\.ConnCase, async: true$/m
+      end)
+
+      assert_file("test/demo_mssql_web/controllers/user_session_controller_test.exs", fn file ->
+        assert file =~ ~r/use DemoMssqlWeb\.ConnCase, async: true$/m
+      end)
+
+      assert_file("test/demo_mssql_web/controllers/user_settings_controller_test.exs", fn file ->
+        assert file =~ ~r/use DemoMssqlWeb\.ConnCase, async: true$/m
+      end)
+
+      mix_deps_get_and_compile()
+
+      assert_no_compilation_warnings()
+      assert_mix_test_succeeds()
+    end)
+  end
+
+  test "mssql project without set_allow_snapshot_isolation: :on" do
+    in_test_app("demo_mssql", ~w(--database mssql), fn ->
       mix_run!(~w(phx.gen.auth Accounts User users))
 
       assert_file("test/demo_mssql_web/controllers/user_auth_test.exs", fn file ->

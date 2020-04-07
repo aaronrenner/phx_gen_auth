@@ -127,11 +127,15 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
     mix_run!(~w(compile --warnings-as-errors))
   end
 
-  def inject_compilation_error(path) do
+  def update_file_contents!(path, function) do
     path
     |> File.read!()
-    |> Kernel.<>("boom")
+    |> function.()
     |> write_file!(path)
+  end
+
+  def inject_compilation_error(path) do
+    update_file_contents!(path, &Kernel.<>(&1, "boom"))
   end
 
   defp write_file!(content, path) do

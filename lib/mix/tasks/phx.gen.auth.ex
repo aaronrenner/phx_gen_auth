@@ -106,8 +106,11 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
     validate_required_dependencies!()
 
-    ecto_adapter = get_ecto_adapter!(schema)
-    migration = Migration.build(ecto_adapter)
+    unless Code.ensure_loaded?(schema.repo) do
+      Mix.raise("Unable to find #{inspect(schema.repo)}")
+    end
+
+    migration = Migration.build(schema)
 
     binding = [
       context: context,
@@ -117,7 +120,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
       auth_module: Module.concat([context.web_module, schema.web_namespace, "#{inspect(schema.alias)}Auth"]),
       router_scope: router_scope(context),
       web_path_prefix: web_path_prefix(schema),
-      test_case_options: test_case_options(ecto_adapter)
+      test_case_options: test_case_options(schema)
     ]
 
     paths = generator_paths()
@@ -503,14 +506,19 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   defp pad(i) when i < 10, do: <<?0, ?0 + i>>
   defp pad(i), do: to_string(i)
 
-  defp get_ecto_adapter!(%Schema{repo: repo}) do
-    if Code.ensure_loaded?(repo) do
-      repo.__adapter__()
+  defp test_case_options(%Schema{repo: repo}) do
+    test_case_options(repo.__adapter__(), repo.config())
+  end
+
+  defp test_case_options(Ecto.Adapters.Postgres, _config), do: ", async: true"
+
+  defp test_case_options(Ecto.Adapters.Tds, config) when is_list(config) do
+    if {:set_allow_snapshot_isolation, :on} in config do
+      ", async: true"
     else
-      Mix.raise("Unable to find #{inspect(repo)}")
+      ""
     end
   end
 
-  defp test_case_options(Ecto.Adapters.Postgres), do: ", async: true"
-  defp test_case_options(adapter) when is_atom(adapter), do: ""
+  defp test_case_options(adapter, _config) when is_atom(adapter), do: ""
 end

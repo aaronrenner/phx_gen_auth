@@ -1,9 +1,13 @@
 defmodule Mix.Phx.Gen.Auth.Migration do
   @moduledoc false
 
+  alias Mix.Phoenix.Schema
+
   defstruct [:ecto_adapter, :extensions, :column_definitions]
 
-  def build(ecto_adapter) when is_atom(ecto_adapter) do
+  def build(%Schema{repo: repo}) do
+    ecto_adapter = repo.__adapter__()
+
     %__MODULE__{
       ecto_adapter: ecto_adapter,
       extensions: extensions(ecto_adapter),
