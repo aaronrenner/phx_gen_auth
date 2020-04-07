@@ -78,8 +78,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   ### Concurrent tests
 
   The generated tests run concurrently if you are using a database
-  that supports concurrent tests (Postgres or MSSQL with snapshot
-  isolation level).
+  that supports concurrent tests (Postgres).
   """
 
   use Mix.Task
