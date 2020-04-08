@@ -15,6 +15,12 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
     in_test_app("demo", fn ->
       mix_run!(~w(phx.gen.auth Accounts User users))
 
+      assert_file("lib/demo_web/controllers/user_confirmation_controller.ex")
+      assert_file("lib/demo_web/controllers/user_reset_password_controller.ex")
+      assert_file("lib/demo_web/controllers/user_registration_controller.ex")
+      assert_file("lib/demo_web/controllers/user_session_controller.ex")
+      assert_file("lib/demo_web/controllers/user_settings_controller.ex")
+
       assert_file("test/demo_web/controllers/user_auth_test.exs", fn file ->
         assert file =~ ~r/use DemoWeb\.ConnCase, async: true$/m
       end)
@@ -60,6 +66,12 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
     in_test_app("single_app_with_web_module", fn ->
       mix_run!(~w(phx.gen.auth Accounts User users --web Warehouse))
       mix_deps_get_and_compile()
+
+      assert_file("lib/single_app_with_web_module_web/controllers/warehouse/user_confirmation_controller.ex")
+      assert_file("lib/single_app_with_web_module_web/controllers/warehouse/user_reset_password_controller.ex")
+      assert_file("lib/single_app_with_web_module_web/controllers/warehouse/user_registration_controller.ex")
+      assert_file("lib/single_app_with_web_module_web/controllers/warehouse/user_session_controller.ex")
+      assert_file("lib/single_app_with_web_module_web/controllers/warehouse/user_settings_controller.ex")
 
       assert_no_compilation_warnings()
       assert_mix_test_succeeds()

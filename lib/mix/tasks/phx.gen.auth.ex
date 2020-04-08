@@ -87,13 +87,20 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   alias Mix.Tasks.Phx.Gen
   alias Mix.Phx.Gen.Auth.{Injector, Migration}
 
+  @switches [web: :string]
+
   @doc false
   def run(args) do
     if Mix.Project.umbrella?() do
       Mix.raise("mix phx.gen.auth can only be run inside an application directory")
     end
 
-    {context, schema} = Gen.Context.build(args)
+    {opts, parsed} = OptionParser.parse!(args, strict: @switches)
+    validate_args!(parsed)
+
+    context_args = OptionParser.to_argv(opts, switches: @switches) ++ parsed
+
+    {context, schema} = Gen.Context.build(context_args)
     Gen.Context.prompt_for_code_injection(context)
 
     # Needed so we can get the ecto adapter and ensure other
@@ -135,10 +142,15 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     |> print_shell_instructions()
   end
 
+  defp validate_args!([_, _, _]), do: :ok
+
+  defp validate_args!(_) do
+    raise_with_help("Invalid arguments")
+  end
+
   defp validate_required_dependencies! do
     unless Code.ensure_loaded?(Ecto.Adapters.SQL) do
-      # TODO: Make this error better
-      Mix.raise("mix phx.gen.auth requires ecto_sql")
+      raise_with_help("mix phx.gen.auth requires ecto_sql", :phx_generator_args)
     end
   end
 
@@ -508,6 +520,41 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     else
       Mix.raise("Unable to find #{inspect(repo)}")
     end
+  end
+
+  defp raise_with_help(msg, help_type \\ :general)
+
+  defp raise_with_help(msg, :general) do
+    Mix.raise("""
+    #{msg}
+
+    mix phx.gen.auth expects a context module name, followed by
+    the schema module and its plural name (used as the schema
+    table name).
+
+    For example:
+
+    mix phx.gen.auth Accounts User users
+
+    The context serves as the API boundary for the given resource.
+    Multiple resources may belong to a context and a resource may be
+    split over distinct contexts (such as Accounts.User and Payments.User).
+    """)
+  end
+
+  defp raise_with_help(msg, :phx_generator_args) do
+    Mix.raise("""
+    #{msg}
+
+    mix phx.gen.auth must be installed into a Phoenix 1.5 app that
+    contains ecto and html templates.
+
+    mix phx.new my_app
+    mix phx.new my_app --umbrella
+    mix phx.new my_app --database mysql
+
+    Apps generated with --no-ecto and --no-html are not supported
+    """)
   end
 
   defp test_case_options(Ecto.Adapters.Postgres), do: ", async: true"

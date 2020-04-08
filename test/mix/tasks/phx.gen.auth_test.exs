@@ -44,6 +44,14 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
       assert_raise Mix.Error, ~r/Invalid arguments/, fn ->
         Gen.Auth.run(~w(Accounts User))
       end
+
+      assert_raise Mix.Error, ~r/Invalid arguments/, fn ->
+        Gen.Auth.run(~w(Accounts User users name:string))
+      end
+
+      assert_raise OptionParser.ParseError, ~r/unknown option/i, fn ->
+        Gen.Auth.run(~w(Accounts User users --no-schema))
+      end
     end)
   end
 end
