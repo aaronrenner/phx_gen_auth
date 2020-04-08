@@ -165,9 +165,10 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     web_test_prefix = Mix.Phoenix.web_test_path(context_app)
     migrations_prefix = Mix.Phoenix.context_app_path(context_app, "priv/repo/migrations")
     web_path = to_string(schema.web_path)
+    context_app_prefix = Mix.Phoenix.context_app_path(context_app, "")
 
     [
-      {:eex, "context_fixtures.ex", Path.join(["test", "support", "fixtures", "#{context.basename}_fixtures.ex"])},
+      {:eex, "context_fixtures.ex", Path.join([context_app_prefix, "test", "support", "fixtures", "#{context.basename}_fixtures.ex"])},
       {:eex, "migration.ex", Path.join([migrations_prefix, "#{timestamp()}_create_#{schema.singular}_auth_tables.exs"])},
       {:eex, "notifier.ex", Path.join([context.dir, "#{schema.singular}_notifier.ex"])},
       {:eex, "schema.ex", Path.join([context.dir, "#{schema.singular}.ex"])},

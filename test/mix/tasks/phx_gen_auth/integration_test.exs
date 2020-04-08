@@ -45,6 +45,8 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
         assert file =~ ~r/use DemoWeb\.ConnCase, async: true$/m
       end)
 
+      assert_file("test/support/fixtures/accounts_fixtures.ex")
+
       mix_deps_get_and_compile()
 
       assert_no_compilation_warnings()
@@ -155,6 +157,8 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
       end)
 
       mix_deps_get_and_compile()
+
+      assert_file("apps/rainy_day/test/support/fixtures/accounts_fixtures.ex")
 
       assert_no_compilation_warnings()
       assert_mix_test_succeeds()
