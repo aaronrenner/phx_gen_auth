@@ -4,6 +4,9 @@ An authentication system generator for Phoenix 1.5+ applications.
 
 **_Note: This project is still a work in progress and is alpha quality at the moment._**
 
+This project generates code from José Valim's [Auth PR][auth pr] and is up to date
+through commit: [4abf89](https://github.com/dashbitco/mix_phx_gen_auth_demo/pull/1/commits/4abf899e35adc5d6157d1169309d9a474893061e).
+
 ## Overview
 
 The purpose of `phx.gen.auth` is to generate a pre-built authentication system into
@@ -13,8 +16,8 @@ to modify the authentication system so it works best with their app. The followi
 have more information regarding the motivation and design of the code this generates.
 
 * José Valim's blog post - [An upcoming authentication solution for Phoenix](https://dashbit.co/blog/a-new-authentication-solution-for-phoenix)
-* [Original pull request on bare phoenix app](https://github.com/dashbitco/mix_phx_gen_auth_demo/pull/1)
-* [Original design spec](https://github.com/dashbitco/mix_phx_gen_auth_demo/blob/auth/README.md**
+* [Original pull request on bare phoenix app][auth pr]
+* [Original design spec](https://github.com/dashbitco/mix_phx_gen_auth_demo/blob/auth/README.md)
 
 
 ## Usage
@@ -113,3 +116,4 @@ You can also look up the mix task in hexdocs.
 
 
 [phoenix contexts guide]: https://hexdocs.pm/phoenix/contexts.html
+[auth pr]: https://github.com/dashbitco/mix_phx_gen_auth_demo/pull/1
