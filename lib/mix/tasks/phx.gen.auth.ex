@@ -139,6 +139,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
       migration: migration,
       endpoint_module: Module.concat([context.web_module, Endpoint]),
       auth_module: Module.concat([context.web_module, schema.web_namespace, "#{inspect(schema.alias)}Auth"]),
+      requires_inspect_impls?: Version.compare(System.version(), "1.8.0") == :lt,
       router_scope: router_scope(context),
       web_path_prefix: web_path_prefix(schema),
       test_case_options: test_case_options(ecto_adapter)

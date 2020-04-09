@@ -86,6 +86,7 @@
       assert <%= schema.singular %>.email == email
       assert is_binary(<%= schema.singular %>.hashed_password)
       assert is_nil(<%= schema.singular %>.confirmed_at)
+      assert is_nil(<%= schema.singular %>.password)
     end
   end
 
@@ -257,11 +258,12 @@
     end
 
     test "updates the password", %{<%= schema.singular %>: <%= schema.singular %>} do
-      {:ok, _} =
+      {:ok, <%= schema.singular %>} =
         <%= inspect context.alias %>.update_<%= schema.singular %>_password(<%= schema.singular %>, valid_<%= schema.singular %>_password(), %{
           password: "new valid password"
         })
 
+      assert is_nil(<%= schema.singular %>.password)
       assert <%= inspect context.alias %>.get_<%= schema.singular %>_by_email_and_password(<%= schema.singular %>.email, "new valid password")
     end
 
@@ -325,7 +327,7 @@
       <%= schema.singular %> = <%= schema.singular %>_fixture()
       token = <%= inspect context.alias %>.generate_session_token(<%= schema.singular %>)
       assert <%= inspect context.alias %>.delete_session_token(token) == :ok
-      refute <%= inspect context.alias %>.get_<%= schema.singular %>_by_session_token("oops")
+      refute <%= inspect context.alias %>.get_<%= schema.singular %>_by_session_token(token)
     end
   end
 
@@ -455,7 +457,8 @@
     end
 
     test "updates the password", %{<%= schema.singular %>: <%= schema.singular %>} do
-      {:ok, _} = <%= inspect context.alias %>.reset_<%= schema.singular %>_password(<%= schema.singular %>, %{password: "new valid password"})
+      {:ok, updated_<%= schema.singular %>} = <%= inspect context.alias %>.reset_<%= schema.singular %>_password(<%= schema.singular %>, %{password: "new valid password"})
+      assert is_nil(updated_<%= schema.singular %>.password)
       assert <%= inspect context.alias %>.get_<%= schema.singular %>_by_email_and_password(<%= schema.singular %>.email, "new valid password")
     end
 
@@ -463,5 +466,11 @@
       _ = <%= inspect context.alias %>.generate_session_token(<%= schema.singular %>)
       {:ok, _} = <%= inspect context.alias %>.reset_<%= schema.singular %>_password(<%= schema.singular %>, %{password: "new valid password"})
       refute Repo.get_by(<%= inspect schema.alias %>Token, <%= schema.singular %>_id: <%= schema.singular %>.id)
+    end
+  end
+
+  describe "inspect/2" do
+    test "does not include password" do
+      refute inspect(%<%= inspect schema.alias %>{password: "123456"}) =~ "password: \"123456\""
     end
   end
