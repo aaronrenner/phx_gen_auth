@@ -462,6 +462,20 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   end
 
   defp print_shell_instructions(%Context{} = context) do
+    Mix.shell().info("""
+
+    Please re-fetch your dependencies with the following command:
+
+        mix deps.get
+    """)
+
+    Mix.shell().info("""
+
+    Remember to update your repository by running migrations:
+
+      $ mix ecto.migrate
+    """)
+
     context
   end
 
