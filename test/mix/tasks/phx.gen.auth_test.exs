@@ -13,7 +13,7 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
 
   test "invalid mix arguments", config do
     in_tmp_project(config.test, fn ->
-      assert_raise Mix.Error, ~r/Expected the context, "accounts", to be a valid module name/, fn ->
+      assert_raise Mix.Error, ~r/Expected the context, "accounts", to be a valid module name.*phx\.gen\.auth/s, fn ->
         Gen.Auth.run(~w(accounts User users))
       end
 
@@ -41,11 +41,7 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
         Gen.Auth.run(~w(Accounts))
       end
 
-      assert_raise Mix.Error, ~r/Invalid arguments/, fn ->
-        Gen.Auth.run(~w(Accounts User))
-      end
-
-      assert_raise Mix.Error, ~r/Invalid arguments/, fn ->
+      assert_raise Mix.Error, ~r/Invalid arguments.*phx\.gen\.auth/s, fn ->
         Gen.Auth.run(~w(Accounts User users name:string))
       end
 

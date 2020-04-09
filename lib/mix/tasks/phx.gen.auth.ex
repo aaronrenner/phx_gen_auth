@@ -100,7 +100,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
     context_args = OptionParser.to_argv(opts, switches: @switches) ++ parsed
 
-    {context, schema} = Gen.Context.build(context_args)
+    {context, schema} = Gen.Context.build(context_args, __MODULE__)
     Gen.Context.prompt_for_code_injection(context)
 
     # Needed so we can get the ecto adapter and ensure other
@@ -523,7 +523,9 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     end
   end
 
-  defp raise_with_help(msg, help_type \\ :general)
+  def raise_with_help(msg) do
+    raise_with_help(msg, :general)
+  end
 
   defp raise_with_help(msg, :general) do
     Mix.raise("""
