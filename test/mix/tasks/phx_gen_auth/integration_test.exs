@@ -47,6 +47,10 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
 
       assert_file("test/support/fixtures/accounts_fixtures.ex")
 
+      assert_file("test/support/conn_case.ex", fn file ->
+        assert file =~ "def login_user"
+      end)
+
       mix_deps_get_and_compile()
 
       assert_no_compilation_warnings()
@@ -159,6 +163,10 @@ defmodule Mix.Tasks.Phx.Gen.Auth.IntegrationTest do
       mix_deps_get_and_compile()
 
       assert_file("apps/rainy_day/test/support/fixtures/accounts_fixtures.ex")
+
+      assert_file("apps/rainy_day_web/test/support/conn_case.ex", fn file ->
+        assert file =~ "def login_user"
+      end)
 
       assert_no_compilation_warnings()
       assert_mix_test_succeeds()

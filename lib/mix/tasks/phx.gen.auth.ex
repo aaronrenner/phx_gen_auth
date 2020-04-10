@@ -249,9 +249,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   end
 
   defp inject_conn_case_helpers(%Context{} = context, paths, binding) do
-    # TODO: This needs to work with umbrella apps
     # TODO: Figure out what happens if this file isn't here
-    # TODO: Need a web_app_path helper?
     test_file = "test/support/conn_case.ex"
 
     paths
