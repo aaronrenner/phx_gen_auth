@@ -6,6 +6,24 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
       mix phx.gen.auth Accounts User users
 
+  ## Web namespace
+
+  By default, the controllers and view will be namespaced by the schema name.
+  You can customize the web module namespace by passing the `--web` flag with a
+  module name, for example:
+
+      mix phx.gen.auth Accounts User users --web Warehouse
+
+  Which would generate the controllers, views, templates and associated tests in nested in the `MyAppWeb.Warehouse` namespace:
+
+  * `lib/my_app_web/controllers/warehouse/user_auth.ex`
+  * `lib/my_app_web/controllers/warehouse/user_confirmation_controller.ex`
+  * `lib/my_app_web/views/warehouse/user_confirmation_view.ex`
+  * `lib/my_app_web/templates/warehouse/user_confirmation/new.html.eex`
+  * `test/my_app_web/controllers/warehouse/user_auth_test.exs`
+  * `test/my_app_web/controllers/warehouse/user_confirmation_controller_test.exs`
+  * and so on...
+
   ## Notes about the generated authentication system
 
   ### Password hashing
