@@ -3,8 +3,8 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
 
   import ExUnit.Assertions
 
-  alias Mix.Tasks.Phx.New
   alias Mix.Phx.Gen.Auth.Injector
+  alias Phx.Gen.Auth.TestSupport.IntegrationTestHelpers.MixTaskServer
 
   def in_test_app(app_name, opts \\ [], function) when is_list(opts) when is_function(function, 0) do
     in_test_apps(fn ->
@@ -94,8 +94,8 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
     mix_run!(["do", "deps.get", "--no-archives-check,", "deps.compile"])
   end
 
-  def mix_run!(args) when is_list(args) do
-    case mix_run(args) do
+  def mix_run!(args, opts \\ []) when is_list(args) and is_list(opts) do
+    case mix_run(args, opts) do
       {_, 0} ->
         :ok
 
@@ -111,12 +111,12 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
     end
   end
 
-  def mix_run(args) when is_list(args) do
+  def mix_run(args, opts \\ []) when is_list(args) and is_list(opts) do
     if ExUnit.configuration() |> Keyword.get(:trace) do
       Logger.debug("Running mix #{Enum.join(args, " ")}")
     end
 
-    System.cmd("mix", args, env: [{"MIX_ENV", "test"}], stderr_to_stdout: true)
+    MixTaskServer.run(args, opts)
   end
 
   def assert_mix_test_succeeds do
@@ -149,12 +149,16 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
     Path.expand("../../test_apps", __DIR__)
   end
 
-  defp generate_new_app(app_name, opts) when is_list(opts) do
-    # The shell asks to install deps.
-    # We will politely say not.
-    send(self(), {:mix_shell_input, :yes?, false})
+  defp project_root_path do
+    Path.expand("../../", __DIR__)
+  end
 
-    New.run([app_name | opts])
+  defp generate_new_app(app_name, opts) when is_list(opts) do
+    File.cd!(project_root_path(), fn ->
+      app_path = test_apps_path() |> Path.join(app_name) |> Path.relative_to_cwd()
+
+      mix_run!(["phx.new", app_path | opts], prompt_responses: :no_to_all)
+    end)
   end
 
   defp inject_phx_gen_auth_dependency do
