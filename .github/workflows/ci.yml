@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        elixir: ["1.10.2", "1.9.4", "1.8.2", "1.7.4"]
+        elixir: ["1.10.2", "1.9.4", "1.8.2"]
         include:
           - elixir: "1.10.2"
             otp: "22.2.8"
@@ -24,9 +24,6 @@ jobs:
             otp: "22.2.8"
             check_formatting: true
           - elixir: "1.8.2"
-            otp: "22.2.8"
-            check_formatting: false
-          - elixir: "1.7.4"
             otp: "22.2.8"
             check_formatting: false
     steps:
@@ -85,15 +82,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        elixir: ["1.10.2", "1.9.4", "1.8.2", "1.7.4"]
+        elixir: ["1.10.2", "1.9.4", "1.8.2"]
         include:
           - elixir: "1.10.2"
             otp: "22.2.8"
           - elixir: "1.9.4"
             otp: "22.2.8"
           - elixir: "1.8.2"
-            otp: "22.2.8"
-          - elixir: "1.7.4"
             otp: "22.2.8"
     steps:
       - uses: actions/checkout@v1

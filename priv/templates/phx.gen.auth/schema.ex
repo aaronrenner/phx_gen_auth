@@ -2,19 +2,7 @@ defmodule <%= inspect schema.module %> do
   use Ecto.Schema
   import Ecto.Changeset
 
-  <%= if requires_inspect_impls? do %>##
-  # Deriving the Inspect protocol is only supported in Elixir 1.8+.
-  #
-  # In order to protect against accidentally leaking passwords, a custom
-  # `Inspect` impl has been added to the bottom of this module.
-  #
-  # After upgrading to Elixir 1.8+, the if statement around @derive
-  # and the inspect impl at the bottom of this module can be removed
-  ##
-  if Version.compare(System.version(), "1.8.0") in [:eq, :gt] do
-    @derive {Inspect, except: [:password]}
-  end
-  <% else %>@derive {Inspect, except: [:password]}<% end %>
+  @derive {Inspect, except: [:password]}
   schema <%= inspect schema.table %> do
     field :email, :string
     field :password, :string, virtual: true
@@ -130,46 +118,5 @@ defmodule <%= inspect schema.module %> do
     else
       add_error(changeset, :current_password, "is not valid")
     end
-  end<%= if requires_inspect_impls? do %>
-
-  ###
-  # This `Inspect` implementation is only needed for Elixir versions < 1.8
-  # and prevents `inspect/2` from returning sensitive fields.
-  #
-  # This can be removed after upgrading to Elixir 1.8+ and sensitive
-  # fields can be controlled with the the following line at the top of this
-  # module.
-  #
-  #     @derive {Inspect, except: [:password]}
-  ###
-  if Version.compare(System.version(), "1.8.0") == :lt do
-    defimpl Inspect do
-      @fields_to_exclude [:password]
-
-      import Inspect.Algebra
-
-      def inspect(<%= schema.singular %>, opts) do
-        colorless_opts = %{opts | syntax_colors: []}
-        name = Inspect.Atom.inspect(@for, colorless_opts)
-
-        open = color("#" <> name <> "<", :map, opts)
-        sep = color(",", :map, opts)
-        close = color(">", :map, opts)
-
-        map = Map.drop(<%= schema.singular %>, @fields_to_exclude ++ [:__struct__, :__exception__])
-
-        # Use the :limit option and an extra element to force
-        # `container_doc/6` to append "...".
-        opts = %{opts | limit: min(opts.limit, map_size(map))}
-
-        field_list =
-          map
-          |> Map.to_list()
-          |> Kernel.++(["..."])
-
-        container_doc(open, field_list, close, opts, &Inspect.List.keyword/2, separator: sep, break: :strict)
-
-      end
-    end
-  end<% end %>
+  end
 end
