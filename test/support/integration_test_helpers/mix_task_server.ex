@@ -2,7 +2,9 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers.MixTaskServer do
   use GenServer
 
   @type prompt_response :: :no_to_all | :yes_to_all | String.t()
-  @type opt :: {:prompt_responses, [prompt_response]}
+  @type opt ::
+          {:prompt_responses, [prompt_response]}
+          | {:cd, String.t()}
 
   @type args :: [String.t()]
 
@@ -25,6 +27,7 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers.MixTaskServer do
   @impl true
   def init({parent_pid, args, opts}) do
     mix_path = System.find_executable("mix")
+    port_options = extract_port_options(opts)
 
     prompt_responses =
       opts
@@ -34,7 +37,7 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers.MixTaskServer do
     port =
       Port.open(
         {:spawn_executable, mix_path},
-        [:exit_status, :stderr_to_stdout, args: args, env: [{'MIX_ENV', 'test'}]]
+        [:exit_status, :stderr_to_stdout, args: args, env: [{'MIX_ENV', 'test'}]] ++ port_options
       )
 
     state = %{
@@ -46,6 +49,16 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers.MixTaskServer do
 
     {:ok, state}
   end
+
+  defp extract_port_options([{:cd, dir} | rest]) do
+    [{:cd, to_charlist(dir)} | extract_port_options(rest)]
+  end
+
+  defp extract_port_options([_ | rest]) do
+    extract_port_options(rest)
+  end
+
+  defp extract_port_options([]), do: []
 
   @impl true
   def handle_info({port, {:data, data}}, %{port: port, output_iodata: output_iodata} = state) do
