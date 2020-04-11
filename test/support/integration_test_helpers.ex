@@ -7,6 +7,7 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
   alias Phx.Gen.Auth.TestSupport.IntegrationTestHelpers.MixTaskServer
 
   def setup_test_app(app_name, opts \\ []) when is_list(opts) do
+    File.mkdir_p!(test_apps_path())
     test_app_path = Path.join(test_apps_path(), app_name)
 
     if File.exists?(test_app_path) do
@@ -26,6 +27,7 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
   end
 
   def setup_test_umbrella_app(app_name, opts \\ []) when is_list(opts) do
+    File.mkdir_p!(test_apps_path())
     umbrella_app_name = "#{app_name}_umbrella"
     test_app_path = Path.join(test_apps_path(), umbrella_app_name)
 
@@ -46,6 +48,7 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
   end
 
   def setup_test_mix_app(app_name, opts \\ []) when is_list(opts) do
+    File.mkdir_p!(test_apps_path())
     test_app_path = Path.join(test_apps_path(), app_name)
 
     if File.exists?(test_app_path) do
