@@ -2,7 +2,7 @@ defmodule <%= inspect schema.module %> do
   use Ecto.Schema
   import Ecto.Changeset
 
-  # TODO: support binary ids
+  @derive {Inspect, except: [:password]}
   schema <%= inspect schema.table %> do
     field :email, :string
     field :password, :string, virtual: true
@@ -16,9 +16,9 @@ defmodule <%= inspect schema.module %> do
   A <%= schema.singular %> changeset for registration.
 
   It is important to validate the length of both e-mail and password.
-  Otherwise databases may truncate them without warnings, which could
-  lead to unpredictable or insecure behaviour. Long passwords may also
-  be very expensive to hash.
+  Otherwise databases may truncate the e-mail without warnings, which
+  could lead to unpredictable or insecure behaviour. Long passwords may
+  also be very expensive to for certain algorithms.
   """
   def registration_changeset(<%= schema.singular %>, attrs) do
     <%= schema.singular %>
@@ -50,7 +50,9 @@ defmodule <%= inspect schema.module %> do
     password = get_change(changeset, :password)
 
     if password && changeset.valid? do
-      put_change(changeset, :hashed_password, Bcrypt.hash_pwd_salt(password))
+      changeset
+      |> put_change(:hashed_password, Bcrypt.hash_pwd_salt(password))
+      |> delete_change(:password)
     else
       changeset
     end

@@ -66,7 +66,7 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
   end
 
   def mix_deps_get_and_compile(app_path) do
-    mix_run!(["do", "deps.get", "--no-archives-check,", "deps.compile"], cd: app_path)
+    mix_run!(["do", "deps.get", "--no-archives-check,", "compile"], cd: app_path)
   end
 
   def mix_run!(args, opts \\ []) when is_list(args) and is_list(opts) do
@@ -99,7 +99,7 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
   end
 
   def assert_no_compilation_warnings(app_path) do
-    mix_run!(~w(compile --warnings-as-errors), cd: app_path)
+    mix_run!(~w(compile --force --warnings-as-errors), cd: app_path)
   end
 
   def assert_file(file) do

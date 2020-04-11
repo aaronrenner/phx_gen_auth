@@ -14,7 +14,7 @@
   <%%= error_tag f, :email %>
 
   <%%= label f, :current_password %>
-  <%%= password_input f, :current_password, required: true, name: "current_password" %>
+  <%%= password_input f, :current_password, required: true, name: "current_password", id: "current_password_for_email" %>
   <%%= error_tag f, :current_password %>
 
   <div>
@@ -40,7 +40,7 @@
   <%%= error_tag f, :password_confirmation %>
 
   <%%= label f, :current_password %>
-  <%%= password_input f, :current_password, required: true, name: "current_password" %>
+  <%%= password_input f, :current_password, required: true, name: "current_password", id: "current_password_for_password" %>
   <%%= error_tag f, :current_password %>
 
   <div>
