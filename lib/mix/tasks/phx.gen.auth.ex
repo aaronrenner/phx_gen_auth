@@ -445,7 +445,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
       end
 
     config_inject(project_path, "config/test.exs", """
-    # Only in tests, remove the complexity from the password encryption algorithm
+    # Only in tests, remove the complexity from the password hashing algorithm
     config :bcrypt_elixir, :log_rounds, 1
     """)
 
