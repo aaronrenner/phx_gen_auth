@@ -128,9 +128,13 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
   end
 
   def inject_compilation_error(path) do
+    modify_file(path, &Kernel.<>(&1, "boom"))
+  end
+
+  def modify_file(path, function) when is_binary(path) and is_function(function, 1) do
     path
     |> File.read!()
-    |> Kernel.<>("boom")
+    |> function.()
     |> write_file!(path)
   end
 

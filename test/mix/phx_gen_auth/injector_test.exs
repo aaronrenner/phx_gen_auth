@@ -161,4 +161,52 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
 
     assert {:error, :unable_to_inject} = Injector.inject_mix_dependency(existing_file, inject)
   end
+
+  test "inject_before_final_end/2 injects code when not previously injected" do
+    existing_code = """
+    defmodule MyApp.Router do
+      use MyApp, :router
+    end
+    """
+
+    code_to_inject = """
+
+      scope "/", MyApp do
+        resources "/companies", CompanyController
+      end
+    """
+
+    assert {:ok, new_code} = Injector.inject_before_final_end(existing_code, code_to_inject)
+
+    assert new_code == """
+           defmodule MyApp.Router do
+             use MyApp, :router
+
+             scope "/", MyApp do
+               resources "/companies", CompanyController
+             end
+           end
+           """
+  end
+
+  test "inject_before_final_end/2 returns :already_injected when code has been injected" do
+    existing_code = """
+    defmodule MyApp.Router do
+      use MyApp, :router
+
+      scope "/", MyApp do
+        resources "/companies", CompanyController
+      end
+    end
+    """
+
+    code_to_inject = """
+
+      scope "/", MyApp do
+        resources "/companies", CompanyController
+      end
+    """
+
+    assert :already_injected = Injector.inject_before_final_end(existing_code, code_to_inject)
+  end
 end

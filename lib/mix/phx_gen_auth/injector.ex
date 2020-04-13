@@ -12,6 +12,25 @@ defmodule Mix.Phx.Gen.Auth.Injector do
     end
   end
 
+  @doc """
+  Injects snippet before the final end in a file
+  """
+  @spec inject_before_final_end(String.t(), String.t()) :: {:ok, String.t()} | :already_injected
+  def inject_before_final_end(code, code_to_inject) when is_binary(code) and is_binary(code_to_inject) do
+    if String.contains?(code, code_to_inject) do
+      :already_injected
+    else
+      new_code =
+        code
+        |> String.trim_trailing()
+        |> String.trim_trailing("end")
+        |> Kernel.<>(code_to_inject)
+        |> Kernel.<>("end\n")
+
+      {:ok, new_code}
+    end
+  end
+
   @spec ensure_dependency_not_injected(String.t(), String.t()) :: :ok | :already_injected
   defp ensure_dependency_not_injected(mixfile, dependency) do
     if String.contains?(mixfile, dependency) do

@@ -519,22 +519,14 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   defp inject_before_final_end(content_to_inject, file_path) do
     file = File.read!(file_path)
 
-    if String.contains?(file, content_to_inject) do
-      :ok
-    else
-      Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path)])
+    case Injector.inject_before_final_end(file, content_to_inject) do
+      {:ok, new_file} ->
+        Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path)])
+        File.write!(file_path, new_file)
 
-      file
-      |> String.trim_trailing()
-      |> String.trim_trailing("end")
-      |> Kernel.<>(content_to_inject)
-      |> Kernel.<>("end\n")
-      |> write_file(file_path)
+      :already_injected ->
+        :ok
     end
-  end
-
-  defp write_file(content, file) do
-    File.write!(file, content)
   end
 
   defp timestamp do

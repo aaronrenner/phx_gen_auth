@@ -3,6 +3,8 @@ defmodule Phx.Gen.Auth.IntegrationTests.DefaultAppTest do
 
   import Phx.Gen.Auth.TestSupport.IntegrationTestHelpers
 
+  alias Mix.Phx.Gen.Auth.Injector
+
   require Logger
 
   @moduletag timeout: :infinity
@@ -78,5 +80,36 @@ defmodule Phx.Gen.Auth.IntegrationTests.DefaultAppTest do
 
     assert_no_compilation_warnings(test_app_path)
     assert_mix_test_succeeds(test_app_path)
+  end
+
+  test "properly installs into existing context", %{test_app_path: test_app_path} do
+    mix_run!(~w(phx.gen.html Accounts Company companies name), cd: test_app_path)
+
+    modify_file(Path.join(test_app_path, "lib/demo_web/router.ex"), fn file ->
+      {:ok, new_file} =
+        Injector.inject_before_final_end(file, """
+
+          scope "/", DemoWeb do
+            pipe_through [:browser]
+
+            resources "/companies", CompanyController
+          end
+        """)
+
+      new_file
+    end)
+
+    assert_no_compilation_warnings(test_app_path)
+    assert_mix_test_succeeds(test_app_path)
+
+    mix_run!(~w(phx.gen.auth Accounts User users), cd: test_app_path, prompt_responses: ["Y"])
+    mix_deps_get_and_compile(test_app_path)
+
+    assert_no_compilation_warnings(test_app_path)
+    assert_mix_test_succeeds(test_app_path)
+
+    assert_file(Path.join(test_app_path, "lib/demo/accounts.ex"), fn file ->
+      assert file =~ "register_user"
+    end)
   end
 end

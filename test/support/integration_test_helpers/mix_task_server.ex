@@ -87,6 +87,11 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers.MixTaskServer do
     end
   end
 
+  defp handle_prompt!(_prompt, %{prompt_responses: [response | rest], port: port} = state) when is_binary(response) do
+    Port.command(port, response <> "\n")
+    %{state | prompt_responses: [rest]}
+  end
+
   defp handle_prompt!(_prompt, %{prompt_responses: [:no_to_all | _], port: port} = state) do
     Port.command(port, "n\n")
     state
