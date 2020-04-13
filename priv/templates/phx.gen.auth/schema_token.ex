@@ -14,7 +14,7 @@ defmodule <%= inspect schema.module %>Token do
 <%= if schema.binary_id do %>
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id<% end %>
-  schema "<%= schema.singular %>_tokens" do
+  schema "<%= schema.table %>_tokens" do
     field :token, :binary
     field :context, :string
     field :sent_to, :string

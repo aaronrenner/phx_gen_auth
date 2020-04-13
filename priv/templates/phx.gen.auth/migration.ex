@@ -1,4 +1,4 @@
-defmodule <%= inspect schema.repo %>.Migrations.Create<%= inspect schema.alias %>AuthTables do
+defmodule <%= inspect schema.repo %>.Migrations.Create<%= Macro.camelize(schema.table) %>AuthTables do
   use Ecto.Migration
 
   def change do<%= if Enum.any?(migration.extensions) do %><%= for extension <- migration.extensions do %>
@@ -14,7 +14,7 @@ defmodule <%= inspect schema.repo %>.Migrations.Create<%= inspect schema.alias %
 
     create unique_index(:<%= schema.table %>, [:email])
 
-    create table(:<%= schema.singular %>_tokens<%= if schema.binary_id do %>, primary_key: false<% end %>) do
+    create table(:<%= schema.table %>_tokens<%= if schema.binary_id do %>, primary_key: false<% end %>) do
 <%= if schema.binary_id do %>      add :id, :binary_id, primary_key: true
 <% end %>      add :<%= schema.singular %>_id, references(:<%= schema.table %>, <%= if schema.binary_id do %>type: :binary_id, <% end %>on_delete: :delete_all), null: false
       <%= migration.column_definitions[:token] %>
@@ -23,6 +23,6 @@ defmodule <%= inspect schema.repo %>.Migrations.Create<%= inspect schema.alias %
       timestamps(updated_at: false)
     end
 
-    create unique_index(:<%= schema.singular %>_tokens, [:context, :token])
+    create unique_index(:<%= schema.table %>_tokens, [:context, :token])
   end
 end

@@ -6,6 +6,9 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
       mix phx.gen.auth Accounts User users
 
+  The first argument is the context module followed by the schema module
+  and its plural name (used as the schema table name).
+
   ## Web namespace
 
   By default, the controllers and view will be namespaced by the schema name.
@@ -23,6 +26,16 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   * `test/my_app_web/controllers/warehouse/user_auth_test.exs`
   * `test/my_app_web/controllers/warehouse/user_confirmation_controller_test.exs`
   * and so on...
+
+  ## Custom table names
+
+  By default, the table name for the migration and schema will be
+  the plural name provided for the resource. To customize this value,
+  a `--table` option may be provided. For example:
+
+      mix phx.gen.auth Accounts User users --table accounts_users
+
+  This will cause the generated tables to be named `"accounts_users"` and `"accounts_users_tokens"`.
 
   ## Notes about the generated authentication system
 
@@ -133,7 +146,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   alias Mix.Tasks.Phx.Gen
   alias Mix.Phx.Gen.Auth.{HashingLibrary, Injector, Migration}
 
-  @switches [web: :string, binary_id: :boolean, hashing_lib: :string]
+  @switches [web: :string, binary_id: :boolean, hashing_lib: :string, table: :string]
 
   @doc false
   def run(args) do
@@ -237,7 +250,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
     [
       {:eex, "context_fixtures.ex", Path.join([context_app_prefix, "test", "support", "fixtures", "#{context.basename}_fixtures.ex"])},
-      {:eex, "migration.ex", Path.join([migrations_prefix, "#{timestamp()}_create_#{schema.singular}_auth_tables.exs"])},
+      {:eex, "migration.ex", Path.join([migrations_prefix, "#{timestamp()}_create_#{schema.table}_auth_tables.exs"])},
       {:eex, "notifier.ex", Path.join([context.dir, "#{schema.singular}_notifier.ex"])},
       {:eex, "schema.ex", Path.join([context.dir, "#{schema.singular}.ex"])},
       {:eex, "schema_token.ex", Path.join([context.dir, "#{schema.singular}_token.ex"])},
