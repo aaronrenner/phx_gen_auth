@@ -34,7 +34,7 @@
   describe "get_<%= schema.singular %>!/1" do
     test "raises if id is invalid" do
       assert_raise Ecto.NoResultsError, fn ->
-        <%= inspect context.alias %>.get_<%= schema.singular %>!(123)
+        <%= inspect context.alias %>.get_<%= schema.singular %>!(<%= inspect schema.sample_id %>)
       end
     end
 

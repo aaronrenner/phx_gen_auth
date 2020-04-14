@@ -54,6 +54,17 @@ defmodule Phx.Gen.Auth.IntegrationTests.DefaultAppTest do
       assert file =~ "def login_user"
     end)
 
+    [migration] =
+      test_app_path
+      |> Path.join("priv/repo/migrations/*_create_user_auth_tables.exs")
+      |> Path.wildcard()
+
+    assert_file(migration, fn file ->
+      assert file =~ "create table(:users)"
+      assert file =~ "create table(:user_tokens)"
+      refute file =~ "add :id, :binary_id, primary_key: true"
+    end)
+
     mix_deps_get_and_compile(test_app_path)
 
     assert_no_compilation_warnings(test_app_path)
@@ -111,5 +122,25 @@ defmodule Phx.Gen.Auth.IntegrationTests.DefaultAppTest do
     assert_file(Path.join(test_app_path, "lib/demo/accounts.ex"), fn file ->
       assert file =~ "register_user"
     end)
+  end
+
+  test "supports binary_id option", %{test_app_path: test_app_path} do
+    mix_run!(~w(phx.gen.auth Accounts User users --binary-id), cd: test_app_path)
+
+    [migration] =
+      test_app_path
+      |> Path.join("priv/repo/migrations/*_create_user_auth_tables.exs")
+      |> Path.wildcard()
+
+    assert_file(migration, fn file ->
+      assert file =~ "create table(:users, primary_key: false)"
+      assert file =~ "create table(:user_tokens, primary_key: false)"
+      assert file =~ "add :id, :binary_id, primary_key: true"
+    end)
+
+    mix_deps_get_and_compile(test_app_path)
+
+    assert_no_compilation_warnings(test_app_path)
+    assert_mix_test_succeeds(test_app_path)
   end
 end

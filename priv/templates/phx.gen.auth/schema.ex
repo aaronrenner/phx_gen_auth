@@ -2,7 +2,9 @@ defmodule <%= inspect schema.module %> do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @derive {Inspect, except: [:password]}
+  @derive {Inspect, except: [:password]}<%= if schema.binary_id do %>
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id<% end %>
   schema <%= inspect schema.table %> do
     field :email, :string
     field :password, :string, virtual: true

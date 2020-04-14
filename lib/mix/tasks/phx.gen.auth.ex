@@ -97,6 +97,24 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
   The generated tests run concurrently if you are using a database
   that supports concurrent tests (Postgres).
+
+  ## Binary ids
+
+  The `--binary-id` option causes the generated migration to use
+  `binary_id` for its primary key and foreign keys.
+
+  ## Default options
+
+  This generator uses default options provided in the `:generators`
+  configuration of your application. These are the defaults:
+
+      config :your_app, :generators,
+        binary_id: false,
+        sample_binary_id: "11111111-1111-1111-1111-111111111111"
+
+  You can override those options per invocation by providing corresponding
+  switches, e.g. `--no-binary-id` to use normal ids despite the default
+  configuration.
   """
 
   use Mix.Task
@@ -105,7 +123,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   alias Mix.Tasks.Phx.Gen
   alias Mix.Phx.Gen.Auth.{Injector, Migration}
 
-  @switches [web: :string]
+  @switches [web: :string, binary_id: :boolean]
 
   @doc false
   def run(args) do
