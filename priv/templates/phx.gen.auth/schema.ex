@@ -53,7 +53,7 @@ defmodule <%= inspect schema.module %> do
 
     if password && changeset.valid? do
       changeset
-      |> put_change(:hashed_password, Bcrypt.hash_pwd_salt(password))
+      |> put_change(:hashed_password, <%= inspect hashing_library.module %>.hash_pwd_salt(password))
       |> delete_change(:password)
     else
       changeset
@@ -103,11 +103,11 @@ defmodule <%= inspect schema.module %> do
   """
   def valid_password?(%<%= inspect schema.module %>{hashed_password: hashed_password}, password)
       when is_binary(hashed_password) and byte_size(password) > 0 do
-    Bcrypt.verify_pass(password, hashed_password)
+    <%= inspect hashing_library.module %>.verify_pass(password, hashed_password)
   end
 
   def valid_password?(_, _) do
-    Bcrypt.hash_pwd_salt("unused hash to avoid timing attacks")
+    <%= inspect hashing_library.module %>.hash_pwd_salt("unused hash to avoid timing attacks")
     false
   end
 
