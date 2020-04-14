@@ -18,6 +18,14 @@ defmodule Phx.Gen.Auth.IntegrationTests.DefaultAppTest do
   test "single project with postgres, default schema and context names", %{test_app_path: test_app_path} do
     mix_run!(~w(phx.gen.auth Accounts User users), cd: test_app_path)
 
+    assert_file(Path.join(test_app_path, "config/test.exs"), fn file ->
+      assert file =~ "config :bcrypt_elixir, :log_rounds, 1"
+    end)
+
+    assert_file(Path.join(test_app_path, "lib/demo/accounts/user.ex"), fn file ->
+      assert file =~ "Bcrypt.verify_pass(password, hashed_password)"
+    end)
+
     assert_file(Path.join(test_app_path, "lib/demo_web/controllers/user_confirmation_controller.ex"))
     assert_file(Path.join(test_app_path, "lib/demo_web/controllers/user_reset_password_controller.ex"))
     assert_file(Path.join(test_app_path, "lib/demo_web/controllers/user_registration_controller.ex"))
@@ -136,6 +144,44 @@ defmodule Phx.Gen.Auth.IntegrationTests.DefaultAppTest do
       assert file =~ "create table(:users, primary_key: false)"
       assert file =~ "create table(:user_tokens, primary_key: false)"
       assert file =~ "add :id, :binary_id, primary_key: true"
+    end)
+
+    mix_deps_get_and_compile(test_app_path)
+
+    assert_no_compilation_warnings(test_app_path)
+    assert_mix_test_succeeds(test_app_path)
+  end
+
+  test "with pbkdf2 as the hashing library", %{test_app_path: test_app_path} do
+    mix_run!(~w(phx.gen.auth Accounts User users --hashing-lib pbkdf2), cd: test_app_path)
+
+    assert_file(Path.join(test_app_path, "lib/demo/accounts/user.ex"), fn file ->
+      assert file =~ "Pbkdf2.verify_pass(password, hashed_password)"
+    end)
+
+    assert_file(Path.join(test_app_path, "config/test.exs"), fn file ->
+      assert file =~ "config :pbkdf2_elixir, :rounds, 1"
+    end)
+
+    mix_deps_get_and_compile(test_app_path)
+
+    assert_no_compilation_warnings(test_app_path)
+    assert_mix_test_succeeds(test_app_path)
+  end
+
+  test "with argon2 as the hashing library", %{test_app_path: test_app_path} do
+    mix_run!(~w(phx.gen.auth Accounts User users --hashing-lib argon2), cd: test_app_path)
+
+    assert_file(Path.join(test_app_path, "lib/demo/accounts/user.ex"), fn file ->
+      assert file =~ "Argon2.verify_pass(password, hashed_password)"
+    end)
+
+    assert_file(Path.join(test_app_path, "config/test.exs"), fn file ->
+      assert file =~ """
+             config :argon2_elixir,
+               t_cost: 1,
+               m_cost: 8
+             """
     end)
 
     mix_deps_get_and_compile(test_app_path)

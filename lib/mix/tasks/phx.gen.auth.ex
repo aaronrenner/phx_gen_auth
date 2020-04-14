@@ -29,8 +29,18 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   ### Password hashing
 
   The password hashing mechanism defaults to `bcrypt` for
-  Unix systems and `pdkdf2` for Windows systems. Both
+  Unix systems and `pbkdf2` for Windows systems. Both
   systems use [the Comeonin interface](https://hexdocs.pm/comeonin/).
+
+  The password hashing mechanism can be overriden with the
+  `--hashing-lib` option. The following values are supported:
+
+  * `bcrypt` - [bcrypt_elixir](https://hex.pm/packages/bcrypt_elixir)
+  * `pbkdf2` - [pbkdf2_elixir](https://hex.pm/packages/pbkdf2_elixir)
+  * `argon2` - [argon2_elixir](https://hex.pm/packages/argon2_elixir)
+
+  For more information about choosing these libraries, see the
+  [Comeonin project](https://github.com/riverrun/comeonin).
 
   ### Forbidding access
 
@@ -121,9 +131,9 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
   alias Mix.Phoenix.{Context, Schema}
   alias Mix.Tasks.Phx.Gen
-  alias Mix.Phx.Gen.Auth.{Injector, Migration}
+  alias Mix.Phx.Gen.Auth.{HashingLibrary, Injector, Migration}
 
-  @switches [web: :string, binary_id: :boolean]
+  @switches [web: :string, binary_id: :boolean, hashing_lib: :string]
 
   @doc false
   def run(args) do
@@ -133,6 +143,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
     {opts, parsed} = OptionParser.parse!(args, strict: @switches)
     validate_args!(parsed)
+    hashing_library = build_hashing_library!(opts)
 
     context_args = OptionParser.to_argv(opts, switches: @switches) ++ parsed
 
@@ -155,6 +166,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
       context: context,
       schema: schema,
       migration: migration,
+      hashing_library: hashing_library,
       endpoint_module: Module.concat([context.web_module, Endpoint]),
       auth_module: Module.concat([context.web_module, schema.web_namespace, "#{inspect(schema.alias)}Auth"]),
       router_scope: router_scope(context),
@@ -170,8 +182,8 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     |> copy_new_files(binding, paths)
     |> inject_conn_case_helpers(paths, binding)
     |> inject_routes(paths, binding)
-    |> inject_config()
-    |> maybe_inject_mix_dependency()
+    |> inject_config(hashing_library)
+    |> maybe_inject_mix_dependency(hashing_library)
     |> maybe_inject_router_import(binding)
     |> maybe_inject_router_plug(binding)
     |> maybe_inject_app_layout_menu(binding)
@@ -187,6 +199,26 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   defp validate_required_dependencies! do
     unless Code.ensure_loaded?(Ecto.Adapters.SQL) do
       raise_with_help("mix phx.gen.auth requires ecto_sql", :phx_generator_args)
+    end
+  end
+
+  defp build_hashing_library!(opts) do
+    opts
+    |> Keyword.get_lazy(:hashing_lib, &default_hashing_library_option/0)
+    |> HashingLibrary.build()
+    |> case do
+      {:ok, hashing_library} ->
+        hashing_library
+
+      {:error, {:unknown_library, unknown_library}} ->
+        raise_with_help("Unknown value for --hashing-lib #{inspect(unknown_library)}", :hashing_lib)
+    end
+  end
+
+  defp default_hashing_library_option do
+    case :os.type() do
+      {:unix, _} -> "bcrypt"
+      {:win32, _} -> "pbkdf2"
     end
   end
 
@@ -289,15 +321,14 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     context
   end
 
-  defp maybe_inject_mix_dependency(%Context{context_app: ctx_app} = context) do
+  defp maybe_inject_mix_dependency(%Context{context_app: ctx_app} = context, %HashingLibrary{mix_dependency: mix_dependency}) do
     # TODO: Figure out what happens if this file isn't here
     # TODO: Figure out how to make this show up in the right place in test
     file_path = Mix.Phoenix.context_app_path(ctx_app, "mix.exs")
 
     file = File.read!(file_path)
-    inject = "{:bcrypt_elixir, \"~> 2.0\"}"
 
-    case Injector.inject_mix_dependency(file, inject) do
+    case Injector.inject_mix_dependency(file, mix_dependency) do
       {:ok, new_file} ->
         Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path)])
         File.write!(file_path, new_file)
@@ -308,11 +339,11 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
       {:error, :unable_to_inject} ->
         Mix.shell().info("""
 
-        Add your #{inspect(inject)} dependency to #{file_path}:
+        Add your #{inspect(mix_dependency)} dependency to #{file_path}:
 
             defp deps do
               [
-                #{inject},
+                #{mix_dependency},
                 ...
               ]
             end
@@ -454,7 +485,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     end
   end
 
-  defp inject_config(context) do
+  defp inject_config(context, %HashingLibrary{test_config: test_config}) do
     project_path =
       if Mix.Phoenix.in_umbrella?(File.cwd!()) do
         Path.expand("../../")
@@ -464,7 +495,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
     config_inject(project_path, "config/test.exs", """
     # Only in tests, remove the complexity from the password hashing algorithm
-    config :bcrypt_elixir, :log_rounds, 1
+    #{test_config}
     """)
 
     context
@@ -597,6 +628,21 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     mix phx.new my_app --database mysql
 
     Apps generated with --no-ecto and --no-html are not supported
+    """)
+  end
+
+  defp raise_with_help(msg, :hashing_lib) do
+    Mix.raise("""
+    #{msg}
+
+    mix phx.gen.auth supports the following values for --hashing-lib
+
+    * bcrypt
+    * pbkdf2
+    * argon2
+
+    Visit https://github.com/riverrun/comeonin for more information
+    on choosing a library.
     """)
   end
 

@@ -48,6 +48,10 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
       assert_raise OptionParser.ParseError, ~r/unknown option/i, fn ->
         Gen.Auth.run(~w(Accounts User users --no-schema))
       end
+
+      assert_raise Mix.Error, ~r/Unknown value for --hashing-lib/, fn ->
+        Gen.Auth.run(~w(Accounts User users --hashing-lib unknown))
+      end
     end)
   end
 end
