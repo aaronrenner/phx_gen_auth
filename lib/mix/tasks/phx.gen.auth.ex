@@ -461,15 +461,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   defp do_inject_app_layout_menu(_context, file, file_path, menu_name, inject) do
     Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path)])
 
-    # This matches all characters that have a preceding
-    # <nav role="navigation"> and a trailing </nav>
-    # (Positive look ahead and positive look behind).
-    new_file =
-      Regex.replace(
-        ~r|(?<=<nav role="navigation">).*(?=</nav>)|s,
-        file,
-        "\n          #{inject}\n        "
-      )
+    new_file = String.replace(file, "<body>", "<body>\n    #{inject}")
 
     if file != new_file do
       File.write!(file_path, new_file)
