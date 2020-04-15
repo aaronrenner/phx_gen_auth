@@ -40,4 +40,11 @@ defmodule Phx.Gen.Auth.IntegrationTests.GeneratorOutputTest do
 
     assert output =~ ~s|Add a render call for "_user_menu.html" to lib/generator_output_app_web/templates/layout/app.html.eex|
   end
+
+  test "errors it can't find layout file", %{test_app_path: test_app_path} do
+    File.rm!(Path.join(test_app_path, "lib/generator_output_app_web/templates/layout/app.html.eex"))
+
+    output = mix_run!(~w(phx.gen.auth Accounts User users), cd: test_app_path)
+    assert output =~ ~r/Unable to find an application layout file to inject.*"_user_menu\.html"/si
+  end
 end

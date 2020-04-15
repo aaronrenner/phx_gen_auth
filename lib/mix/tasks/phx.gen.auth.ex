@@ -440,36 +440,72 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     end
   end
 
-  defp maybe_inject_app_layout_menu(%Context{context_app: ctx_app} = context, binding) do
-    # TODO: Figure out what happens if this file isn't here
-    web_prefix = Mix.Phoenix.web_path(ctx_app)
-    file_path = Path.join([web_prefix, "templates", "layout", "app.html.eex"])
-    file = File.read!(file_path)
+  defp maybe_inject_app_layout_menu(%Context{} = context, binding) do
     schema = Keyword.fetch!(binding, :schema)
     menu_name = "_#{schema.singular}_menu.html"
     inject = "<%= render \"#{menu_name}\", assigns %>"
 
-    case Injector.inject_unless_contains(file, inject, &String.replace(&1, "<body>", "<body>\n    #{&2}")) do
-      {:ok, new_file} ->
-        Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path)])
+    if file_path = get_layout_html_path(context) do
+      file = File.read!(file_path)
 
-        File.write!(file_path, new_file)
+      case Injector.inject_unless_contains(file, inject, &String.replace(&1, "<body>", "<body>\n    #{&2}")) do
+        {:ok, new_file} ->
+          Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path)])
 
-      :already_injected ->
-        :ok
+          File.write!(file_path, new_file)
 
-      {:error, :unable_to_inject} ->
-        Mix.shell().info("""
+        :already_injected ->
+          :ok
 
-        Add a render call for #{inspect(menu_name)} to #{file_path}:
+        {:error, :unable_to_inject} ->
+          Mix.shell().info("""
 
-            <nav role="navigation">
-              #{inject}
-            </nav>
-        """)
+          Add a render call for #{inspect(menu_name)} to #{file_path}:
+
+              <nav role="navigation">
+                #{inject}
+              </nav>
+          """)
+      end
+    else
+      Mix.shell().error("""
+
+      Unable to find an application layout file to inject a render
+      call for #{inspect(menu_name)}.
+
+      Missing files:
+
+      #{
+        context
+        |> potential_layout_file_paths()
+        |> Enum.map(&"  * #{&1}")
+        |> Enum.join("\n")
+      }
+
+      Please ensure this phoenix app was not generated with
+      --no-html. If you have changed the name of your application
+      layout file, please add the following code to it where you'd
+      like #{inspect(menu_name)} to be rendered.
+
+          #{inject}
+      """)
     end
 
     context
+  end
+
+  defp get_layout_html_path(%Context{} = context) do
+    context
+    |> potential_layout_file_paths()
+    |> Enum.find(&File.exists?/1)
+  end
+
+  defp potential_layout_file_paths(%Context{context_app: ctx_app}) do
+    web_prefix = Mix.Phoenix.web_path(ctx_app)
+
+    for file_name <- ~w(root.html.leex app.html.eex) do
+      Path.join([web_prefix, "templates", "layout", file_name])
+    end
   end
 
   defp inject_config(context, %HashingLibrary{test_config: test_config}) do
