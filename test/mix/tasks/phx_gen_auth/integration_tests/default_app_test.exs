@@ -32,6 +32,13 @@ defmodule Phx.Gen.Auth.IntegrationTests.DefaultAppTest do
     assert_file(Path.join(test_app_path, "lib/demo_web/controllers/user_session_controller.ex"))
     assert_file(Path.join(test_app_path, "lib/demo_web/controllers/user_settings_controller.ex"))
 
+    assert_file(Path.join(test_app_path, "lib/demo_web/templates/layout/app.html.eex"), fn file ->
+      assert file =~ """
+               <body>
+                 <%= render "_user_menu.html", assigns %>
+             """
+    end)
+
     assert_file(Path.join(test_app_path, "test/demo_web/controllers/user_auth_test.exs"), fn file ->
       assert file =~ ~r/use DemoWeb\.ConnCase, async: true$/m
     end)

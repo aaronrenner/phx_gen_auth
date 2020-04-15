@@ -449,7 +449,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     menu_name = "_#{schema.singular}_menu.html"
     inject = "<%= render \"#{menu_name}\", assigns %>"
 
-    case Injector.inject_app_layout_menu(file, inject) do
+    case Injector.inject_unless_contains(file, inject, &String.replace(&1, "<body>", "<body>\n    #{&2}")) do
       {:ok, new_file} ->
         Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path)])
 

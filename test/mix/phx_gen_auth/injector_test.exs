@@ -210,7 +210,7 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
     assert :already_injected = Injector.inject_before_final_end(existing_code, code_to_inject)
   end
 
-  test "inject_app_layout_menu/2 injects after the <body> tag" do
+  test "inject_unless_contains/3 injects when code doesn't already contain code_to_inject" do
     existing_code = """
     <html>
       <body>
@@ -221,9 +221,14 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
 
     code_to_inject = ~s|<%= render "_user_menu.html" %>|
 
-    assert {:ok, new_file} = Injector.inject_app_layout_menu(existing_code, code_to_inject)
+    assert {:ok, new_code} =
+             Injector.inject_unless_contains(
+               existing_code,
+               code_to_inject,
+               &String.replace(&1, "<body>", "<body>\n    #{&2}")
+             )
 
-    assert new_file == """
+    assert new_code == """
            <html>
              <body>
                <%= render "_user_menu.html" %>
@@ -233,28 +238,38 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
            """
   end
 
-  test "inject_app_layout_menu/2 returns :already_injected when code has already been injected" do
+  test "inject_unless_contains/3 returns :already_injected when the existing code already contains code_to_inject" do
     existing_code = """
     <html>
       <body>
-        <%= render "_user_menu.html" %>
+        <nav role="navigation">
+          <%= render "_user_menu.html" %>
+        </nav>
+        <h1>My App</h1>
       </body>
     </html>
     """
 
     code_to_inject = ~s|<%= render "_user_menu.html" %>|
 
-    assert :already_injected = Injector.inject_app_layout_menu(existing_code, code_to_inject)
+    assert :already_injected =
+             Injector.inject_unless_contains(
+               existing_code,
+               code_to_inject,
+               &String.replace(&1, "<body>", "<body>\n    #{&2}")
+             )
   end
 
-  test "inject_app_layout_menu/2 returns {:error, :unable_to_inject} when the body tag is not found" do
-    existing_code = """
-    <html>
-    </html>
-    """
+  test "inject_unless_contains/3 returns {:error, :unable_to_inject} when no change is made" do
+    existing_code = ""
 
     code_to_inject = ~s|<%= render "_user_menu.html" %>|
 
-    assert {:error, :unable_to_inject} = Injector.inject_app_layout_menu(existing_code, code_to_inject)
+    assert {:error, :unable_to_inject} =
+             Injector.inject_unless_contains(
+               existing_code,
+               code_to_inject,
+               &String.replace(&1, "<body>", "<body>\n    #{&2}")
+             )
   end
 end

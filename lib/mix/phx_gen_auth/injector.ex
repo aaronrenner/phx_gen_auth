@@ -13,24 +13,19 @@ defmodule Mix.Phx.Gen.Auth.Injector do
   end
 
   @doc """
-  Injects code into the application layout
+  Injects code unless the existing code already contains `code_to_inject`
   """
-  @spec inject_app_layout_menu(String.t(), String.t()) :: {:ok, String.t()} | :already_injected | {:error, :unable_to_inject}
-  def inject_app_layout_menu(html, html_to_inject) do
-    with :ok <- ensure_not_already_injected(html, html_to_inject),
-         {:ok, new_code} <- do_inject_app_layout_menu(html, html_to_inject) do
-      {:ok, new_code}
-    end
-  end
+  @spec inject_unless_contains(String.t(), String.t(), (String.t(), String.t() -> String.t())) ::
+          {:ok, String.t()} | :already_injected | {:error, :unable_to_inject}
+  def inject_unless_contains(code, code_to_inject, inject_fn) when is_binary(code) and is_binary(code_to_inject) and is_function(inject_fn, 2) do
+    with :ok <- ensure_not_already_injected(code, code_to_inject) do
+      new_code = inject_fn.(code, code_to_inject)
 
-  @spec do_inject_app_layout_menu(String.t(), String.t()) :: {:ok, String.t()} | {:error, :unable_to_inject}
-  defp do_inject_app_layout_menu(code, code_to_inject) do
-    new_code = String.replace(code, "<body>", "<body>\n    #{code_to_inject}")
-
-    if code != new_code do
-      {:ok, new_code}
-    else
-      {:error, :unable_to_inject}
+      if code != new_code do
+        {:ok, new_code}
+      else
+        {:error, :unable_to_inject}
+      end
     end
   end
 
