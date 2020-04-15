@@ -6,9 +6,31 @@ defmodule Mix.Phx.Gen.Auth.Injector do
   """
   @spec inject_mix_dependency(String.t(), String.t()) :: {:ok, String.t()} | :already_injected | {:error, :unable_to_inject}
   def inject_mix_dependency(mixfile, dependency) do
-    with :ok <- ensure_dependency_not_injected(mixfile, dependency),
+    with :ok <- ensure_not_already_injected(mixfile, dependency),
          {:ok, new_mixfile} <- do_inject_dependency(mixfile, dependency) do
       {:ok, new_mixfile}
+    end
+  end
+
+  @doc """
+  Injects code into the application layout
+  """
+  @spec inject_app_layout_menu(String.t(), String.t()) :: {:ok, String.t()} | :already_injected | {:error, :unable_to_inject}
+  def inject_app_layout_menu(html, html_to_inject) do
+    with :ok <- ensure_not_already_injected(html, html_to_inject),
+         {:ok, new_code} <- do_inject_app_layout_menu(html, html_to_inject) do
+      {:ok, new_code}
+    end
+  end
+
+  @spec do_inject_app_layout_menu(String.t(), String.t()) :: {:ok, String.t()} | {:error, :unable_to_inject}
+  defp do_inject_app_layout_menu(code, code_to_inject) do
+    new_code = String.replace(code, "<body>", "<body>\n    #{code_to_inject}")
+
+    if code != new_code do
+      {:ok, new_code}
+    else
+      {:error, :unable_to_inject}
     end
   end
 
@@ -31,9 +53,9 @@ defmodule Mix.Phx.Gen.Auth.Injector do
     end
   end
 
-  @spec ensure_dependency_not_injected(String.t(), String.t()) :: :ok | :already_injected
-  defp ensure_dependency_not_injected(mixfile, dependency) do
-    if String.contains?(mixfile, dependency) do
+  @spec ensure_not_already_injected(String.t(), String.t()) :: :ok | :already_injected
+  defp ensure_not_already_injected(file, inject) do
+    if String.contains?(file, inject) do
       :already_injected
     else
       :ok

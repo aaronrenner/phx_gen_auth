@@ -449,32 +449,27 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     menu_name = "_#{schema.singular}_menu.html"
     inject = "<%= render \"#{menu_name}\", assigns %>"
 
-    if String.contains?(file, inject) do
-      :ok
-    else
-      do_inject_app_layout_menu(context, file, file_path, menu_name, inject)
+    case Injector.inject_app_layout_menu(file, inject) do
+      {:ok, new_file} ->
+        Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path)])
+
+        File.write!(file_path, new_file)
+
+      :already_injected ->
+        :ok
+
+      {:error, :unable_to_inject} ->
+        Mix.shell().info("""
+
+        Add a render call for #{inspect(menu_name)} to #{file_path}:
+
+            <nav role="navigation">
+              #{inject}
+            </nav>
+        """)
     end
 
     context
-  end
-
-  defp do_inject_app_layout_menu(_context, file, file_path, menu_name, inject) do
-    Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path)])
-
-    new_file = String.replace(file, "<body>", "<body>\n    #{inject}")
-
-    if file != new_file do
-      File.write!(file_path, new_file)
-    else
-      Mix.shell().info("""
-
-      Add a render call for #{inspect(menu_name)} to #{file_path}:
-
-        <nav role="navigation">
-          #{inject}
-        </nav>
-      """)
-    end
   end
 
   defp inject_config(context, %HashingLibrary{test_config: test_config}) do

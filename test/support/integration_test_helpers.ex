@@ -71,8 +71,8 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
 
   def mix_run!(args, opts \\ []) when is_list(args) and is_list(opts) do
     case mix_run(args, opts) do
-      {_, 0} ->
-        :ok
+      {output, 0} ->
+        output
 
       {output, exit_code} ->
         flunk("""

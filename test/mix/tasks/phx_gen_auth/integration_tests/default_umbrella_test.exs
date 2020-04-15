@@ -46,5 +46,13 @@ defmodule Phx.Gen.Auth.IntegrationTests.DefaultUmbrellaTest do
 
     {output, 1} = mix_run(~w(phx.gen.auth Accounts User users), cd: web_app_path)
     assert output =~ "Unable to find RainyDay.Repo"
+
+    revert_to_clean_phoenix_app(test_app_path)
+
+    modify_file(Path.join(web_app_path, "lib/rainy_day_web/templates/layout/app.html.eex"), fn _file -> "" end)
+
+    output = mix_run!(~w(phx.gen.auth Accounts User users), cd: web_app_path)
+
+    assert output =~ ~s|Add a render call for "_user_menu.html" to lib/rainy_day_web/templates/layout/app.html.eex|
   end
 end

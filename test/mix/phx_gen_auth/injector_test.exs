@@ -209,4 +209,52 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
 
     assert :already_injected = Injector.inject_before_final_end(existing_code, code_to_inject)
   end
+
+  test "inject_app_layout_menu/2 injects after the <body> tag" do
+    existing_code = """
+    <html>
+      <body>
+        <h1>My App</h1>
+      </body>
+    </html>
+    """
+
+    code_to_inject = ~s|<%= render "_user_menu.html" %>|
+
+    assert {:ok, new_file} = Injector.inject_app_layout_menu(existing_code, code_to_inject)
+
+    assert new_file == """
+           <html>
+             <body>
+               <%= render "_user_menu.html" %>
+               <h1>My App</h1>
+             </body>
+           </html>
+           """
+  end
+
+  test "inject_app_layout_menu/2 returns :already_injected when code has already been injected" do
+    existing_code = """
+    <html>
+      <body>
+        <%= render "_user_menu.html" %>
+      </body>
+    </html>
+    """
+
+    code_to_inject = ~s|<%= render "_user_menu.html" %>|
+
+    assert :already_injected = Injector.inject_app_layout_menu(existing_code, code_to_inject)
+  end
+
+  test "inject_app_layout_menu/2 returns {:error, :unable_to_inject} when the body tag is not found" do
+    existing_code = """
+    <html>
+    </html>
+    """
+
+    code_to_inject = ~s|<%= render "_user_menu.html" %>|
+
+    assert {:error, :unable_to_inject} = Injector.inject_app_layout_menu(existing_code, code_to_inject)
+  end
 end
