@@ -29,30 +29,8 @@ defmodule Phx.Gen.Auth.IntegrationTests.DefaultUmbrellaTest do
     assert_mix_test_succeeds(test_app_path)
   end
 
-  test "error messages", %{test_app_path: test_app_path} do
-    web_app_path = Path.join(test_app_path, "apps/rainy_day_web")
-
+  test "does not allow generator to be run at the umbrella root", %{test_app_path: test_app_path} do
     assert {output, 1} = mix_run(~w(phx.gen.auth Accounts User users), cd: test_app_path)
     assert output =~ "mix phx.gen.auth can only be run inside an application directory"
-
-    inject_compilation_error(Path.join(test_app_path, "apps/rainy_day/lib/rainy_day/repo.ex"))
-
-    {output, 1} = mix_run(~w(phx.gen.auth Accounts User users), cd: web_app_path)
-    assert output =~ "Compilation error in file"
-
-    revert_to_clean_phoenix_app(test_app_path)
-
-    File.rm!(Path.join(test_app_path, "apps/rainy_day/lib/rainy_day/repo.ex"))
-
-    {output, 1} = mix_run(~w(phx.gen.auth Accounts User users), cd: web_app_path)
-    assert output =~ "Unable to find RainyDay.Repo"
-
-    revert_to_clean_phoenix_app(test_app_path)
-
-    modify_file(Path.join(web_app_path, "lib/rainy_day_web/templates/layout/app.html.eex"), fn _file -> "" end)
-
-    output = mix_run!(~w(phx.gen.auth Accounts User users), cd: web_app_path)
-
-    assert output =~ ~s|Add a render call for "_user_menu.html" to lib/rainy_day_web/templates/layout/app.html.eex|
   end
 end
