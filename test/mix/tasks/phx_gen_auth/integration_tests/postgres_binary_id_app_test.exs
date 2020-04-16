@@ -18,12 +18,12 @@ defmodule Phx.Gen.Auth.IntegrationTests.PostgresBinaryIdAppTest do
 
     [migration] =
       test_app_path
-      |> Path.join("priv/repo/migrations/*_create_user_auth_tables.exs")
+      |> Path.join("priv/repo/migrations/*_create_users_auth_tables.exs")
       |> Path.wildcard()
 
     assert_file(migration, fn file ->
       assert file =~ "create table(:users, primary_key: false)"
-      assert file =~ "create table(:user_tokens, primary_key: false)"
+      assert file =~ "create table(:users_tokens, primary_key: false)"
       assert file =~ "add :id, :binary_id, primary_key: true"
     end)
 
