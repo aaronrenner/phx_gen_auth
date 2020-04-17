@@ -102,6 +102,10 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
     mix_run!(~w(compile --force --warnings-as-errors), cd: app_path)
   end
 
+  def assert_passes_formatter_check(app_path) do
+    mix_run!(~w(format --check-formatted), cd: app_path)
+  end
+
   def assert_file(file) do
     assert File.regular?(file), "Expected #{file} to exist, but does not"
   end
@@ -143,6 +147,7 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
   end
 
   def revert_to_clean_phoenix_app(app_path) do
+    {_, 0} = System.cmd("git", ["restore", "--staged", "."], cd: app_path)
     {_, 0} = System.cmd("git", ["clean", "-df"], cd: app_path)
     {_, 0} = System.cmd("git", ["checkout", "--", "."], cd: app_path)
 

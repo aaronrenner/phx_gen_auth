@@ -84,6 +84,7 @@ defmodule Phx.Gen.Auth.IntegrationTests.DefaultAppTest do
 
     assert_no_compilation_warnings(test_app_path)
     assert_mix_test_succeeds(test_app_path)
+    assert_passes_formatter_check(test_app_path)
   end
 
   test "single project with alternative schema and context names", %{test_app_path: test_app_path} do
@@ -157,6 +158,7 @@ defmodule Phx.Gen.Auth.IntegrationTests.DefaultAppTest do
 
     assert_no_compilation_warnings(test_app_path)
     assert_mix_test_succeeds(test_app_path)
+    assert_passes_formatter_check(test_app_path)
   end
 
   test "with pbkdf2 as the hashing library", %{test_app_path: test_app_path} do

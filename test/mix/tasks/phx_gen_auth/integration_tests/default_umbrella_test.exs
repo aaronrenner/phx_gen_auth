@@ -27,6 +27,7 @@ defmodule Phx.Gen.Auth.IntegrationTests.DefaultUmbrellaTest do
 
     assert_no_compilation_warnings(test_app_path)
     assert_mix_test_succeeds(test_app_path)
+    assert_passes_formatter_check(test_app_path)
   end
 
   test "does not allow generator to be run at the umbrella root", %{test_app_path: test_app_path} do
