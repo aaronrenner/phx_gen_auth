@@ -2,44 +2,16 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   @shortdoc "Generates authentication logic for a resource"
 
   @moduledoc """
-  Generates authentication logic for a resource
+  Generates authentication logic for a resource.
 
       mix phx.gen.auth Accounts User users
 
   The first argument is the context module followed by the schema module
   and its plural name (used as the schema table name).
 
-  ## Web namespace
+  For more information about the generated authentication system, see the [Overview](overview.html).
 
-  By default, the controllers and view will be namespaced by the schema name.
-  You can customize the web module namespace by passing the `--web` flag with a
-  module name, for example:
-
-      mix phx.gen.auth Accounts User users --web Warehouse
-
-  Which would generate the controllers, views, templates and associated tests in nested in the `MyAppWeb.Warehouse` namespace:
-
-  * `lib/my_app_web/controllers/warehouse/user_auth.ex`
-  * `lib/my_app_web/controllers/warehouse/user_confirmation_controller.ex`
-  * `lib/my_app_web/views/warehouse/user_confirmation_view.ex`
-  * `lib/my_app_web/templates/warehouse/user_confirmation/new.html.eex`
-  * `test/my_app_web/controllers/warehouse/user_auth_test.exs`
-  * `test/my_app_web/controllers/warehouse/user_confirmation_controller_test.exs`
-  * and so on...
-
-  ## Custom table names
-
-  By default, the table name for the migration and schema will be
-  the plural name provided for the resource. To customize this value,
-  a `--table` option may be provided. For example:
-
-      mix phx.gen.auth Accounts User users --table accounts_users
-
-  This will cause the generated tables to be named `"accounts_users"` and `"accounts_users_tokens"`.
-
-  ## Notes about the generated authentication system
-
-  ### Password hashing
+  ## Password hashing
 
   The password hashing mechanism defaults to `bcrypt` for
   Unix systems and `pbkdf2` for Windows systems. Both
@@ -55,71 +27,23 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   For more information about choosing these libraries, see the
   [Comeonin project](https://github.com/riverrun/comeonin).
 
-  ### Forbidding access
+  ## Web namespace
 
-  The generated code ships with an auth module with handful
-  plugs that fetch the current account, requires authentication
-  and so on. For instance, for an app named Demo which invoked
-  `mix phx.gen.auth Accounts User users`, you will find a module
-  named `DemoWeb.UserAuth` with plugs such as:
+  By default, the controllers and view will be namespaced by the schema name.
+  You can customize the web module namespace by passing the `--web` flag with a
+  module name, for example:
 
-    * `fetch_current_user` - fetches the current user information if
-      available
+  mix phx.gen.auth Accounts User users --web Warehouse
 
-    * `require_authenticated_user` - must be invoked after
-      `fetch_current_user` and requires that a current exists and is
-      authenticated
+  Which would generate the controllers, views, templates and associated tests in nested in the `MyAppWeb.Warehouse` namespace:
 
-    * `redirect_if_user_is_not_authenticated` - used for the few
-      pages that must not be available to authenticated users
-
-  ### Confirmation
-
-  The generated functionality ships with an account confirmation
-  mechanism, where users have to confirm their account, typically
-  by e-mail. However, the generated code does not forbid users
-  from using the application if their accounts have not yet been
-  confirmed. You can trivially add this functionality by customizing
-  the plugs generated in the Auth module.
-
-  ### Notifiers
-
-  The generated code is not integrated with any system to send
-  SMSs or e-mails for confirming accounts, reseting passwords,
-  etc. Instead it simply logs a message to the terminal. It is
-  your responsibility to integrate with the proper system after
-  generation.
-
-  ### Tracking sessions
-
-  All sessions and tokens are tracked in a separate table. This
-  allows you to track how many sessions are active for each account.
-  You could even expose this information to users if desired.
-
-  Note that whenever the password changes (either via reset password
-  or directly), all tokens are deleted and the user has to login
-  again on all devices.
-
-  ### Enumeration attacks
-
-  An enumeration attack allows an attacker to enumerate all e-mails
-  registered in the application. The generated authentication code
-  protect against enumeration attacks on all endpoints, except in
-  the registration and update e-mail forms. If your application is
-  really sensitive to enumeration attacks, you need to implement
-  your own registration workflow, which tends to be very different
-  from the workflow for most applications.
-
-  ### Case sensitiveness
-
-  The e-mail lookup is made to be case insensitive. Case insensitive
-  lookups are the default in MySQL and MSSQL but require the
-  citext extension in Postgres.
-
-  ### Concurrent tests
-
-  The generated tests run concurrently if you are using a database
-  that supports concurrent tests (Postgres).
+  * `lib/my_app_web/controllers/warehouse/user_auth.ex`
+  * `lib/my_app_web/controllers/warehouse/user_confirmation_controller.ex`
+  * `lib/my_app_web/views/warehouse/user_confirmation_view.ex`
+  * `lib/my_app_web/templates/warehouse/user_confirmation/new.html.eex`
+  * `test/my_app_web/controllers/warehouse/user_auth_test.exs`
+  * `test/my_app_web/controllers/warehouse/user_confirmation_controller_test.exs`
+  * and so on...
 
   ## Binary ids
 
@@ -138,6 +62,17 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   You can override those options per invocation by providing corresponding
   switches, e.g. `--no-binary-id` to use normal ids despite the default
   configuration.
+
+  ## Custom table names
+
+  By default, the table name for the migration and schema will be
+  the plural name provided for the resource. To customize this value,
+  a `--table` option may be provided. For example:
+
+      mix phx.gen.auth Accounts User users --table accounts_users
+
+  This will cause the generated tables to be named `"accounts_users"` and `"accounts_users_tokens"`.
+
   """
 
   use Mix.Task

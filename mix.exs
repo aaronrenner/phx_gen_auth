@@ -40,10 +40,15 @@ defmodule Phx.Gen.Auth.MixProject do
 
   defp docs do
     [
-      main: "Mix.Tasks.Phx.Gen.Auth",
+      main: "overview",
       source_ref: "v#{@version}",
-      source_url: "https://github.com/aaronrenner/phx_gen_auth"
+      source_url: "https://github.com/aaronrenner/phx_gen_auth",
+      extras: extras()
     ]
+  end
+
+  defp extras do
+    ["guides/overview.md"]
   end
 
   defp package do
