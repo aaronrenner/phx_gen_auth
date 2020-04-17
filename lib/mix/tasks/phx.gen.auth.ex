@@ -247,7 +247,6 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   end
 
   defp inject_conn_case_helpers(%Context{} = context, paths, binding) do
-    # TODO: Figure out what happens if this file isn't here
     test_file = "test/support/conn_case.ex"
 
     paths
@@ -258,7 +257,6 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   end
 
   defp inject_routes(%Context{context_app: ctx_app} = context, paths, binding) do
-    # TODO: Figure out what happens if this file isn't here
     web_prefix = Mix.Phoenix.web_path(ctx_app)
     file_path = Path.join(web_prefix, "router.ex")
 
@@ -270,8 +268,6 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   end
 
   defp maybe_inject_mix_dependency(%Context{context_app: ctx_app} = context, %HashingLibrary{mix_dependency: mix_dependency}) do
-    # TODO: Figure out what happens if this file isn't here
-    # TODO: Figure out how to make this show up in the right place in test
     file_path = Mix.Phoenix.context_app_path(ctx_app, "mix.exs")
 
     file = File.read!(file_path)
@@ -302,69 +298,82 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   end
 
   defp maybe_inject_router_import(%Context{context_app: ctx_app} = context, binding) do
-    # TODO: Figure out what happens if this file isn't here
     web_prefix = Mix.Phoenix.web_path(ctx_app)
     file_path = Path.join(web_prefix, "router.ex")
-    file = File.read!(file_path)
     auth_module = Keyword.fetch!(binding, :auth_module)
     inject = "import #{inspect(auth_module)}"
     use_line = "use #{inspect(context.web_module)}, :router"
 
-    case Injector.inject_unless_contains(file, inject, &String.replace(&1, use_line, "#{use_line}\n\n  #{&2}")) do
-      {:ok, new_file} ->
-        print_injecting(file_path, " - imports")
-        File.write!(file_path, new_file)
+    help_text = """
+    Add your #{inspect(auth_module)} import to #{Path.relative_to_cwd(file_path)}:
 
+        defmodule #{inspect(context.web_module)}.Router do
+          #{use_line}
+
+          # Import authentication plugs
+          #{inject}
+
+          ...
+        end
+    """
+
+    with {:ok, file} <- read_file(file_path),
+         {:ok, new_file} <- Injector.inject_unless_contains(file, inject, &String.replace(&1, use_line, "#{use_line}\n\n  #{&2}")) do
+      print_injecting(file_path, " - imports")
+      File.write!(file_path, new_file)
+    else
       :already_injected ->
         :ok
 
       {:error, :unable_to_inject} ->
         Mix.shell().info("""
 
-        Add your #{inspect(auth_module)} import to #{file_path}:
-
-            defmodule #{inspect(context.web_module)}.Router do
-              #{use_line}
-
-              # Import authentication plugs
-              #{inject}
-
-              ...
-            end
+        #{help_text}
         """)
+
+      {:error, {:file_read_error, _}} ->
+        print_injecting(file_path)
+        print_unable_to_read_file_error(file_path, help_text)
     end
 
     context
   end
 
   defp maybe_inject_router_plug(%Context{context_app: ctx_app, schema: schema} = context) do
-    # TODO: Figure out what happens if this file isn't here
     web_prefix = Mix.Phoenix.web_path(ctx_app)
     file_path = Path.join(web_prefix, "router.ex")
-    file = File.read!(file_path)
     plug_name = ":fetch_current_#{schema.singular}"
     inject = "plug #{plug_name}"
     anchor_line = "plug :put_secure_browser_headers"
 
-    case Injector.inject_unless_contains(file, inject, &String.replace(&1, anchor_line, "#{anchor_line}\n    #{&2}")) do
-      {:ok, new_file} ->
-        print_injecting(file_path, " - plug")
-        File.write!(file_path, new_file)
+    help_text = """
 
+    Add the #{plug_name} plug to the browser pipeline in #{Path.relative_to_cwd(file_path)}:
+
+        pipeline :browser do
+          ...
+          #{anchor_line}
+          #{inject}
+        end
+    """
+
+    with {:ok, file} <- read_file(file_path),
+         {:ok, new_file} <- Injector.inject_unless_contains(file, inject, &String.replace(&1, anchor_line, "#{anchor_line}\n    #{&2}")) do
+      print_injecting(file_path, " - plug")
+      File.write!(file_path, new_file)
+    else
       :already_injected ->
         :ok
 
       {:error, :unable_to_inject} ->
         Mix.shell().info("""
 
-        Add the #{plug_name} plug to the browser pipeline in #{file_path}:
-
-            pipeline :browser do
-              ...
-              #{anchor_line}
-              #{inject}
-            end
+        #{help_text}
         """)
+
+      {:error, {:file_read_error, _}} ->
+        print_injecting(file_path)
+        print_unable_to_read_file_error(file_path, help_text)
     end
 
     context
@@ -520,16 +529,44 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   end
 
   defp inject_before_final_end(content_to_inject, file_path) do
-    file = File.read!(file_path)
-
-    case Injector.inject_before_final_end(file, content_to_inject) do
-      {:ok, new_file} ->
-        print_injecting(file_path)
-        File.write!(file_path, new_file)
-
+    with {:ok, file} <- read_file(file_path),
+         {:ok, new_file} <- Injector.inject_before_final_end(file, content_to_inject) do
+      print_injecting(file_path)
+      File.write!(file_path, new_file)
+    else
       :already_injected ->
         :ok
+
+      {:error, {:file_read_error, _}} ->
+        print_injecting(file_path)
+
+        print_unable_to_read_file_error(
+          file_path,
+          """
+
+          Please add the following to the end of your equivalent
+          #{Path.relative_to_cwd(file_path)} module:
+
+          #{indent_spaces(content_to_inject, 2)}
+          """
+        )
     end
+  end
+
+  defp read_file(file_path) do
+    case File.read(file_path) do
+      {:ok, file} -> {:ok, file}
+      {:error, reason} -> {:error, {:file_read_error, reason}}
+    end
+  end
+
+  defp indent_spaces(string, number_of_spaces) when is_binary(string) and is_integer(number_of_spaces) do
+    indent = String.duplicate(" ", number_of_spaces)
+
+    string
+    |> String.split("\n")
+    |> Enum.map(&(indent <> &1))
+    |> Enum.join("\n")
   end
 
   defp timestamp do
@@ -550,6 +587,18 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
   defp print_injecting(file_path, suffix \\ []) do
     Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path), suffix])
+  end
+
+  defp print_unable_to_read_file_error(file_path, help_text) do
+    Mix.shell().error(
+      """
+
+      Unable to read file #{Path.relative_to_cwd(file_path)}.
+
+      #{help_text}
+      """
+      |> indent_spaces(2)
+    )
   end
 
   def raise_with_help(msg) do

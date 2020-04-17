@@ -41,10 +41,32 @@ defmodule Phx.Gen.Auth.IntegrationTests.GeneratorOutputTest do
     assert output =~ ~s|Add a render call for "_user_menu.html" to lib/generator_output_app_web/templates/layout/app.html.eex|
   end
 
-  test "errors it can't find layout file", %{test_app_path: test_app_path} do
+  test "outputs error when it can't find layout file", %{test_app_path: test_app_path} do
     File.rm!(Path.join(test_app_path, "lib/generator_output_app_web/templates/layout/app.html.eex"))
 
     output = mix_run!(~w(phx.gen.auth Accounts User users), cd: test_app_path)
     assert output =~ ~r/Unable to find an application layout file to inject.*"_user_menu\.html"/si
+  end
+
+  test "outputs error when it can't find conn_case.ex file", %{test_app_path: test_app_path} do
+    old_path = Path.join(test_app_path, "test/support/conn_case.ex")
+    new_path = Path.join(test_app_path, "test/support/my_conn_case.ex")
+    :ok = File.rename(old_path, new_path)
+
+    output = mix_run!(~w(phx.gen.auth Accounts User users), cd: test_app_path)
+    assert output =~ ~r/Unable to read file test\/support\/conn_case\.ex/i
+  end
+
+  test "outputs error when it can't find router.ex file", %{test_app_path: test_app_path} do
+    old_path = Path.join(test_app_path, "lib/generator_output_app_web/router.ex")
+    new_path = Path.join(test_app_path, "lib/generator_output_app_web/my_router.ex")
+    :ok = File.rename(old_path, new_path)
+
+    output = mix_run!(~w(phx.gen.auth Accounts User users), cd: test_app_path)
+
+    assert output =~ ~r/Unable to read file lib\/generator_output_app_web\/router\.ex/i
+    assert output =~ ~s|get "/users/register"|
+    assert output =~ ~s|import GeneratorOutputAppWeb.UserAuth|
+    assert output =~ ~s|plug :fetch_current_user|
   end
 end
