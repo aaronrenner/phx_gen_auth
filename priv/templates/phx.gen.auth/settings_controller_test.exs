@@ -50,7 +50,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
       response = html_response(old_password_conn, 200)
       assert response =~ "<h1>Settings</h1>"
       assert response =~ "should be at least 12 character(s)"
-      assert response =~ "does not match confirmation"
+      assert response =~ "does not match password"
       assert response =~ "is not valid"
 
       assert get_session(old_password_conn, :<%= schema.singular %>_token) == get_session(conn, :<%= schema.singular %>_token)
@@ -106,13 +106,13 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
 
       conn = get(conn, Routes.<%= schema.route_helper %>_settings_path(conn, :confirm_email, token))
       assert redirected_to(conn) == "<%= web_path_prefix %>/<%= schema.plural %>/settings"
-      assert get_flash(conn, :error) =~ "Email change token is invalid or it has expired"
+      assert get_flash(conn, :error) =~ "Email change link is invalid or it has expired"
     end
 
     test "does not update email with invalid token", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
       conn = get(conn, Routes.<%= schema.route_helper %>_settings_path(conn, :confirm_email, "oops"))
       assert redirected_to(conn) == "<%= web_path_prefix %>/<%= schema.plural %>/settings"
-      assert get_flash(conn, :error) =~ "Email change token is invalid or it has expired"
+      assert get_flash(conn, :error) =~ "Email change link is invalid or it has expired"
       assert <%= inspect context.alias %>.get_<%= schema.singular %>_by_email(<%= schema.singular %>.email)
     end
 

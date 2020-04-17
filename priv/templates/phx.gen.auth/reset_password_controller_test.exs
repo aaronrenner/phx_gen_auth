@@ -60,7 +60,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     test "does not render reset password with invalid token", %{conn: conn} do
       conn = get(conn, Routes.<%= schema.route_helper %>_reset_password_path(conn, :edit, "oops"))
       assert redirected_to(conn) == "/"
-      assert get_flash(conn, :error) =~ "Reset password token is invalid or it has expired"
+      assert get_flash(conn, :error) =~ "Reset password link is invalid or it has expired"
     end
   end
 
@@ -101,13 +101,13 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
       response = html_response(conn, 200)
       assert response =~ "<h1>Reset password</h1>"
       assert response =~ "should be at least 12 character(s)"
-      assert response =~ "does not match confirmation"
+      assert response =~ "does not match password"
     end
 
     test "does not reset password with invalid token", %{conn: conn} do
       conn = put(conn, Routes.<%= schema.route_helper %>_reset_password_path(conn, :update, "oops"))
       assert redirected_to(conn) == "/"
-      assert get_flash(conn, :error) =~ "Reset password token is invalid or it has expired"
+      assert get_flash(conn, :error) =~ "Reset password link is invalid or it has expired"
     end
   end
 end

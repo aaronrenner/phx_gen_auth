@@ -20,7 +20,7 @@ defmodule <%= inspect schema.module %> do
   It is important to validate the length of both e-mail and password.
   Otherwise databases may truncate the e-mail without warnings, which
   could lead to unpredictable or insecure behaviour. Long passwords may
-  also be very expensive to for certain algorithms.
+  also be very expensive to hash for certain algorithms.
   """
   def registration_changeset(<%= schema.singular %>, attrs) do
     <%= schema.singular %>
@@ -81,7 +81,7 @@ defmodule <%= inspect schema.module %> do
   def password_changeset(<%= schema.singular %>, attrs) do
     <%= schema.singular %>
     |> cast(attrs, [:password])
-    |> validate_confirmation(:password)
+    |> validate_confirmation(:password, message: "does not match password")
     |> validate_password()
   end
 
@@ -98,8 +98,8 @@ defmodule <%= inspect schema.module %> do
 
   Returns the given <%= schema.singular %> if valid,
 
-  If there is no <%= schema.singular %> or the <%= schema.singular %> doesn't have a password,
-  we hash a blank password to avoid timing attacks.
+  If there is no <%= schema.singular %> or the <%= schema.singular %> doesn't have a password, we call
+  `<%= inspect hashing_library.module %>.no_user_verify/0` to avoid timing attacks.
   """
   def valid_password?(%<%= inspect schema.module %>{hashed_password: hashed_password}, password)
       when is_binary(hashed_password) and byte_size(password) > 0 do
@@ -107,7 +107,7 @@ defmodule <%= inspect schema.module %> do
   end
 
   def valid_password?(_, _) do
-    <%= inspect hashing_library.module %>.hash_pwd_salt("unused hash to avoid timing attacks")
+    <%= inspect hashing_library.module %>.no_user_verify()
     false
   end
 

@@ -139,7 +139,7 @@ defmodule <%= inspect auth_module %>Test do
       refute get_session(halted_conn, :<%= schema.singular %>_return_to)
     end
 
-    test "does not redirect if <%= schema.singular %> is not authenticated", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
+    test "does not redirect if <%= schema.singular %> is authenticated", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
       conn = conn |> assign(:current_<%= schema.singular %>, <%= schema.singular %>) |> <%= inspect schema.alias %>Auth.require_authenticated_<%= schema.singular %>([])
       refute conn.halted
       refute conn.status

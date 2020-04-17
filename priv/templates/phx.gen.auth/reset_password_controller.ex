@@ -51,7 +51,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
       conn |> assign(:<%= schema.singular %>, <%= schema.singular %>) |> assign(:token, token)
     else
       conn
-      |> put_flash(:error, "Reset password token is invalid or it has expired.")
+      |> put_flash(:error, "Reset password link is invalid or it has expired.")
       |> redirect(to: "/")
       |> halt()
     end

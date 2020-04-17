@@ -237,7 +237,7 @@
 
       assert %{
                password: ["should be at least 12 character(s)"],
-               password_confirmation: ["does not match confirmation"]
+               password_confirmation: ["does not match password"]
              } = errors_on(changeset)
     end
 
@@ -289,7 +289,7 @@
       assert <%= schema.singular %>_token = Repo.get_by(<%= inspect schema.alias %>Token, token: token)
       assert <%= schema.singular %>_token.context == "session"
 
-      # Creating the same token for another user should fail
+      # Creating the same token for another <%= schema.singular %> should fail
       assert_raise Ecto.ConstraintError, fn ->
         Repo.insert!(%<%= inspect schema.alias %>Token{
           token: <%= schema.singular %>_token.token,
@@ -363,10 +363,10 @@
     end
 
     test "confirms the e-mail with a valid token", %{<%= schema.singular %>: <%= schema.singular %>, token: token} do
-      assert <%= inspect context.alias %>.confirm_<%= schema.singular %>(token) == :ok
-      changed_<%= schema.singular %> = Repo.get!(<%= inspect schema.alias %>, <%= schema.singular %>.id)
-      assert changed_<%= schema.singular %>.confirmed_at
-      assert changed_<%= schema.singular %>.confirmed_at != <%= schema.singular %>.confirmed_at
+      assert {:ok, confirmed_<%= schema.singular %>} = <%= inspect context.alias %>.confirm_<%= schema.singular %>(token)
+      assert confirmed_<%= schema.singular %>.confirmed_at
+      assert confirmed_<%= schema.singular %>.confirmed_at != <%= schema.singular %>.confirmed_at
+      assert Repo.get!(<%= inspect schema.alias %>, <%= schema.singular %>.id).confirmed_at
       refute Repo.get_by(<%= inspect schema.alias %>Token, <%= schema.singular %>_id: <%= schema.singular %>.id)
     end
 
@@ -446,7 +446,7 @@
 
       assert %{
                password: ["should be at least 12 character(s)"],
-               password_confirmation: ["does not match confirmation"]
+               password_confirmation: ["does not match password"]
              } = errors_on(changeset)
     end
 

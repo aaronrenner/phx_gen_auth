@@ -29,14 +29,14 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
   # leaked token giving the <%= schema.singular %> access to the account.
   def confirm(conn, %{"token" => token}) do
     case <%= inspect context.alias %>.confirm_<%= schema.singular %>(token) do
-      :ok ->
+      {:ok, _} ->
         conn
         |> put_flash(:info, "Account confirmed successfully.")
         |> redirect(to: "/")
 
       :error ->
         conn
-        |> put_flash(:error, "Confirmation token is invalid or it has expired.")
+        |> put_flash(:error, "Confirmation link is invalid or it has expired.")
         |> redirect(to: "/")
     end
   end

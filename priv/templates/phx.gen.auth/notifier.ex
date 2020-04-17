@@ -5,7 +5,6 @@ defmodule <%= inspect context.module %>.<%= inspect schema.alias %>Notifier do
   #   * Swoosh - https://hexdocs.pm/swoosh
   #   * Bamboo - https://hexdocs.pm/bamboo
   #
-
   defp deliver(to, body) do
     require Logger
     Logger.debug(body)

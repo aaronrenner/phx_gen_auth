@@ -152,7 +152,7 @@
 
   ## Examples
 
-      iex> deliver_update_email_instructions(<%= schema.singular %>, current_email, &Routes.<%= schema.singular %>_update_email_url(conn, :edit))
+      iex> deliver_update_email_instructions(<%= schema.singular %>, current_email, &Routes.<%= schema.singular %>_update_email_url(conn, :edit, &1))
       {:ok, %{to: ..., body: ...}}
 
   """
@@ -240,10 +240,10 @@
 
   ## Examples
 
-      iex> deliver_<%= schema.singular %>_confirmation_instructions(<%= schema.singular %>, &Routes.<%= schema.singular %>_confirmation_url(conn, :confirm))
+      iex> deliver_<%= schema.singular %>_confirmation_instructions(<%= schema.singular %>, &Routes.<%= schema.singular %>_confirmation_url(conn, :confirm, &1))
       {:ok, %{to: ..., body: ...}}
 
-      iex> deliver_<%= schema.singular %>_confirmation_instructions(confirmed_<%= schema.singular %>, &Routes.<%= schema.singular %>_confirmation_url(conn, :confirm))
+      iex> deliver_<%= schema.singular %>_confirmation_instructions(confirmed_<%= schema.singular %>, &Routes.<%= schema.singular %>_confirmation_url(conn, :confirm, &1))
       {:error, :already_confirmed}
 
   """
@@ -267,8 +267,8 @@
   def confirm_<%= schema.singular %>(token) do
     with {:ok, query} <- <%= inspect schema.alias %>Token.verify_<%= schema.singular %>_email_token_query(token, "confirm"),
          %<%= inspect schema.alias %>{} = <%= schema.singular %> <- Repo.one(query),
-         {:ok, _} <- Repo.transaction(confirm_<%= schema.singular %>_multi(<%= schema.singular %>)) do
-      :ok
+         {:ok, %{<%= schema.singular %>: <%= schema.singular %>}} <- Repo.transaction(confirm_<%= schema.singular %>_multi(<%= schema.singular %>)) do
+      {:ok, <%= schema.singular %>}
     else
       _ -> :error
     end
@@ -287,7 +287,7 @@
 
   ## Examples
 
-      iex> deliver_<%= schema.singular %>_reset_password_instructions(<%= schema.singular %>, &Routes.<%= schema.singular %>_reset_password_url(conn, :edit))
+      iex> deliver_<%= schema.singular %>_reset_password_instructions(<%= schema.singular %>, &Routes.<%= schema.singular %>_reset_password_url(conn, :edit, &1))
       {:ok, %{to: ..., body: ...}}
 
   """
@@ -320,7 +320,7 @@
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking <%= schema.singular %> reset password.
+  Resets the <%= schema.singular %> password.
 
   ## Examples
 

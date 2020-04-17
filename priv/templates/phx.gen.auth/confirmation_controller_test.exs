@@ -71,13 +71,13 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
 
       conn = get(conn, Routes.<%= schema.route_helper %>_confirmation_path(conn, :confirm, token))
       assert redirected_to(conn) == "/"
-      assert get_flash(conn, :error) =~ "Confirmation token is invalid or it has expired"
+      assert get_flash(conn, :error) =~ "Confirmation link is invalid or it has expired"
     end
 
     test "does not confirm email with invalid token", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
       conn = get(conn, Routes.<%= schema.route_helper %>_confirmation_path(conn, :confirm, "oops"))
       assert redirected_to(conn) == "/"
-      assert get_flash(conn, :error) =~ "Confirmation token is invalid or it has expired"
+      assert get_flash(conn, :error) =~ "Confirmation link is invalid or it has expired"
       refute <%= inspect context.alias %>.get_<%= schema.singular %>!(<%= schema.singular %>.id).confirmed_at
     end
   end
