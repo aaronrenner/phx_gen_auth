@@ -6,13 +6,15 @@ defmodule Phx.Gen.Auth.MixProject do
   def project do
     [
       app: :phx_gen_auth,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       preferred_cli_env: [docs: :docs],
+      description: "An authentication system generator for Phoenix 1.5+",
       docs: docs(),
-      deps: deps()
+      deps: deps(),
+      package: package()
     ]
   end
 
@@ -38,7 +40,17 @@ defmodule Phx.Gen.Auth.MixProject do
 
   defp docs do
     [
-      source_ref: "v#{@version}"
+      main: "Mix.Tasks.Phx.Gen.Auth",
+      source_ref: "v#{@version}",
+      source_url: "https://github.com/aaronrenner/phx_gen_auth"
+    ]
+  end
+
+  defp package do
+    [
+      maintainers: ["Aaron Renner", "José Valim"],
+      licenses: ["Apache 2"],
+      links: %{"GitHub" => "https://github.com/aaronrenner/phx_gen_auth"}
     ]
   end
 end
