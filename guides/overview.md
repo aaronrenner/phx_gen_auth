@@ -16,7 +16,7 @@ systems use [the Comeonin interface](https://hexdocs.pm/comeonin/).
 
 ## Forbidding access
 
-The generated code ships with an auth module with handful
+The generated code ships with an auth module with a handful of
 plugs that fetch the current account, requires authentication
 and so on. For instance, for an app named Demo which invoked
 `mix phx.gen.auth Accounts User users`, you will find a module
@@ -63,7 +63,7 @@ again on all devices.
 
 An enumeration attack allows an attacker to enumerate all e-mails
 registered in the application. The generated authentication code
-protect against enumeration attacks on all endpoints, except in
+protects against enumeration attacks on all endpoints, except in
 the registration and update e-mail forms. If your application is
 really sensitive to enumeration attacks, you need to implement
 your own registration workflow, which tends to be very different
