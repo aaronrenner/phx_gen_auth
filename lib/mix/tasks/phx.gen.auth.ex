@@ -561,7 +561,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
     For example:
 
-    mix phx.gen.auth Accounts User users
+        mix phx.gen.auth Accounts User users
 
     The context serves as the API boundary for the given resource.
     Multiple resources may belong to a context and a resource may be
@@ -576,11 +576,11 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     mix phx.gen.auth must be installed into a Phoenix 1.5 app that
     contains ecto and html templates.
 
-    mix phx.new my_app
-    mix phx.new my_app --umbrella
-    mix phx.new my_app --database mysql
+        mix phx.new my_app
+        mix phx.new my_app --umbrella
+        mix phx.new my_app --database mysql
 
-    Apps generated with --no-ecto and --no-html are not supported
+    Apps generated with --no-ecto and --no-html are not supported.
     """)
   end
 
@@ -590,9 +590,9 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
     mix phx.gen.auth supports the following values for --hashing-lib
 
-    * bcrypt
-    * pbkdf2
-    * argon2
+      * bcrypt
+      * pbkdf2
+      * argon2
 
     Visit https://github.com/riverrun/comeonin for more information
     on choosing a library.
