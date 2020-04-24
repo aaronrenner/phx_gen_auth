@@ -456,6 +456,8 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   defp config_inject(path, file, to_inject) do
     file = Path.join(path, file)
 
+    print_injecting(file)
+
     contents =
       case File.read(file) do
         {:ok, bin} -> bin
