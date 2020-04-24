@@ -129,9 +129,9 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     context
     |> copy_new_files(binding, paths)
     |> inject_conn_case_helpers(paths, binding)
-    |> inject_routes(paths, binding)
     |> inject_config(hashing_library)
     |> maybe_inject_mix_dependency(hashing_library)
+    |> inject_routes(paths, binding)
     |> maybe_inject_router_import(binding)
     |> maybe_inject_router_plug()
     |> maybe_inject_app_layout_menu(binding)
