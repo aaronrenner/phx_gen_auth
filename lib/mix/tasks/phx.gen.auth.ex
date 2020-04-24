@@ -308,40 +308,33 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     file = File.read!(file_path)
     auth_module = Keyword.fetch!(binding, :auth_module)
     inject = "import #{inspect(auth_module)}"
+    use_line = "use #{inspect(context.web_module)}, :router"
 
-    if String.contains?(file, inject) do
-      :ok
-    else
-      do_inject_router_import(context, file, file_path, auth_module, inject)
+    case Injector.inject_unless_contains(file, inject, &String.replace(&1, use_line, "#{use_line}\n\n  #{&2}")) do
+      {:ok, new_file} ->
+        Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path), " (imports)"])
+        File.write!(file_path, new_file)
+
+      :already_injected ->
+        :ok
+
+      {:error, :unable_to_inject} ->
+        Mix.shell().info("""
+
+        Add your #{inspect(auth_module)} import to #{file_path}:
+
+            defmodule #{inspect(context.web_module)}.Router do
+              #{use_line}
+
+              # Import authentication plugs
+              #{inject}
+
+              ...
+            end
+        """)
     end
 
     context
-  end
-
-  defp do_inject_router_import(context, file, file_path, auth_module, inject) do
-    Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path), " (imports)"])
-
-    use_line = "use #{inspect(context.web_module)}, :router"
-
-    new_file = String.replace(file, use_line, "#{use_line}\n\n  #{inject}")
-
-    if file != new_file do
-      File.write!(file_path, new_file)
-    else
-      Mix.shell().info("""
-
-      Add your #{inspect(auth_module)} import to #{file_path}:
-
-          defmodule #{inspect(context.web_module)}.Router do
-            #{use_line}
-
-            # Import authentication plugs
-            #{inject}
-
-            ...
-          end
-      """)
-    end
   end
 
   defp maybe_inject_router_plug(%Context{context_app: ctx_app} = context, binding) do
