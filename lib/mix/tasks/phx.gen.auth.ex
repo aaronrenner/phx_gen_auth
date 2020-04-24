@@ -278,7 +278,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
     case Injector.inject_mix_dependency(file, mix_dependency) do
       {:ok, new_file} ->
-        Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path)])
+        print_injecting(file_path)
         File.write!(file_path, new_file)
 
       :already_injected ->
@@ -312,7 +312,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
     case Injector.inject_unless_contains(file, inject, &String.replace(&1, use_line, "#{use_line}\n\n  #{&2}")) do
       {:ok, new_file} ->
-        Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path), " (imports)"])
+        print_injecting(file_path, " - imports")
         File.write!(file_path, new_file)
 
       :already_injected ->
@@ -348,7 +348,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
     case Injector.inject_unless_contains(file, inject, &String.replace(&1, anchor_line, "#{anchor_line}\n    #{&2}")) do
       {:ok, new_file} ->
-        Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path), " (plug)"])
+        print_injecting(file_path, " - plug")
         File.write!(file_path, new_file)
 
       :already_injected ->
@@ -380,8 +380,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
       case Injector.inject_unless_contains(file, inject, &String.replace(&1, "<body>", "<body>\n    #{&2}")) do
         {:ok, new_file} ->
-          Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path)])
-
+          print_injecting(file_path)
           File.write!(file_path, new_file)
 
         :already_injected ->
@@ -523,7 +522,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
     case Injector.inject_before_final_end(file, content_to_inject) do
       {:ok, new_file} ->
-        Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path)])
+        print_injecting(file_path)
         File.write!(file_path, new_file)
 
       :already_injected ->
@@ -545,6 +544,10 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     else
       Mix.raise("Unable to find #{inspect(repo)}")
     end
+  end
+
+  defp print_injecting(file_path, suffix \\ []) do
+    Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path), suffix])
   end
 
   def raise_with_help(msg) do
