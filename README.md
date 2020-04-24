@@ -96,6 +96,23 @@ expected.
 
     $ mix test
 
+You need to add following code in the `test/support/conn_case.ex` if upgraded from Phoenix 1.4:
+
+```diff
+using do
+  quote do
+    # Import conveniences for testing with connections
+    import Plug.Conn
+    import Phoenix.ConnTest
++   import DemoWeb.ConnCase
+    alias DemoWeb.Router.Helpers, as: Routes
+
+    # The default endpoint for testing
+    @endpoint DemoWeb.Endpoint
+  end
+end
+```
+
 Finally, let's start the our phoenix server and try it out.
 
     $ mix phx.server
