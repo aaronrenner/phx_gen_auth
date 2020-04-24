@@ -133,7 +133,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     |> inject_config(hashing_library)
     |> maybe_inject_mix_dependency(hashing_library)
     |> maybe_inject_router_import(binding)
-    |> maybe_inject_router_plug(binding)
+    |> maybe_inject_router_plug()
     |> maybe_inject_app_layout_menu(binding)
     |> print_shell_instructions()
   end
@@ -337,48 +337,37 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     context
   end
 
-  defp maybe_inject_router_plug(%Context{context_app: ctx_app} = context, binding) do
+  defp maybe_inject_router_plug(%Context{context_app: ctx_app, schema: schema} = context) do
     # TODO: Figure out what happens if this file isn't here
     web_prefix = Mix.Phoenix.web_path(ctx_app)
     file_path = Path.join(web_prefix, "router.ex")
     file = File.read!(file_path)
-    schema = Keyword.fetch!(binding, :schema)
     plug_name = ":fetch_current_#{schema.singular}"
     inject = "plug #{plug_name}"
+    anchor_line = "plug :put_secure_browser_headers"
 
-    if String.contains?(file, inject) do
-      :ok
-    else
-      do_inject_router_plug(context, file, file_path, plug_name, inject)
+    case Injector.inject_unless_contains(file, inject, &String.replace(&1, anchor_line, "#{anchor_line}\n    #{&2}")) do
+      {:ok, new_file} ->
+        Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path), " (plug)"])
+        File.write!(file_path, new_file)
+
+      :already_injected ->
+        :ok
+
+      {:error, :unable_to_inject} ->
+        Mix.shell().info("""
+
+        Add the #{plug_name} plug to the browser pipeline in #{file_path}:
+
+            pipeline :browser do
+              ...
+              #{anchor_line}
+              #{inject}
+            end
+        """)
     end
 
     context
-  end
-
-  defp do_inject_router_plug(_context, file, file_path, plug_name, inject) do
-    Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path), " (plug)"])
-
-    anchor_line = "plug :put_secure_browser_headers"
-
-    new_file = String.replace(file, anchor_line, "#{anchor_line}\n    #{inject}")
-
-    if file != new_file do
-      File.write!(file_path, new_file)
-    else
-      Mix.shell().info("""
-
-      Add the #{plug_name} plug to the browser pipeline in #{file_path}:
-
-        pipeline :browser do
-          ...
-          #{anchor_line}
-          #{inject}
-        end
-
-        ...
-      end
-      """)
-    end
   end
 
   defp maybe_inject_app_layout_menu(%Context{} = context, binding) do
