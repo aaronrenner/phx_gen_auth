@@ -1,7 +1,7 @@
 defmodule Phx.Gen.Auth.MixProject do
   use Mix.Project
 
-  @version "0.1.0-rc.0"
+  @version "0.1.0"
 
   def project do
     [
