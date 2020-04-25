@@ -96,7 +96,13 @@ expected.
 
     $ mix test
 
-You need to add following code in the `test/support/conn_case.ex` if upgraded from Phoenix 1.4:
+Finally, let's start the our phoenix server and try it out.
+
+    $ mix phx.server
+
+#### Note on apps upgraded from Phoenix 1.4
+
+If you've upgraded your app from Phoenix 1.4, you'll need to make the following update to `test/support/conn_case.ex` to get `mix test` to pass:
 
 ```diff
 using do
@@ -112,10 +118,6 @@ using do
   end
 end
 ```
-
-Finally, let's start the our phoenix server and try it out.
-
-    $ mix phx.server
 
 ### Learning more
 
