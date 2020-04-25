@@ -148,6 +148,21 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     unless Code.ensure_loaded?(Ecto.Adapters.SQL) do
       raise_with_help("mix phx.gen.auth requires ecto_sql", :phx_generator_args)
     end
+
+    if generated_with_no_html?() do
+      raise_with_help("mix phx.gen.auth requires phoenix_html", :phx_generator_args)
+    end
+  end
+
+  defp generated_with_no_html? do
+    Mix.Project.config()
+    |> Keyword.get(:deps, [])
+    |> Enum.any?(fn
+      {:phoenix_html, _} -> true
+      {:phoenix_html, _, _} -> true
+      _ -> false
+    end)
+    |> Kernel.not()
   end
 
   defp build_hashing_library!(opts) do
