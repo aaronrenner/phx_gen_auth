@@ -15,9 +15,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        elixir: ["1.10.2", "1.9.4", "1.8.2"]
+        elixir: ["1.10.3", "1.9.4", "1.8.2"]
         include:
-          - elixir: "1.10.2"
+          - elixir: "1.10.3"
             otp: "22.2.8"
             check_formatting: true
           - elixir: "1.9.4"
@@ -82,9 +82,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        elixir: ["1.10.2", "1.9.4", "1.8.2"]
+        elixir: ["1.10.3", "1.9.4", "1.8.2"]
         include:
-          - elixir: "1.10.2"
+          - elixir: "1.10.3"
             otp: "22.2.8"
           - elixir: "1.9.4"
             otp: "22.2.8"
