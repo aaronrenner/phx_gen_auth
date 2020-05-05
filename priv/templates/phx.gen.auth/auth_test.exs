@@ -18,6 +18,7 @@ defmodule <%= inspect auth_module %>Test do
     test "stores the <%= schema.singular %> token in the session", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
       conn = <%= inspect schema.alias %>Auth.login_<%= schema.singular %>(conn, <%= schema.singular %>)
       assert token = get_session(conn, :<%= schema.singular %>_token)
+      assert get_session(conn, :live_socket_id) == "<%= schema.plural %>_sessions:#{Base.url_encode64(token)}"
       assert redirected_to(conn) == "/"
       assert <%= inspect context.alias %>.get_<%= schema.singular %>_by_session_token(token)
     end
@@ -58,6 +59,20 @@ defmodule <%= inspect auth_module %>Test do
       assert %{max_age: 0} = conn.resp_cookies["<%= schema.singular %>_remember_me"]
       assert redirected_to(conn) == "/"
       refute <%= inspect context.alias %>.get_<%= schema.singular %>_by_session_token(<%= schema.singular %>_token)
+    end
+
+    test "broadcasts to the given live_socket_id", %{conn: conn} do
+      live_socket_id = "<%= schema.plural %>_sessions:abcdef-token"
+      <%= inspect(endpoint_module) %>.subscribe(live_socket_id)
+
+      conn
+      |> put_session(:live_socket_id, live_socket_id)
+      |> <%= inspect(schema.alias) %>Auth.logout_<%= schema.singular %>()
+
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "disconnect",
+        topic: "<%= schema.plural %>_sessions:abcdef-token"
+      }
     end
 
     test "works even if <%= schema.singular %> is already logged out", %{conn: conn} do

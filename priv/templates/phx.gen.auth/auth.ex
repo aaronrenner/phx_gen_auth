@@ -18,6 +18,11 @@ defmodule <%= inspect auth_module %> do
   It renews the session ID and clears the whole session
   to avoid fixation attacks. See the renew_session
   function to customize this behaviour.
+
+  It also sets a `:live_socket_id` key in the session,
+  so LiveView sessions are identified and automatically
+  disconnected on logout. The line can be safely removed
+  if you are not using LiveView.
   """
   def login_<%= schema.singular %>(conn, <%= schema.singular %>, params \\ %{}) do
     token = <%= inspect context.alias %>.generate_session_token(<%= schema.singular %>)
@@ -26,6 +31,7 @@ defmodule <%= inspect auth_module %> do
     conn
     |> renew_session()
     |> put_session(:<%= schema.singular %>_token, token)
+    |> put_session(:live_socket_id, "<%= schema.plural %>_sessions:#{Base.url_encode64(token)}")
     |> maybe_write_remember_me_cookie(token, params)
     |> redirect(to: <%= schema.singular %>_return_to || signed_in_path(conn))
   end
@@ -67,6 +73,10 @@ defmodule <%= inspect auth_module %> do
   def logout_<%= schema.singular %>(conn) do
     <%= schema.singular %>_token = get_session(conn, :<%= schema.singular %>_token)
     <%= schema.singular %>_token && <%= inspect context.alias %>.delete_session_token(<%= schema.singular %>_token)
+
+    if live_socket_id = get_session(conn, :live_socket_id) do
+      <%= inspect(endpoint_module) %>.broadcast(live_socket_id, "disconnect", %{})
+    end
 
     conn
     |> renew_session()

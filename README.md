@@ -3,7 +3,7 @@
 An authentication system generator for Phoenix 1.5+ applications.
 
 This project generates code from José Valim's [Auth PR][auth pr] and is up to date
-through commit: [bb13f6](https://github.com/dashbitco/mix_phx_gen_auth_demo/pull/1/commits/bb13f6be8d5aacb35e609b976f1c28c5201a193c).
+through commit: [411339](https://github.com/dashbitco/mix_phx_gen_auth_demo/pull/1/commits/4113391098d5bf1c562bb9e87d7e32a6f261b342).
 
 ## Overview
 
