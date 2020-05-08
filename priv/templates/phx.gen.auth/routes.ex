@@ -17,7 +17,6 @@
   scope <%= router_scope %> do
     pipe_through [:browser, :require_authenticated_<%= schema.singular %>]
 
-    delete "/<%= schema.plural %>/logout", <%= inspect schema.alias %>SessionController, :delete
     get "/<%= schema.plural %>/settings", <%= inspect schema.alias %>SettingsController, :edit
     put "/<%= schema.plural %>/settings/update_password", <%= inspect schema.alias %>SettingsController, :update_password
     put "/<%= schema.plural %>/settings/update_email", <%= inspect schema.alias %>SettingsController, :update_email
@@ -27,6 +26,7 @@
   scope <%= router_scope %> do
     pipe_through [:browser]
 
+    delete "/<%= schema.plural %>/logout", <%= inspect schema.alias %>SessionController, :delete
     get "/<%= schema.plural %>/confirm", <%= inspect schema.alias %>ConfirmationController, :new
     post "/<%= schema.plural %>/confirm", <%= inspect schema.alias %>ConfirmationController, :create
     get "/<%= schema.plural %>/confirm/:token", <%= inspect schema.alias %>ConfirmationController, :confirm

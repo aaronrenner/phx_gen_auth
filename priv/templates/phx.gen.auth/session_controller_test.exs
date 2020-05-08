@@ -67,13 +67,15 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
   end
 
   describe "DELETE <%= web_path_prefix %>/<%= schema.plural %>/logout" do
-    test "redirects if not logged in", %{conn: conn} do
-      conn = delete(conn, Routes.<%= schema.route_helper %>_session_path(conn, :delete))
-      assert redirected_to(conn) == "<%= web_path_prefix %>/<%= schema.plural %>/login"
-    end
-
     test "logs the <%= schema.singular %> out", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
       conn = conn |> login_<%= schema.singular %>(<%= schema.singular %>) |> delete(Routes.<%= schema.route_helper %>_session_path(conn, :delete))
+      assert redirected_to(conn) == "/"
+      refute get_session(conn, :<%= schema.singular %>_token)
+      assert get_flash(conn, :info) =~ "Logged out successfully"
+    end
+
+    test "succeeds even if the <%= schema.singular %> is not logged in", %{conn: conn} do
+      conn = delete(conn, Routes.<%= schema.route_helper %>_session_path(conn, :delete))
       assert redirected_to(conn) == "/"
       refute get_session(conn, :<%= schema.singular %>_token)
       assert get_flash(conn, :info) =~ "Logged out successfully"
