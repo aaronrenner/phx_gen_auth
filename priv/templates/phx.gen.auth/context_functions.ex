@@ -157,8 +157,7 @@
   """
   def deliver_update_email_instructions(%<%= inspect schema.alias %>{} = <%= schema.singular %>, current_email, update_email_url_fun)
       when is_function(update_email_url_fun, 1) do
-    {encoded_token, <%= schema.singular %>_token} =
-      <%= inspect schema.alias %>Token.build_email_token(<%= schema.singular %>, "change:#{current_email}")
+    {encoded_token, <%= schema.singular %>_token} = <%= inspect schema.alias %>Token.build_email_token(<%= schema.singular %>, "change:#{current_email}")
 
     Repo.insert!(<%= schema.singular %>_token)
     <%= inspect schema.alias %>Notifier.deliver_update_email_instructions(<%= schema.singular %>, update_email_url_fun.(encoded_token))
