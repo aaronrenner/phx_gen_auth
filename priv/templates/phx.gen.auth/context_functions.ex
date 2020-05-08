@@ -1,4 +1,3 @@
-
   alias <%= inspect context.module %>.{<%= inspect schema.alias %>, <%= inspect schema.alias %>Token, <%= inspect schema.alias %>Notifier}
 
   ## Database getters
@@ -130,7 +129,7 @@
   def update_<%= schema.singular %>_email(<%= schema.singular %>, token) do
     context = "change:#{<%= schema.singular %>.email}"
 
-    with {:ok, query} <- <%= inspect schema.alias %>Token.verify_<%= schema.singular %>_change_email_token_query(token, context),
+    with {:ok, query} <- <%= inspect schema.alias %>Token.verify_change_email_token_query(token, context),
          %<%= inspect schema.alias %>Token{sent_to: email} <- Repo.one(query),
          {:ok, _} <- Repo.transaction(<%= schema.singular %>_email_multi(<%= schema.singular %>, email, context)) do
       :ok
@@ -159,7 +158,7 @@
   def deliver_update_email_instructions(%<%= inspect schema.alias %>{} = <%= schema.singular %>, current_email, update_email_url_fun)
       when is_function(update_email_url_fun, 1) do
     {encoded_token, <%= schema.singular %>_token} =
-      <%= inspect schema.alias %>Token.build_<%= schema.singular %>_email_token(<%= schema.singular %>, "change:#{current_email}")
+      <%= inspect schema.alias %>Token.build_email_token(<%= schema.singular %>, "change:#{current_email}")
 
     Repo.insert!(<%= schema.singular %>_token)
     <%= inspect schema.alias %>Notifier.deliver_update_email_instructions(<%= schema.singular %>, update_email_url_fun.(encoded_token))
@@ -252,7 +251,7 @@
     if <%= schema.singular %>.confirmed_at do
       {:error, :already_confirmed}
     else
-      {encoded_token, <%= schema.singular %>_token} = <%= inspect schema.alias %>Token.build_<%= schema.singular %>_email_token(<%= schema.singular %>, "confirm")
+      {encoded_token, <%= schema.singular %>_token} = <%= inspect schema.alias %>Token.build_email_token(<%= schema.singular %>, "confirm")
       Repo.insert!(<%= schema.singular %>_token)
       <%= inspect schema.alias %>Notifier.deliver_confirmation_instructions(<%= schema.singular %>, confirmation_url_fun.(encoded_token))
     end
@@ -265,7 +264,7 @@
   and the token is deleted.
   """
   def confirm_<%= schema.singular %>(token) do
-    with {:ok, query} <- <%= inspect schema.alias %>Token.verify_<%= schema.singular %>_email_token_query(token, "confirm"),
+    with {:ok, query} <- <%= inspect schema.alias %>Token.verify_email_token_query(token, "confirm"),
          %<%= inspect schema.alias %>{} = <%= schema.singular %> <- Repo.one(query),
          {:ok, %{<%= schema.singular %>: <%= schema.singular %>}} <- Repo.transaction(confirm_<%= schema.singular %>_multi(<%= schema.singular %>)) do
       {:ok, <%= schema.singular %>}
@@ -293,7 +292,7 @@
   """
   def deliver_<%= schema.singular %>_reset_password_instructions(%<%= inspect schema.alias %>{} = <%= schema.singular %>, reset_password_url_fun)
       when is_function(reset_password_url_fun, 1) do
-    {encoded_token, <%= schema.singular %>_token} = <%= inspect schema.alias %>Token.build_<%= schema.singular %>_email_token(<%= schema.singular %>, "reset_password")
+    {encoded_token, <%= schema.singular %>_token} = <%= inspect schema.alias %>Token.build_email_token(<%= schema.singular %>, "reset_password")
     Repo.insert!(<%= schema.singular %>_token)
     <%= inspect schema.alias %>Notifier.deliver_reset_password_instructions(<%= schema.singular %>, reset_password_url_fun.(encoded_token))
   end
@@ -311,7 +310,7 @@
 
   """
   def get_<%= schema.singular %>_by_reset_password_token(token) do
-    with {:ok, query} <- <%= inspect schema.alias %>Token.verify_<%= schema.singular %>_email_token_query(token, "reset_password"),
+    with {:ok, query} <- <%= inspect schema.alias %>Token.verify_email_token_query(token, "reset_password"),
          %<%= inspect schema.alias %>{} = <%= schema.singular %> <- Repo.one(query) do
       <%= schema.singular %>
     else

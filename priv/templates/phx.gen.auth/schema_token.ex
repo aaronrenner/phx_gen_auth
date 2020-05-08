@@ -56,7 +56,7 @@ defmodule <%= inspect schema.module %>Token do
   The token is valid for a week as long as <%= schema.singular %>s don't change
   their email.
   """
-  def build_<%= schema.singular %>_email_token(<%= schema.singular %>, context) do
+  def build_email_token(<%= schema.singular %>, context) do
     build_hashed_token(<%= schema.singular %>, context, <%= schema.singular %>.email)
   end
 
@@ -78,7 +78,7 @@ defmodule <%= inspect schema.module %>Token do
 
   The query returns the <%= schema.singular %> found by the token.
   """
-  def verify_<%= schema.singular %>_email_token_query(token, context) do
+  def verify_email_token_query(token, context) do
     case Base.url_decode64(token, padding: false) do
       {:ok, decoded_token} ->
         hashed_token = :crypto.hash(@hash_algorithm, decoded_token)
@@ -105,7 +105,7 @@ defmodule <%= inspect schema.module %>Token do
 
   The query returns the <%= schema.singular %> found by the token.
   """
-  def verify_<%= schema.singular %>_change_email_token_query(token, context) do
+  def verify_change_email_token_query(token, context) do
     case Base.url_decode64(token, padding: false) do
       {:ok, decoded_token} ->
         hashed_token = :crypto.hash(@hash_algorithm, decoded_token)
