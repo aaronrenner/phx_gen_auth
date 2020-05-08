@@ -92,8 +92,6 @@ defmodule <%= inspect schema.module %> do
   @doc """
   Verifies the password.
 
-  Returns the given <%= schema.singular %> if valid,
-
   If there is no <%= schema.singular %> or the <%= schema.singular %> doesn't have a password, we call
   `<%= inspect hashing_library.module %>.no_user_verify/0` to avoid timing attacks.
   """
