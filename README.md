@@ -127,6 +127,16 @@ To learn more about `phx.gen.auth`, run the following command.
 
 You can also look up the mix task in [hexdocs](https://hexdocs.pm/phx_gen_auth).
 
+## Upgrading
+
+Since `mix phx.gen.auth` generates its code directly into your application, upgrading the version
+of this library will not upgrade your application's current authentication logic.
+
+To see the changes that have been made to the generator output since the version that was used in
+your application, visit the [CHANGELOG](CHANGELOG.md) and click the `[Diff]` links for each
+version. These diffs will show you the changes to make to your application so it can be up to date
+with the current generator output.
+
 ## License
 
 Copyright 2020 Dashbit, Aaron Renner
