@@ -125,7 +125,7 @@ It should be noted that Gigalixir free tier database [does not support database 
 
 
 ```diff
-defmodule TurnipRun.Repo.Migrations.CreateUsersAuthTables do
+defmodule MyApp.Repo.Migrations.CreateUsersAuthTables do
   use Ecto.Migration
 
   def change do
