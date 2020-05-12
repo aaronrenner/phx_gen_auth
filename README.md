@@ -119,6 +119,29 @@ using do
 end
 ```
 
+### Deployment to Gigalixir
+
+It should be noted that Gigalixir free tier database [does not support database extensions](https://gigalixir.readthedocs.io/en/latest/main.html#how-to-install-a-postgres-extension). You should consider either upgrading your database tier, or changing the generated migrations to suit your database.
+
+
+```diff
+defmodule TurnipRun.Repo.Migrations.CreateUsersAuthTables do
+  use Ecto.Migration
+
+  def change do
+-    execute "CREATE EXTENSION IF NOT EXISTS citext", ""
+
+    create table(:users) do
+-      add :email, :citext, null: false
++      add :email, :string, null: false
+      add :hashed_password, :string, null: false
+      add :confirmed_at, :naive_datetime
+      timestamps()
+    end
+```
+
+If you take this approach, you will also need to modify user creation and login logic to ensure consistent casing is persisted and used during user lookup.
+
 ### Learning more
 
 To learn more about `phx.gen.auth`, run the following command.
