@@ -79,7 +79,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
   alias Mix.Phoenix.{Context, Schema}
   alias Mix.Tasks.Phx.Gen
-  alias Mix.Phx.Gen.Auth.{HashingLibrary, Injector, Migration}
+  alias Mix.Phx.Gen.Auth.{HashingLibrary, Injector, Injectors, Migration}
 
   @switches [web: :string, binary_id: :boolean, hashing_lib: :string, table: :string]
 
@@ -354,26 +354,13 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     context
   end
 
-  defp maybe_inject_router_plug(%Context{context_app: ctx_app, schema: schema} = context) do
+  defp maybe_inject_router_plug(%Context{context_app: ctx_app} = context) do
     web_prefix = Mix.Phoenix.web_path(ctx_app)
     file_path = Path.join(web_prefix, "router.ex")
-    plug_name = ":fetch_current_#{schema.singular}"
-    inject = "plug #{plug_name}"
-    anchor_line = "plug :put_secure_browser_headers"
-
-    help_text = """
-
-    Add the #{plug_name} plug to the browser pipeline in #{Path.relative_to_cwd(file_path)}:
-
-        pipeline :browser do
-          ...
-          #{anchor_line}
-          #{inject}
-        end
-    """
+    help_text = Injectors.RouterPlug.help_text(file_path, context)
 
     with {:ok, file} <- read_file(file_path),
-         {:ok, new_file} <- Injector.inject_unless_contains(file, inject, &String.replace(&1, anchor_line, "#{anchor_line}\n    #{&2}")) do
+         {:ok, new_file} <- Injectors.RouterPlug.inject(file, context) do
       print_injecting(file_path, " - plug")
       File.write!(file_path, new_file)
     else
