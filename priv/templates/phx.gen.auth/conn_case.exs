@@ -18,7 +18,7 @@
   It returns an updated `conn`.
   """
   def login_<%= schema.singular %>(conn, <%= schema.singular %>) do
-    token = <%= inspect context.module %>.generate_session_token(<%= schema.singular %>)
+    token = <%= inspect context.module %>.generate_<%= schema.singular %>_session_token(<%= schema.singular %>)
 
     conn
     |> Phoenix.ConnTest.init_test_session(%{})

@@ -45,7 +45,7 @@ defmodule <%= inspect auth_module %>Test do
 
   describe "logout_<%= schema.singular %>/1" do
     test "erases session and cookies", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
-      <%= schema.singular %>_token = <%= inspect context.alias %>.generate_session_token(<%= schema.singular %>)
+      <%= schema.singular %>_token = <%= inspect context.alias %>.generate_<%= schema.singular %>_session_token(<%= schema.singular %>)
 
       conn =
         conn
@@ -85,7 +85,7 @@ defmodule <%= inspect auth_module %>Test do
 
   describe "fetch_current_<%= schema.singular %>/2" do
     test "authenticates <%= schema.singular %> from session", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
-      <%= schema.singular %>_token = <%= inspect context.alias %>.generate_session_token(<%= schema.singular %>)
+      <%= schema.singular %>_token = <%= inspect context.alias %>.generate_<%= schema.singular %>_session_token(<%= schema.singular %>)
       conn = conn |> put_session(:<%= schema.singular %>_token, <%= schema.singular %>_token) |> <%= inspect schema.alias %>Auth.fetch_current_<%= schema.singular %>([])
       assert conn.assigns.current_<%= schema.singular %>.id == <%= schema.singular %>.id
     end
@@ -107,7 +107,7 @@ defmodule <%= inspect auth_module %>Test do
     end
 
     test "does not authenticate if data is missing", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
-      _ = <%= inspect context.alias %>.generate_session_token(<%= schema.singular %>)
+      _ = <%= inspect context.alias %>.generate_<%= schema.singular %>_session_token(<%= schema.singular %>)
       conn = <%= inspect schema.alias %>Auth.fetch_current_<%= schema.singular %>(conn, [])
       refute get_session(conn, :<%= schema.singular %>_token)
       refute conn.assigns.current_<%= schema.singular %>

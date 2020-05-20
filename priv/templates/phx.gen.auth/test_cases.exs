@@ -1,4 +1,3 @@
-
   import <%= inspect context.module %>Fixtures
   alias <%= inspect context.module %>.{<%= inspect schema.alias %>, <%= inspect schema.alias %>Token}
 
@@ -268,7 +267,7 @@
     end
 
     test "deletes all tokens for the given <%= schema.singular %>", %{<%= schema.singular %>: <%= schema.singular %>} do
-      _ = <%= inspect context.alias %>.generate_session_token(<%= schema.singular %>)
+      _ = <%= inspect context.alias %>.generate_<%= schema.singular %>_session_token(<%= schema.singular %>)
 
       {:ok, _} =
         <%= inspect context.alias %>.update_<%= schema.singular %>_password(<%= schema.singular %>, valid_<%= schema.singular %>_password(), %{
@@ -279,13 +278,13 @@
     end
   end
 
-  describe "generate_session_token/1" do
+  describe "generate_<%= schema.singular %>_session_token/1" do
     setup do
       %{<%= schema.singular %>: <%= schema.singular %>_fixture()}
     end
 
     test "generates a token", %{<%= schema.singular %>: <%= schema.singular %>} do
-      token = <%= inspect context.alias %>.generate_session_token(<%= schema.singular %>)
+      token = <%= inspect context.alias %>.generate_<%= schema.singular %>_session_token(<%= schema.singular %>)
       assert <%= schema.singular %>_token = Repo.get_by(<%= inspect schema.alias %>Token, token: token)
       assert <%= schema.singular %>_token.context == "session"
 
@@ -303,7 +302,7 @@
   describe "get_<%= schema.singular %>_by_session_token/1" do
     setup do
       <%= schema.singular %> = <%= schema.singular %>_fixture()
-      token = <%= inspect context.alias %>.generate_session_token(<%= schema.singular %>)
+      token = <%= inspect context.alias %>.generate_<%= schema.singular %>_session_token(<%= schema.singular %>)
       %{<%= schema.singular %>: <%= schema.singular %>, token: token}
     end
 
@@ -325,7 +324,7 @@
   describe "delete_session_token/1" do
     test "deletes the token" do
       <%= schema.singular %> = <%= schema.singular %>_fixture()
-      token = <%= inspect context.alias %>.generate_session_token(<%= schema.singular %>)
+      token = <%= inspect context.alias %>.generate_<%= schema.singular %>_session_token(<%= schema.singular %>)
       assert <%= inspect context.alias %>.delete_session_token(token) == :ok
       refute <%= inspect context.alias %>.get_<%= schema.singular %>_by_session_token(token)
     end
@@ -463,7 +462,7 @@
     end
 
     test "deletes all tokens for the given <%= schema.singular %>", %{<%= schema.singular %>: <%= schema.singular %>} do
-      _ = <%= inspect context.alias %>.generate_session_token(<%= schema.singular %>)
+      _ = <%= inspect context.alias %>.generate_<%= schema.singular %>_session_token(<%= schema.singular %>)
       {:ok, _} = <%= inspect context.alias %>.reset_<%= schema.singular %>_password(<%= schema.singular %>, %{password: "new valid password"})
       refute Repo.get_by(<%= inspect schema.alias %>Token, <%= schema.singular %>_id: <%= schema.singular %>.id)
     end

@@ -25,7 +25,7 @@ defmodule <%= inspect auth_module %> do
   if you are not using LiveView.
   """
   def login_<%= schema.singular %>(conn, <%= schema.singular %>, params \\ %{}) do
-    token = <%= inspect context.alias %>.generate_session_token(<%= schema.singular %>)
+    token = <%= inspect context.alias %>.generate_<%= schema.singular %>_session_token(<%= schema.singular %>)
     <%= schema.singular %>_return_to = get_session(conn, :<%= schema.singular %>_return_to)
 
     conn
