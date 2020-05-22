@@ -5,6 +5,7 @@
 ### Enhancements
 
 * Updated generated code be up to date through commit: [57bf7d](https://github.com/dashbitco/mix_phx_gen_auth_demo/pull/1/commits/57bf7df63e270027d0c69d01c948390c2ee5fb27). [[Diff](https://github.com/dashbitco/mix_phx_gen_auth_demo/compare/6ae63a...57bf7d)]
+* Upgraded phoenix requirement to `~> 1.5.2` to use undeprecated `MyApp.Endpoint.subscribe/1` function.
 
 ## v0.2.0 (2020-04-28)
 
