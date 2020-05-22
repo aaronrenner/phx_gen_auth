@@ -23,6 +23,7 @@ defmodule <%= inspect schema.repo %>.Migrations.Create<%= Macro.camelize(schema.
       timestamps(updated_at: false)
     end
 
+    create index(:<%= schema.table %>_tokens, [:<%= schema.singular %>_id])
     create unique_index(:<%= schema.table %>_tokens, [:context, :token])
   end
 end

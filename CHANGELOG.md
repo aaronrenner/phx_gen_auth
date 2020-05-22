@@ -4,7 +4,7 @@
 
 ### Enhancements
 
-* Updated generated code be up to date through commit: [78cb46](https://github.com/dashbitco/mix_phx_gen_auth_demo/pull/1/commits/78cb46ecc535878aec7a0255b9079a4cb4a42b27). [[Diff](https://github.com/dashbitco/mix_phx_gen_auth_demo/compare/6ae63a...78cb46)]
+* Updated generated code be up to date through commit: [57bf7d](https://github.com/dashbitco/mix_phx_gen_auth_demo/pull/1/commits/57bf7df63e270027d0c69d01c948390c2ee5fb27). [[Diff](https://github.com/dashbitco/mix_phx_gen_auth_demo/compare/6ae63a...57bf7d)]
 
 ## v0.2.0 (2020-04-28)
 
