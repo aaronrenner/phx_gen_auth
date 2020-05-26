@@ -177,7 +177,7 @@
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for changing the <%= schema.singular %> password.
+  Updates the <%= schema.singular %> password.
 
   ## Examples
 
