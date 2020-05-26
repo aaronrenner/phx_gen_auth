@@ -628,6 +628,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     )
   end
 
+  @doc false
   def raise_with_help(msg) do
     raise_with_help(msg, :general)
   end
