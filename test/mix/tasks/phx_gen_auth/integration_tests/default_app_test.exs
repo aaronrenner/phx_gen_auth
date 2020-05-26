@@ -218,4 +218,33 @@ defmodule Phx.Gen.Auth.IntegrationTests.DefaultAppTest do
     assert_no_compilation_warnings(test_app_path)
     assert_mix_test_succeeds(test_app_path)
   end
+
+  test "merges fixtures with existing fixtures", %{test_app_path: test_app_path} do
+    fixtures_dir = Path.join(test_app_path, "test/support/fixtures")
+    fixtures_path = Path.join(fixtures_dir, "accounts_fixtures.ex")
+
+    existing_fixtures_content = """
+    defmodule Demo.AccountsFixtures do
+      @moduledoc \"\"\"
+      Fixtures for Demo.Accounts
+      \"\"\"
+
+      def existing_fixture do
+        :existing
+      end
+    end
+    """
+
+    File.mkdir_p!(fixtures_dir)
+    File.write!(fixtures_path, existing_fixtures_content)
+
+    mix_run!(~w(phx.gen.auth Accounts User users), cd: test_app_path)
+
+    assert_file(fixtures_path, fn file ->
+      assert file =~ "def existing_fixture"
+      assert file =~ "def user_fixture"
+    end)
+
+    assert_passes_formatter_check(test_app_path)
+  end
 end
