@@ -10,7 +10,7 @@
   <%% end %>
 
   <%%= label f, :email %>
-  <%%= text_input f, :email, required: true %>
+  <%%= email_input f, :email, required: true %>
   <%%= error_tag f, :email %>
 
   <%%= label f, :current_password, for: "current_password_for_email" %>
