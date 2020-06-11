@@ -29,7 +29,7 @@ named `DemoWeb.UserAuth` with plugs such as:
     `fetch_current_user` and requires that a current exists and is
     authenticated
 
-  * `redirect_if_user_is_not_authenticated` - used for the few
+  * `redirect_if_user_is_authenticated` - used for the few
     pages that must not be available to authenticated users
 
 ## Confirmation
