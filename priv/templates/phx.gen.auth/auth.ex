@@ -21,7 +21,7 @@ defmodule <%= inspect auth_module %> do
 
   It also sets a `:live_socket_id` key in the session,
   so LiveView sessions are identified and automatically
-  disconnected on logout. The line can be safely removed
+  disconnected on log out. The line can be safely removed
   if you are not using LiveView.
   """
   def log_in_<%= schema.singular %>(conn, <%= schema.singular %>, params \\ %{}) do
@@ -46,7 +46,7 @@ defmodule <%= inspect auth_module %> do
 
   # This function renews the session ID and erases the whole
   # session to avoid fixation attacks. If there is any data
-  # in the session you may want to preserve after log in/logout,
+  # in the session you may want to preserve after log in/log out,
   # you must explicitly fetch the session data before clearing
   # and then immediately set it after clearing, for example:
   #
@@ -70,7 +70,7 @@ defmodule <%= inspect auth_module %> do
 
   It clears all session data for safety. See renew_session.
   """
-  def logout_<%= schema.singular %>(conn) do
+  def log_out_<%= schema.singular %>(conn) do
     <%= schema.singular %>_token = get_session(conn, :<%= schema.singular %>_token)
     <%= schema.singular %>_token && <%= inspect context.alias %>.delete_session_token(<%= schema.singular %>_token)
 

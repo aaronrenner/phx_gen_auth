@@ -21,6 +21,6 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
   def delete(conn, _params) do
     conn
     |> put_flash(:info, "Logged out successfully.")
-    |> <%= inspect schema.alias %>Auth.logout_<%= schema.singular %>()
+    |> <%= inspect schema.alias %>Auth.log_out_<%= schema.singular %>()
   end
 end

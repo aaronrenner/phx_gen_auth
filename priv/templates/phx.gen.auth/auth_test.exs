@@ -52,7 +52,7 @@ defmodule <%= inspect auth_module %>Test do
         |> put_session(:<%= schema.singular %>_token, <%= schema.singular %>_token)
         |> put_req_cookie("<%= schema.singular %>_remember_me", <%= schema.singular %>_token)
         |> fetch_cookies()
-        |> <%= inspect schema.alias %>Auth.logout_<%= schema.singular %>()
+        |> <%= inspect schema.alias %>Auth.log_out_<%= schema.singular %>()
 
       refute get_session(conn, :<%= schema.singular %>_token)
       refute conn.cookies["<%= schema.singular %>_remember_me"]
@@ -67,7 +67,7 @@ defmodule <%= inspect auth_module %>Test do
 
       conn
       |> put_session(:live_socket_id, live_socket_id)
-      |> <%= inspect(schema.alias) %>Auth.logout_<%= schema.singular %>()
+      |> <%= inspect(schema.alias) %>Auth.log_out_<%= schema.singular %>()
 
       assert_receive %Phoenix.Socket.Broadcast{
         event: "disconnect",
@@ -76,7 +76,7 @@ defmodule <%= inspect auth_module %>Test do
     end
 
     test "works even if <%= schema.singular %> is already logged out", %{conn: conn} do
-      conn = conn |> fetch_cookies() |> <%= inspect schema.alias %>Auth.logout_<%= schema.singular %>()
+      conn = conn |> fetch_cookies() |> <%= inspect schema.alias %>Auth.log_out_<%= schema.singular %>()
       refute get_session(conn, :<%= schema.singular %>_token)
       assert %{max_age: 0} = conn.resp_cookies["<%= schema.singular %>_remember_me"]
       assert redirected_to(conn) == "/"

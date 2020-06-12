@@ -37,7 +37,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
       response = html_response(conn, 200)
       assert response =~ <%= schema.singular %>.email
       assert response =~ "Settings</a>"
-      assert response =~ "Logout</a>"
+      assert response =~ "Log out</a>"
     end
 
     test "logs the <%= schema.singular %> in with remember me", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
@@ -66,7 +66,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     end
   end
 
-  describe "DELETE <%= web_path_prefix %>/<%= schema.plural %>/logout" do
+  describe "DELETE <%= web_path_prefix %>/<%= schema.plural %>/log_out" do
     test "logs the <%= schema.singular %> out", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
       conn = conn |> log_in_<%= schema.singular %>(<%= schema.singular %>) |> delete(Routes.<%= schema.route_helper %>_session_path(conn, :delete))
       assert redirected_to(conn) == "/"
