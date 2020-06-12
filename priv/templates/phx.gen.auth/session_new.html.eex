@@ -1,4 +1,4 @@
-<h1>Login</h1>
+<h1>Log in</h1>
 
 <%%= form_for @conn, Routes.<%= schema.route_helper %>_session_path(@conn, :create), [as: :<%= schema.singular %>], fn f -> %>
   <%%= if @error_message do %>
@@ -17,7 +17,7 @@
   <%%= checkbox f, :remember_me %>
 
   <div>
-    <%%= submit "Login" %>
+    <%%= submit "Log in" %>
   </div>
 <%% end %>
 

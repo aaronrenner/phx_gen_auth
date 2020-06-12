@@ -7,7 +7,7 @@
 * Updated generated code be up to date through commit: [4664c3](https://github.com/dashbitco/mix_phx_gen_auth_demo/pull/1/commits/4664c376273af7100e31766ccf2d76bc7cf153e4). [[Diff](https://github.com/dashbitco/mix_phx_gen_auth_demo/compare/6ae63a...4664c3)]
 * Upgraded phoenix requirement to `~> 1.5.2` to use undeprecated `MyApp.Endpoint.subscribe/1` function.
 * Updated generator to be compatible with existing fixtures modules.
-* Set `live_socket_id` on login and disconnect on logout.
+* Set `live_socket_id` on log in and disconnect on logout.
 * Updated logout to succeed even if user is already logged out.
 * Added index on user_tokens.user_id column
 * Renamed several functions (see diff).

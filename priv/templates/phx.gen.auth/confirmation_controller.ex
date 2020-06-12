@@ -25,7 +25,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     |> redirect(to: "/")
   end
 
-  # Do not login the <%= schema.singular %> after confirmation to avoid a
+  # Do not log in the <%= schema.singular %> after confirmation to avoid a
   # leaked token giving the <%= schema.singular %> access to the account.
   def confirm(conn, %{"token" => token}) do
     case <%= inspect context.alias %>.confirm_<%= schema.singular %>(token) do

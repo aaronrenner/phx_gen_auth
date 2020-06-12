@@ -22,7 +22,7 @@ defmodule Phx.Gen.Auth.IntegrationTests.DefaultUmbrellaTest do
     assert_file(Path.join(test_app_path, "apps/rainy_day/test/support/fixtures/accounts_fixtures.ex"))
 
     assert_file(Path.join(test_app_path, "apps/rainy_day_web/test/support/conn_case.ex"), fn file ->
-      assert file =~ "def login_user"
+      assert file =~ "def log_in_user"
     end)
 
     assert_no_compilation_warnings(test_app_path)

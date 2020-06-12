@@ -2,14 +2,14 @@
   @doc """
   Setup helper that registers and logs in <%= schema.plural %>.
 
-      setup :register_and_login_<%= schema.singular %>
+      setup :register_and_log_in_<%= schema.singular %>
 
   It stores an updated connection and a registered <%= schema.singular %> in the
   test context.
   """
-  def register_and_login_<%= schema.singular %>(%{conn: conn}) do
+  def register_and_log_in_<%= schema.singular %>(%{conn: conn}) do
     <%= schema.singular %> = <%= inspect context.module %>Fixtures.<%= schema.singular %>_fixture()
-    %{conn: login_<%= schema.singular %>(conn, <%= schema.singular %>), <%= schema.singular %>: <%= schema.singular %>}
+    %{conn: log_in_<%= schema.singular %>(conn, <%= schema.singular %>), <%= schema.singular %>: <%= schema.singular %>}
   end
 
   @doc """
@@ -17,7 +17,7 @@
 
   It returns an updated `conn`.
   """
-  def login_<%= schema.singular %>(conn, <%= schema.singular %>) do
+  def log_in_<%= schema.singular %>(conn, <%= schema.singular %>) do
     token = <%= inspect context.module %>.generate_<%= schema.singular %>_session_token(<%= schema.singular %>)
 
     conn

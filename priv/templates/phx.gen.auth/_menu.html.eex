@@ -5,6 +5,6 @@
   <li><%%= link "Logout", to: Routes.<%= schema.route_helper %>_session_path(@conn, :delete), method: :delete %></li>
 <%% else %>
   <li><%%= link "Register", to: Routes.<%= schema.route_helper %>_registration_path(@conn, :new) %></li>
-  <li><%%= link "Login", to: Routes.<%= schema.route_helper %>_session_path(@conn, :new) %></li>
+  <li><%%= link "Log in", to: Routes.<%= schema.route_helper %>_session_path(@conn, :new) %></li>
 <%% end %>
 </ul>

@@ -66,7 +66,7 @@ defmodule Phx.Gen.Auth.IntegrationTests.DefaultAppTest do
     assert_file(Path.join(test_app_path, "test/support/fixtures/accounts_fixtures.ex"))
 
     assert_file(Path.join(test_app_path, "test/support/conn_case.ex"), fn file ->
-      assert file =~ "def login_user"
+      assert file =~ "def log_in_user"
     end)
 
     [migration] =

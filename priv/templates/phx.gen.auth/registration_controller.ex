@@ -21,7 +21,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
 
         conn
         |> put_flash(:info, "<%= schema.human_singular %> created successfully.")
-        |> <%= inspect schema.alias %>Auth.login_<%= schema.singular %>(<%= schema.singular %>)
+        |> <%= inspect schema.alias %>Auth.log_in_<%= schema.singular %>(<%= schema.singular %>)
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)

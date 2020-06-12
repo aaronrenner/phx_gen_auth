@@ -30,7 +30,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     render(conn, "edit.html", changeset: <%= inspect context.alias %>.change_<%= schema.singular %>_password(conn.assigns.<%= schema.singular %>))
   end
 
-  # Do not login the <%= schema.singular %> after reset password to avoid a
+  # Do not log in the <%= schema.singular %> after reset password to avoid a
   # leaked token giving the <%= schema.singular %> access to the account.
   def update(conn, %{"<%= schema.singular %>" => <%= schema.singular %>_params}) do
     case <%= inspect context.alias %>.reset_<%= schema.singular %>_password(conn.assigns.<%= schema.singular %>, <%= schema.singular %>_params) do

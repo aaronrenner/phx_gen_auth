@@ -56,7 +56,7 @@ allows you to track how many sessions are active for each account.
 You could even expose this information to users if desired.
 
 Note that whenever the password changes (either via reset password
-or directly), all tokens are deleted and the user has to login
+or directly), all tokens are deleted and the user has to log in
 again on all devices.
 
 ## Enumeration attacks
