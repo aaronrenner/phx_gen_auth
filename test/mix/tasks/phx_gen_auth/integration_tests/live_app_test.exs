@@ -15,14 +15,6 @@ defmodule Phx.Gen.Auth.IntegrationTests.LiveAppTest do
 
   test "works with phoenix app generated with --live", %{test_app_path: test_app_path} do
     mix_run!(~w(phx.gen.auth Accounts User users), cd: test_app_path)
-
-    assert_file(Path.join(test_app_path, "lib/live_app_web/templates/layout/root.html.leex"), fn file ->
-      assert file =~ """
-               <body>
-                 <%= render "_user_menu.html", assigns %>
-             """
-    end)
-
     mix_deps_get_and_compile(test_app_path)
 
     assert_no_compilation_warnings(test_app_path)

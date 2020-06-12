@@ -5,6 +5,60 @@ defmodule Mix.Phx.Gen.Auth.Injectors.AppLayoutMenuTest do
   alias Mix.Phx.Gen.Auth.Injectors.AppLayoutMenu
 
   describe "inject/2" do
+    test "injects render user_menu.html at the bottom of nav section when it exists" do
+      schema = Schema.new("Accounts.User", "users", [], [])
+
+      input = """
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <title>Demo · Phoenix Framework</title>
+        </head>
+        <body>
+          <header>
+            <section class="container">
+              <nav role="navigation">
+                <ul>
+                  <li><a href="https://hexdocs.pm/phoenix/overview.html">Get Started</a></li>
+                  <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
+                    <li><%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home) %></li>
+                  <% end %>
+                </ul>
+              </nav>
+            </section>
+          </header>
+        </body>
+      </html>
+      """
+
+      {:ok, injected} = AppLayoutMenu.inject(input, schema)
+
+      assert injected ==
+               """
+               <!DOCTYPE html>
+               <html lang="en">
+                 <head>
+                   <title>Demo · Phoenix Framework</title>
+                 </head>
+                 <body>
+                   <header>
+                     <section class="container">
+                       <nav role="navigation">
+                         <ul>
+                           <li><a href="https://hexdocs.pm/phoenix/overview.html">Get Started</a></li>
+                           <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
+                             <li><%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home) %></li>
+                           <% end %>
+                         </ul>
+                         <%= render "_user_menu.html", assigns %>
+                       </nav>
+                     </section>
+                   </header>
+                 </body>
+               </html>
+               """
+    end
+
     test "injects render user_menu.html after the opening body tag" do
       schema = Schema.new("Accounts.User", "users", [], [])
 

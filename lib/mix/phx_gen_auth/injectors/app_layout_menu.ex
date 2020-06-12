@@ -4,19 +4,11 @@ defmodule Mix.Phx.Gen.Auth.Injectors.AppLayoutMenu do
   alias Mix.Phoenix.Schema
   alias Mix.Phx.Gen.Auth.Injector
 
-  @anchor_line "<body>"
-
   def inject(file, %Schema{} = schema) when is_binary(file) do
-    Injector.inject_unless_contains(
-      file,
-      code_to_inject(schema),
-      # Matches the entire line containing `anchor_line` and captures
-      # the whitespace before the anchor. In the replace string, the
-      # entire matching line is inserted with \\0, then a newline then
-      # the indent that was captured using \\1. &2 is the code to
-      # inject.
-      &Regex.replace(~r/^(\s*)#{@anchor_line}.*$/m, &1, "\\0\n\\1  #{&2}", global: false)
-    )
+    with {:error, :unable_to_inject} <- inject_at_end_of_nav_tag(file, schema),
+         {:error, :unable_to_inject} <- inject_after_opening_body_tag(file, schema) do
+      {:error, :unable_to_inject}
+    end
   end
 
   def help_text(file_path, %Schema{} = schema) do
@@ -35,5 +27,28 @@ defmodule Mix.Phx.Gen.Auth.Injectors.AppLayoutMenu do
 
   def menu_name(%Schema{} = schema) do
     "_#{schema.singular}_menu.html"
+  end
+
+  defp inject_at_end_of_nav_tag(file, schema) do
+    Injector.inject_unless_contains(
+      file,
+      code_to_inject(schema),
+      &Regex.replace(~r/(\s*)<\/nav>/m, &1, "\\1  #{&2}\\0", global: false)
+    )
+  end
+
+  defp inject_after_opening_body_tag(file, schema) do
+    anchor_line = "<body>"
+
+    Injector.inject_unless_contains(
+      file,
+      code_to_inject(schema),
+      # Matches the entire line containing `anchor_line` and captures
+      # the whitespace before the anchor. In the replace string, the
+      # entire matching line is inserted with \\0, then a newline then
+      # the indent that was captured using \\1. &2 is the code to
+      # inject.
+      &Regex.replace(~r/^(\s*)#{anchor_line}.*$/m, &1, "\\0\n\\1  #{&2}", global: false)
+    )
   end
 end
