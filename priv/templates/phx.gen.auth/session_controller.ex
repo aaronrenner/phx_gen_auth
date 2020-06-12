@@ -12,7 +12,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     %{"email" => email, "password" => password} = <%= schema.singular %>_params
 
     if <%= schema.singular %> = <%= inspect context.alias %>.get_<%= schema.singular %>_by_email_and_password(email, password) do
-      <%= inspect schema.alias %>Auth.login_<%= schema.singular %>(conn, <%= schema.singular %>, <%= schema.singular %>_params)
+      <%= inspect schema.alias %>Auth.log_in_<%= schema.singular %>(conn, <%= schema.singular %>, <%= schema.singular %>_params)
     else
       render(conn, "new.html", error_message: "Invalid e-mail or password")
     end
@@ -21,6 +21,6 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
   def delete(conn, _params) do
     conn
     |> put_flash(:info, "Logged out successfully.")
-    |> <%= inspect schema.alias %>Auth.logout_<%= schema.singular %>()
+    |> <%= inspect schema.alias %>Auth.log_out_<%= schema.singular %>()
   end
 end

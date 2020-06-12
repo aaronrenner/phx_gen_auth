@@ -4,7 +4,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
   alias <%= inspect context.module %>
   import <%= inspect context.module %>Fixtures
 
-  setup :register_and_login_<%= schema.singular %>
+  setup :register_and_log_in_<%= schema.singular %>
 
   describe "GET <%= web_path_prefix %>/<%= schema.plural %>/settings" do
     test "renders settings page", %{conn: conn} do
@@ -16,7 +16,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     test "redirects if <%= schema.singular %> is not logged in" do
       conn = build_conn()
       conn = get(conn, Routes.<%= schema.route_helper %>_settings_path(conn, :edit))
-      assert redirected_to(conn) == "<%= web_path_prefix %>/<%= schema.plural %>/login"
+      assert redirected_to(conn) == "<%= web_path_prefix %>/<%= schema.plural %>/log_in"
     end
   end
 
@@ -119,7 +119,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     test "redirects if <%= schema.singular %> is not logged in", %{token: token} do
       conn = build_conn()
       conn = get(conn, Routes.<%= schema.route_helper %>_settings_path(conn, :confirm_email, token))
-      assert redirected_to(conn) == "<%= web_path_prefix %>/<%= schema.plural %>/login"
+      assert redirected_to(conn) == "<%= web_path_prefix %>/<%= schema.plural %>/log_in"
     end
   end
 end

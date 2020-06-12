@@ -14,9 +14,9 @@ defmodule <%= inspect auth_module %>Test do
     %{<%= schema.singular %>: <%= schema.singular %>_fixture(), conn: conn}
   end
 
-  describe "login_<%= schema.singular %>/3" do
+  describe "log_in_<%= schema.singular %>/3" do
     test "stores the <%= schema.singular %> token in the session", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
-      conn = <%= inspect schema.alias %>Auth.login_<%= schema.singular %>(conn, <%= schema.singular %>)
+      conn = <%= inspect schema.alias %>Auth.log_in_<%= schema.singular %>(conn, <%= schema.singular %>)
       assert token = get_session(conn, :<%= schema.singular %>_token)
       assert get_session(conn, :live_socket_id) == "<%= schema.plural %>_sessions:#{Base.url_encode64(token)}"
       assert redirected_to(conn) == "/"
@@ -24,17 +24,17 @@ defmodule <%= inspect auth_module %>Test do
     end
 
     test "clears everything previously stored in the session", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
-      conn = conn |> put_session(:to_be_removed, "value") |> <%= inspect schema.alias %>Auth.login_<%= schema.singular %>(<%= schema.singular %>)
+      conn = conn |> put_session(:to_be_removed, "value") |> <%= inspect schema.alias %>Auth.log_in_<%= schema.singular %>(<%= schema.singular %>)
       refute get_session(conn, :to_be_removed)
     end
 
     test "redirects to the configured path", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
-      conn = conn |> put_session(:<%= schema.singular %>_return_to, "/hello") |> <%= inspect schema.alias %>Auth.login_<%= schema.singular %>(<%= schema.singular %>)
+      conn = conn |> put_session(:<%= schema.singular %>_return_to, "/hello") |> <%= inspect schema.alias %>Auth.log_in_<%= schema.singular %>(<%= schema.singular %>)
       assert redirected_to(conn) == "/hello"
     end
 
     test "writes a cookie if remember_me is configured", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
-      conn = conn |> fetch_cookies() |> <%= inspect schema.alias %>Auth.login_<%= schema.singular %>(<%= schema.singular %>, %{"remember_me" => "true"})
+      conn = conn |> fetch_cookies() |> <%= inspect schema.alias %>Auth.log_in_<%= schema.singular %>(<%= schema.singular %>, %{"remember_me" => "true"})
       assert get_session(conn, :<%= schema.singular %>_token) == conn.cookies["<%= schema.singular %>_remember_me"]
 
       assert %{value: signed_token, max_age: max_age} = conn.resp_cookies["<%= schema.singular %>_remember_me"]
@@ -52,7 +52,7 @@ defmodule <%= inspect auth_module %>Test do
         |> put_session(:<%= schema.singular %>_token, <%= schema.singular %>_token)
         |> put_req_cookie("<%= schema.singular %>_remember_me", <%= schema.singular %>_token)
         |> fetch_cookies()
-        |> <%= inspect schema.alias %>Auth.logout_<%= schema.singular %>()
+        |> <%= inspect schema.alias %>Auth.log_out_<%= schema.singular %>()
 
       refute get_session(conn, :<%= schema.singular %>_token)
       refute conn.cookies["<%= schema.singular %>_remember_me"]
@@ -67,7 +67,7 @@ defmodule <%= inspect auth_module %>Test do
 
       conn
       |> put_session(:live_socket_id, live_socket_id)
-      |> <%= inspect(schema.alias) %>Auth.logout_<%= schema.singular %>()
+      |> <%= inspect(schema.alias) %>Auth.log_out_<%= schema.singular %>()
 
       assert_receive %Phoenix.Socket.Broadcast{
         event: "disconnect",
@@ -76,7 +76,7 @@ defmodule <%= inspect auth_module %>Test do
     end
 
     test "works even if <%= schema.singular %> is already logged out", %{conn: conn} do
-      conn = conn |> fetch_cookies() |> <%= inspect schema.alias %>Auth.logout_<%= schema.singular %>()
+      conn = conn |> fetch_cookies() |> <%= inspect schema.alias %>Auth.log_out_<%= schema.singular %>()
       refute get_session(conn, :<%= schema.singular %>_token)
       assert %{max_age: 0} = conn.resp_cookies["<%= schema.singular %>_remember_me"]
       assert redirected_to(conn) == "/"
@@ -92,7 +92,7 @@ defmodule <%= inspect auth_module %>Test do
 
     test "authenticates <%= schema.singular %> from cookies", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
       logged_in_conn =
-        conn |> fetch_cookies() |> <%= inspect schema.alias %>Auth.login_<%= schema.singular %>(<%= schema.singular %>, %{"remember_me" => "true"})
+        conn |> fetch_cookies() |> <%= inspect schema.alias %>Auth.log_in_<%= schema.singular %>(<%= schema.singular %>, %{"remember_me" => "true"})
 
       <%= schema.singular %>_token = logged_in_conn.cookies["<%= schema.singular %>_remember_me"]
       %{value: signed_token} = logged_in_conn.resp_cookies["<%= schema.singular %>_remember_me"]
@@ -132,8 +132,8 @@ defmodule <%= inspect auth_module %>Test do
     test "redirects if <%= schema.singular %> is not authenticated", %{conn: conn} do
       conn = conn |> fetch_flash() |> <%= inspect schema.alias %>Auth.require_authenticated_<%= schema.singular %>([])
       assert conn.halted
-      assert redirected_to(conn) == "<%= web_path_prefix %>/<%= schema.plural %>/login"
-      assert get_flash(conn, :error) == "You must login to access this page."
+      assert redirected_to(conn) == "<%= web_path_prefix %>/<%= schema.plural %>/log_in"
+      assert get_flash(conn, :error) == "You must log in to access this page."
     end
 
     test "stores the path to redirect to on GET", %{conn: conn} do

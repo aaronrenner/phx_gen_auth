@@ -55,7 +55,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
         conn
         |> put_flash(:info, "Password updated successfully.")
         |> put_session(:<%= schema.singular %>_return_to, Routes.<%= schema.route_helper %>_settings_path(conn, :edit))
-        |> <%= inspect schema.alias %>Auth.login_<%= schema.singular %>(<%= schema.singular %>)
+        |> <%= inspect schema.alias %>Auth.log_in_<%= schema.singular %>(<%= schema.singular %>)
 
       {:error, changeset} ->
         render(conn, "edit.html", password_changeset: changeset)

@@ -6,8 +6,8 @@
 
     get "/<%= schema.plural %>/register", <%= inspect schema.alias %>RegistrationController, :new
     post "/<%= schema.plural %>/register", <%= inspect schema.alias %>RegistrationController, :create
-    get "/<%= schema.plural %>/login", <%= inspect schema.alias %>SessionController, :new
-    post "/<%= schema.plural %>/login", <%= inspect schema.alias %>SessionController, :create
+    get "/<%= schema.plural %>/log_in", <%= inspect schema.alias %>SessionController, :new
+    post "/<%= schema.plural %>/log_in", <%= inspect schema.alias %>SessionController, :create
     get "/<%= schema.plural %>/reset_password", <%= inspect schema.alias %>ResetPasswordController, :new
     post "/<%= schema.plural %>/reset_password", <%= inspect schema.alias %>ResetPasswordController, :create
     get "/<%= schema.plural %>/reset_password/:token", <%= inspect schema.alias %>ResetPasswordController, :edit
@@ -26,7 +26,7 @@
   scope <%= router_scope %> do
     pipe_through [:browser]
 
-    delete "/<%= schema.plural %>/logout", <%= inspect schema.alias %>SessionController, :delete
+    delete "/<%= schema.plural %>/log_out", <%= inspect schema.alias %>SessionController, :delete
     get "/<%= schema.plural %>/confirm", <%= inspect schema.alias %>ConfirmationController, :new
     post "/<%= schema.plural %>/confirm", <%= inspect schema.alias %>ConfirmationController, :create
     get "/<%= schema.plural %>/confirm/:token", <%= inspect schema.alias %>ConfirmationController, :confirm

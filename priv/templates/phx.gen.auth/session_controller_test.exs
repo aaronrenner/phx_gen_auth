@@ -7,22 +7,22 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     %{<%= schema.singular %>: <%= schema.singular %>_fixture()}
   end
 
-  describe "GET <%= web_path_prefix %>/<%= schema.plural %>/login" do
-    test "renders login page", %{conn: conn} do
+  describe "GET <%= web_path_prefix %>/<%= schema.plural %>/log_in" do
+    test "renders log in page", %{conn: conn} do
       conn = get(conn, Routes.<%= schema.route_helper %>_session_path(conn, :new))
       response = html_response(conn, 200)
-      assert response =~ "<h1>Login</h1>"
-      assert response =~ "Login</a>"
+      assert response =~ "<h1>Log in</h1>"
+      assert response =~ "Log in</a>"
       assert response =~ "Register</a>"
     end
 
     test "redirects if already logged in", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
-      conn = conn |> login_<%= schema.singular %>(<%= schema.singular %>) |> get(Routes.<%= schema.route_helper %>_session_path(conn, :new))
+      conn = conn |> log_in_<%= schema.singular %>(<%= schema.singular %>) |> get(Routes.<%= schema.route_helper %>_session_path(conn, :new))
       assert redirected_to(conn) == "/"
     end
   end
 
-  describe "POST <%= web_path_prefix %>/<%= schema.plural %>/login" do
+  describe "POST <%= web_path_prefix %>/<%= schema.plural %>/log_in" do
     test "logs the <%= schema.singular %> in", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
       conn =
         post(conn, Routes.<%= schema.route_helper %>_session_path(conn, :create), %{
@@ -37,7 +37,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
       response = html_response(conn, 200)
       assert response =~ <%= schema.singular %>.email
       assert response =~ "Settings</a>"
-      assert response =~ "Logout</a>"
+      assert response =~ "Log out</a>"
     end
 
     test "logs the <%= schema.singular %> in with remember me", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
@@ -61,14 +61,14 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
         })
 
       response = html_response(conn, 200)
-      assert response =~ "<h1>Login</h1>"
+      assert response =~ "<h1>Log in</h1>"
       assert response =~ "Invalid e-mail or password"
     end
   end
 
-  describe "DELETE <%= web_path_prefix %>/<%= schema.plural %>/logout" do
+  describe "DELETE <%= web_path_prefix %>/<%= schema.plural %>/log_out" do
     test "logs the <%= schema.singular %> out", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
-      conn = conn |> login_<%= schema.singular %>(<%= schema.singular %>) |> delete(Routes.<%= schema.route_helper %>_session_path(conn, :delete))
+      conn = conn |> log_in_<%= schema.singular %>(<%= schema.singular %>) |> delete(Routes.<%= schema.route_helper %>_session_path(conn, :delete))
       assert redirected_to(conn) == "/"
       refute get_session(conn, :<%= schema.singular %>_token)
       assert get_flash(conn, :info) =~ "Logged out successfully"
