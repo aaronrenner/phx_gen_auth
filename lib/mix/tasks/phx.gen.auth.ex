@@ -134,7 +134,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     |> inject_routes(paths, binding)
     |> maybe_inject_router_import(binding)
     |> maybe_inject_router_plug()
-    |> maybe_inject_app_layout_menu(binding)
+    |> maybe_inject_app_layout_menu()
     |> print_shell_instructions()
   end
 
@@ -392,15 +392,13 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     context
   end
 
-  defp maybe_inject_app_layout_menu(%Context{} = context, binding) do
-    schema = Keyword.fetch!(binding, :schema)
-    menu_name = "_#{schema.singular}_menu.html"
-    inject = "<%= render \"#{menu_name}\", assigns %>"
+  defp maybe_inject_app_layout_menu(%Context{} = context) do
+    schema = context.schema
 
     if file_path = get_layout_html_path(context) do
       file = File.read!(file_path)
 
-      case Injector.inject_unless_contains(file, inject, &String.replace(&1, "<body>", "<body>\n    #{&2}")) do
+      case Injectors.AppLayoutMenu.inject(file, schema) do
         {:ok, new_file} ->
           print_injecting(file_path)
           File.write!(file_path, new_file)
@@ -411,14 +409,13 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
         {:error, :unable_to_inject} ->
           Mix.shell().info("""
 
-          Add a render call for #{inspect(menu_name)} to #{file_path}:
-
-              <nav role="navigation">
-                #{inject}
-              </nav>
+          #{Injectors.AppLayoutMenu.help_text(file_path, schema)}
           """)
       end
     else
+      menu_name = Injectors.AppLayoutMenu.menu_name(schema)
+      inject = Injectors.AppLayoutMenu.code_to_inject(schema)
+
       Mix.shell().error("""
 
       Unable to find an application layout file to inject a render
