@@ -2,6 +2,8 @@
 
 ## v0.3.0 (2020-05-26)
 
+[Diff of generated code](https://github.com/aaronrenner/phx_gen_auth_output/compare/v0.2.0..v0.3.0)
+
 ### Enhancements
 
 * Updated generated code be up to date through commit: [4664c3](https://github.com/dashbitco/mix_phx_gen_auth_demo/pull/1/commits/4664c376273af7100e31766ccf2d76bc7cf153e4). [[Diff](https://github.com/dashbitco/mix_phx_gen_auth_demo/compare/6ae63a...4664c3)]
@@ -14,12 +16,16 @@
 
 ## v0.2.0 (2020-04-28)
 
+[Diff of generated code](https://github.com/aaronrenner/phx_gen_auth_output/compare/v0.1.0..v0.2.0)
+
 ### Enhancements
 
 * Updated generated code be up to date through commit: [6ae63a](https://github.com/dashbitco/mix_phx_gen_auth_demo/pull/1/commits/6ae63abbe5c2e2c37f47dea83da1b830374ebf18). [[Diff](https://github.com/dashbitco/mix_phx_gen_auth_demo/compare/ecc8eb...6ae63a)]
 * Run `User.maybe_hash_password/1` in a `prepare_changes/1` hook instead of every time a changeset function is called. This decreases load on the server when a changeset function is being called multiple times like with a LiveView-based form.
 
 ## v0.1.0 (2020-04-24)
+
+[Diff of generated code](https://github.com/aaronrenner/phx_gen_auth_output/compare/v0.1.0-rc.0..v0.1.0)
 
 ### Enhancements
 
