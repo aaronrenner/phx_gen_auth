@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.4.0 (2020-06-19)
+
+[Diff of generated code](https://github.com/aaronrenner/phx_gen_auth_output/compare/v0.3.0..v0.4.0)
+
+### Enhancements
+
+* Changed email form fields from `test_input` to `email_input`. Thanks @ream88!
+* Renamed incorrect login/logout(nouns) to "log in"/"log out" (verbs).
+* Replaced string-based route assertions with Routes-based assertions. Thanks @chvanikoff!
+* `_user_menu.html` is now injected at the end of the `<nav>` tag, if possible.
+
 ## v0.3.0 (2020-05-26)
 
 [Diff of generated code](https://github.com/aaronrenner/phx_gen_auth_output/compare/v0.2.0..v0.3.0)

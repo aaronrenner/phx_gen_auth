@@ -2,9 +2,6 @@
 
 An authentication system generator for Phoenix 1.5+ applications.
 
-This project generates code from José Valim's [Auth PR][auth pr] and is up to date
-through commit: [4664c3](https://github.com/dashbitco/mix_phx_gen_auth_demo/pull/1/commits/4664c376273af7100e31766ccf2d76bc7cf153e4).
-
 ## Overview
 
 The purpose of `phx.gen.auth` is to generate a pre-built authentication system into
@@ -41,7 +38,7 @@ After running `mix phx.new`, `cd` into your application's directory (ex. `my_app
     ```elixir
     def deps do
       [
-        {:phx_gen_auth, "~> 0.3.0", only: [:dev], runtime: false},
+        {:phx_gen_auth, "~> 0.4.0", only: [:dev], runtime: false},
         ...
       ]
     end
