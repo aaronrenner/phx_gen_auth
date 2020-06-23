@@ -83,6 +83,11 @@ This creates the templates,views, and controllers on the web namespace,
 and a new `MyApp.Accounts` [context][phoenix contexts guide], in the application
 namespace.
 
+Verify the database connection details for the development enviornment in `config/dev.exs` 
+and then run the following to create the database
+
+    $ mix ecto.create
+
 Next, let's install the dependencies and migrate the database
 
     $ mix deps.get
