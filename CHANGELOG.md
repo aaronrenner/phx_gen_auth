@@ -6,7 +6,7 @@
 
 ### Enhancements
 
-* Changed email form fields from `test_input` to `email_input`. Thanks @ream88!
+* Changed email form fields from `text_input` to `email_input`. Thanks @ream88!
 * Renamed incorrect login/logout(nouns) to "log in"/"log out" (verbs).
 * Replaced string-based route assertions with Routes-based assertions. Thanks @chvanikoff!
 * `_user_menu.html` is now injected at the end of the `<nav>` tag, if possible.
