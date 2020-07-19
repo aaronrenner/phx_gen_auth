@@ -67,7 +67,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
         })
 
       assert redirected_to(conn) == Routes.<%= schema.route_helper %>_settings_path(conn, :edit)
-      assert get_flash(conn, :info) =~ "A link to confirm your e-mail"
+      assert get_flash(conn, :info) =~ "A link to confirm your email"
       assert <%= inspect context.alias %>.get_<%= schema.singular %>_by_email(<%= schema.singular %>.email)
     end
 
@@ -100,7 +100,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     test "updates the <%= schema.singular %> email once", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>, token: token, email: email} do
       conn = get(conn, Routes.<%= schema.route_helper %>_settings_path(conn, :confirm_email, token))
       assert redirected_to(conn) == Routes.<%= schema.route_helper %>_settings_path(conn, :edit)
-      assert get_flash(conn, :info) =~ "E-mail changed successfully"
+      assert get_flash(conn, :info) =~ "Email changed successfully"
       refute <%= inspect context.alias %>.get_<%= schema.singular %>_by_email(<%= schema.singular %>.email)
       assert <%= inspect context.alias %>.get_<%= schema.singular %>_by_email(email)
 

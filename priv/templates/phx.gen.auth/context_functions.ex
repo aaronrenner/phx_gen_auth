@@ -88,7 +88,7 @@
   ## Settings
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for changing the <%= schema.singular %> e-mail.
+  Returns an `%Ecto.Changeset{}` for changing the <%= schema.singular %> email.
 
   ## Examples
 
@@ -101,7 +101,7 @@
   end
 
   @doc """
-  Emulates that the e-mail will change without actually changing
+  Emulates that the email will change without actually changing
   it in the database.
 
   ## Examples
@@ -121,7 +121,7 @@
   end
 
   @doc """
-  Updates the <%= schema.singular %> e-mail in token.
+  Updates the <%= schema.singular %> email in token.
 
   If the token matches, the <%= schema.singular %> email is updated and the token is deleted.
   The confirmed_at date is also updated to the current time.
@@ -147,7 +147,7 @@
   end
 
   @doc """
-  Delivers the update e-mail instructions to the given <%= schema.singular %>.
+  Delivers the update email instructions to the given <%= schema.singular %>.
 
   ## Examples
 
@@ -234,7 +234,7 @@
   ## Confirmation
 
   @doc """
-  Delivers the confirmation e-mail instructions to the given <%= schema.singular %>.
+  Delivers the confirmation email instructions to the given <%= schema.singular %>.
 
   ## Examples
 
@@ -281,7 +281,7 @@
   ## Reset password
 
   @doc """
-  Delivers the reset password e-mail to the given <%= schema.singular %>.
+  Delivers the reset password email to the given <%= schema.singular %>.
 
   ## Examples
 

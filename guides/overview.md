@@ -36,7 +36,7 @@ named `DemoWeb.UserAuth` with plugs such as:
 
 The generated functionality ships with an account confirmation
 mechanism, where users have to confirm their account, typically
-by e-mail. However, the generated code does not forbid users
+by email. However, the generated code does not forbid users
 from using the application if their accounts have not yet been
 confirmed. You can trivially add this functionality by customizing
 the plugs generated in the Auth module.
@@ -44,7 +44,7 @@ the plugs generated in the Auth module.
 ## Notifiers
 
 The generated code is not integrated with any system to send
-SMSs or e-mails for confirming accounts, reseting passwords,
+SMSs or emails for confirming accounts, reseting passwords,
 etc. Instead it simply logs a message to the terminal. It is
 your responsibility to integrate with the proper system after
 generation.
@@ -61,17 +61,17 @@ again on all devices.
 
 ## Enumeration attacks
 
-An enumeration attack allows an attacker to enumerate all e-mails
+An enumeration attack allows an attacker to enumerate all emails
 registered in the application. The generated authentication code
 protects against enumeration attacks on all endpoints, except in
-the registration and update e-mail forms. If your application is
+the registration and update email forms. If your application is
 really sensitive to enumeration attacks, you need to implement
 your own registration workflow, which tends to be very different
 from the workflow for most applications.
 
 ## Case sensitiveness
 
-The e-mail lookup is made to be case insensitive. Case insensitive
+The email lookup is made to be case insensitive. Case insensitive
 lookups are the default in MySQL and MSSQL but require the
 citext extension in Postgres.
 

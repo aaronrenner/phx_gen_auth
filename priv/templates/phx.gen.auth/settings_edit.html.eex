@@ -1,6 +1,6 @@
 <h1>Settings</h1>
 
-<h3>Change e-mail</h3>
+<h3>Change email</h3>
 
 <%%= form_for @email_changeset, Routes.<%= schema.route_helper %>_settings_path(@conn, :update_email), fn f -> %>
   <%%= if @email_changeset.action do %>
@@ -18,7 +18,7 @@
   <%%= error_tag f, :current_password %>
 
   <div>
-    <%%= submit "Change e-mail" %>
+    <%%= submit "Change email" %>
   </div>
 <%% end %>
 

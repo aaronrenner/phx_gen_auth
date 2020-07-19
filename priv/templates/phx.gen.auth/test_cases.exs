@@ -62,19 +62,19 @@
              } = errors_on(changeset)
     end
 
-    test "validates maximum values for e-mail and password for security" do
+    test "validates maximum values for email and password for security" do
       too_long = String.duplicate("db", 100)
       {:error, changeset} = <%= inspect context.alias %>.register_<%= schema.singular %>(%{email: too_long, password: too_long})
       assert "should be at most 160 character(s)" in errors_on(changeset).email
       assert "should be at most 80 character(s)" in errors_on(changeset).password
     end
 
-    test "validates e-mail uniqueness" do
+    test "validates email uniqueness" do
       %{email: email} = <%= schema.singular %>_fixture()
       {:error, changeset} = <%= inspect context.alias %>.register_<%= schema.singular %>(%{email: email})
       assert "has already been taken" in errors_on(changeset).email
 
-      # Now try with the upper cased e-mail too, to check that email case is ignored.
+      # Now try with the upper cased email too, to check that email case is ignored.
       {:error, changeset} = <%= inspect context.alias %>.register_<%= schema.singular %>(%{email: String.upcase(email)})
       assert "has already been taken" in errors_on(changeset).email
     end
@@ -120,7 +120,7 @@
       assert %{email: ["must have the @ sign and no spaces"]} = errors_on(changeset)
     end
 
-    test "validates maximum value for e-mail for security", %{<%= schema.singular %>: <%= schema.singular %>} do
+    test "validates maximum value for email for security", %{<%= schema.singular %>: <%= schema.singular %>} do
       too_long = String.duplicate("db", 100)
 
       {:error, changeset} =
@@ -129,7 +129,7 @@
       assert "should be at most 160 character(s)" in errors_on(changeset).email
     end
 
-    test "validates e-mail uniqueness", %{<%= schema.singular %>: <%= schema.singular %>} do
+    test "validates email uniqueness", %{<%= schema.singular %>: <%= schema.singular %>} do
       %{email: email} = <%= schema.singular %>_fixture()
 
       {:error, changeset} =
@@ -145,7 +145,7 @@
       assert %{current_password: ["is not valid"]} = errors_on(changeset)
     end
 
-    test "applies the e-mail without persisting it", %{<%= schema.singular %>: <%= schema.singular %>} do
+    test "applies the email without persisting it", %{<%= schema.singular %>: <%= schema.singular %>} do
       email = unique_<%= schema.singular %>_email()
       {:ok, <%= schema.singular %>} = <%= inspect context.alias %>.apply_<%= schema.singular %>_email(<%= schema.singular %>, valid_<%= schema.singular %>_password(), %{email: email})
       assert <%= schema.singular %>.email == email
@@ -185,7 +185,7 @@
       %{<%= schema.singular %>: <%= schema.singular %>, token: token, email: email}
     end
 
-    test "updates the e-mail with a valid token", %{<%= schema.singular %>: <%= schema.singular %>, token: token, email: email} do
+    test "updates the email with a valid token", %{<%= schema.singular %>: <%= schema.singular %>, token: token, email: email} do
       assert <%= inspect context.alias %>.update_<%= schema.singular %>_email(<%= schema.singular %>, token) == :ok
       changed_<%= schema.singular %> = Repo.get!(<%= inspect schema.alias %>, <%= schema.singular %>.id)
       assert changed_<%= schema.singular %>.email != <%= schema.singular %>.email
@@ -195,19 +195,19 @@
       refute Repo.get_by(<%= inspect schema.alias %>Token, <%= schema.singular %>_id: <%= schema.singular %>.id)
     end
 
-    test "does not update e-mail with invalid token", %{<%= schema.singular %>: <%= schema.singular %>} do
+    test "does not update email with invalid token", %{<%= schema.singular %>: <%= schema.singular %>} do
       assert <%= inspect context.alias %>.update_<%= schema.singular %>_email(<%= schema.singular %>, "oops") == :error
       assert Repo.get!(<%= inspect schema.alias %>, <%= schema.singular %>.id).email == <%= schema.singular %>.email
       assert Repo.get_by(<%= inspect schema.alias %>Token, <%= schema.singular %>_id: <%= schema.singular %>.id)
     end
 
-    test "does not update e-mail if <%= schema.singular %> e-mail changed", %{<%= schema.singular %>: <%= schema.singular %>, token: token} do
+    test "does not update email if <%= schema.singular %> email changed", %{<%= schema.singular %>: <%= schema.singular %>, token: token} do
       assert <%= inspect context.alias %>.update_<%= schema.singular %>_email(%{<%= schema.singular %> | email: "current@example.com"}, token) == :error
       assert Repo.get!(<%= inspect schema.alias %>, <%= schema.singular %>.id).email == <%= schema.singular %>.email
       assert Repo.get_by(<%= inspect schema.alias %>Token, <%= schema.singular %>_id: <%= schema.singular %>.id)
     end
 
-    test "does not update e-mail if token expired", %{<%= schema.singular %>: <%= schema.singular %>, token: token} do
+    test "does not update email if token expired", %{<%= schema.singular %>: <%= schema.singular %>, token: token} do
       {1, nil} = Repo.update_all(<%= inspect schema.alias %>Token, set: [inserted_at: ~N[2020-01-01 00:00:00]])
       assert <%= inspect context.alias %>.update_<%= schema.singular %>_email(<%= schema.singular %>, token) == :error
       assert Repo.get!(<%= inspect schema.alias %>, <%= schema.singular %>.id).email == <%= schema.singular %>.email
@@ -361,7 +361,7 @@
       %{<%= schema.singular %>: <%= schema.singular %>, token: token}
     end
 
-    test "confirms the e-mail with a valid token", %{<%= schema.singular %>: <%= schema.singular %>, token: token} do
+    test "confirms the email with a valid token", %{<%= schema.singular %>: <%= schema.singular %>, token: token} do
       assert {:ok, confirmed_<%= schema.singular %>} = <%= inspect context.alias %>.confirm_<%= schema.singular %>(token)
       assert confirmed_<%= schema.singular %>.confirmed_at
       assert confirmed_<%= schema.singular %>.confirmed_at != <%= schema.singular %>.confirmed_at
@@ -375,7 +375,7 @@
       assert Repo.get_by(<%= inspect schema.alias %>Token, <%= schema.singular %>_id: <%= schema.singular %>.id)
     end
 
-    test "does not confirm e-mail if token expired", %{<%= schema.singular %>: <%= schema.singular %>, token: token} do
+    test "does not confirm email if token expired", %{<%= schema.singular %>: <%= schema.singular %>, token: token} do
       {1, nil} = Repo.update_all(<%= inspect schema.alias %>Token, set: [inserted_at: ~N[2020-01-01 00:00:00]])
       assert <%= inspect context.alias %>.confirm_<%= schema.singular %>(token) == :error
       refute Repo.get!(<%= inspect schema.alias %>, <%= schema.singular %>.id).confirmed_at
