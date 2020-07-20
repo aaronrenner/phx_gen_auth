@@ -24,7 +24,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
         conn
         |> put_flash(
           :info,
-          "A link to confirm your e-mail change has been sent to the new address."
+          "A link to confirm your email change has been sent to the new address."
         )
         |> redirect(to: Routes.<%= schema.route_helper %>_settings_path(conn, :edit))
 
@@ -37,7 +37,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     case <%= inspect context.alias %>.update_<%= schema.singular %>_email(conn.assigns.current_<%= schema.singular %>, token) do
       :ok ->
         conn
-        |> put_flash(:info, "E-mail changed successfully.")
+        |> put_flash(:info, "Email changed successfully.")
         |> redirect(to: Routes.<%= schema.route_helper %>_settings_path(conn, :edit))
 
       :error ->

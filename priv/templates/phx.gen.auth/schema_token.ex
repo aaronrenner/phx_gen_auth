@@ -6,7 +6,7 @@ defmodule <%= inspect schema.module %>Token do
   @rand_size 32
 
   # It is very important to keep the reset password token expiry short,
-  # since someone with access to the e-mail may take over the account.
+  # since someone with access to the email may take over the account.
   @reset_password_validity_in_days 1
   @confirm_validity_in_days 7
   @change_email_validity_in_days 7
@@ -51,7 +51,7 @@ defmodule <%= inspect schema.module %>Token do
   @doc """
   Builds a token with a hashed counter part.
 
-  The non-hashed token is sent to the <%= schema.singular %> e-mail while the
+  The non-hashed token is sent to the <%= schema.singular %> email while the
   hashed part is stored in the database, to avoid reconstruction.
   The token is valid for a week as long as <%= schema.singular %>s don't change
   their email.

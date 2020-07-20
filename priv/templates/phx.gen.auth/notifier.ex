@@ -1,6 +1,6 @@
 defmodule <%= inspect context.module %>.<%= inspect schema.alias %>Notifier do
   # For simplicity, this module simply logs messages to the terminal.
-  # You should replace it by a proper e-mail or notification tool, such as:
+  # You should replace it by a proper email or notification tool, such as:
   #
   #   * Swoosh - https://hexdocs.pm/swoosh
   #   * Bamboo - https://hexdocs.pm/bamboo
@@ -52,7 +52,7 @@ defmodule <%= inspect context.module %>.<%= inspect schema.alias %>Notifier do
   end
 
   @doc """
-  Deliver instructions to update your e-mail.
+  Deliver instructions to update your email.
   """
   def deliver_update_email_instructions(<%= schema.singular %>, url) do
     deliver(<%= schema.singular %>.email, """
@@ -61,7 +61,7 @@ defmodule <%= inspect context.module %>.<%= inspect schema.alias %>Notifier do
 
     Hi #{<%= schema.singular %>.email},
 
-    You can change your e-mail by visiting the url below:
+    You can change your email by visiting the url below:
 
     #{url}
 
