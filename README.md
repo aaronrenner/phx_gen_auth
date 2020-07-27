@@ -121,6 +121,16 @@ using do
 end
 ```
 
+### Using UUIDs instead of integers for ids:
+
+The generator uses integers for ids by default. If you'd like, you can use
+UUIDs instead by using the `--binary-id` flag. [You can read about this option
+here](https://hexdocs.pm/phx_gen_auth/Mix.Tasks.Phx.Gen.Auth.html#module-binary-ids)
+
+    ```
+    $ mix phx.gen.auth Accounts User users --binary-id
+    ```
+
 ### Learning more
 
 To learn more about `phx.gen.auth`, run the following command.
