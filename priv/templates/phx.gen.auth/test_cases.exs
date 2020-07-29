@@ -12,7 +12,7 @@
     end
   end
 
-  describe "get_<%= schema.singular %>_by_email_and_password/1" do
+  describe "get_<%= schema.singular %>_by_email_and_password/2" do
     test "does not return the <%= schema.singular %> if the email does not exist" do
       refute <%= inspect context.alias %>.get_<%= schema.singular %>_by_email_and_password("unknown@example.com", "hello world!")
     end
@@ -402,7 +402,7 @@
     end
   end
 
-  describe "get_<%= schema.singular %>_by_reset_password_token/2" do
+  describe "get_<%= schema.singular %>_by_reset_password_token/1" do
     setup do
       <%= schema.singular %> = <%= schema.singular %>_fixture()
 
@@ -431,7 +431,7 @@
     end
   end
 
-  describe "reset_<%= schema.singular %>_password/3" do
+  describe "reset_<%= schema.singular %>_password/2" do
     setup do
       %{<%= schema.singular %>: <%= schema.singular %>_fixture()}
     end
