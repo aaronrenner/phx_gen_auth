@@ -32,7 +32,7 @@ defmodule <%= inspect context.module %>.<%= inspect schema.alias %>Notifier do
   end
 
   @doc """
-  Deliver instructions to reset password account.
+  Deliver instructions to reset account password.
   """
   def deliver_reset_password_instructions(<%= schema.singular %>, url) do
     deliver(<%= schema.singular %>.email, """
@@ -52,7 +52,7 @@ defmodule <%= inspect context.module %>.<%= inspect schema.alias %>Notifier do
   end
 
   @doc """
-  Deliver instructions to update your email.
+  Deliver instructions to update account email.
   """
   def deliver_update_email_instructions(<%= schema.singular %>, url) do
     deliver(<%= schema.singular %>.email, """
