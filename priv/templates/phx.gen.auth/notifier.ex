@@ -21,7 +21,7 @@ defmodule <%= inspect context.module %>.<%= inspect schema.alias %>Notifier do
 
     Hi #{<%= schema.singular %>.email},
 
-    You can confirm your account by visiting the url below:
+    You can confirm your account by visiting the URL below:
 
     #{url}
 
@@ -41,7 +41,7 @@ defmodule <%= inspect context.module %>.<%= inspect schema.alias %>Notifier do
 
     Hi #{<%= schema.singular %>.email},
 
-    You can reset your password by visiting the url below:
+    You can reset your password by visiting the URL below:
 
     #{url}
 
@@ -61,7 +61,7 @@ defmodule <%= inspect context.module %>.<%= inspect schema.alias %>Notifier do
 
     Hi #{<%= schema.singular %>.email},
 
-    You can change your email by visiting the url below:
+    You can change your email by visiting the URL below:
 
     #{url}
 
