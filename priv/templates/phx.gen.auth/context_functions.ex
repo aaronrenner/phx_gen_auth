@@ -121,7 +121,7 @@
   end
 
   @doc """
-  Updates the <%= schema.singular %> email in token.
+  Updates the <%= schema.singular %> email using the given token.
 
   If the token matches, the <%= schema.singular %> email is updated and the token is deleted.
   The confirmed_at date is also updated to the current time.
