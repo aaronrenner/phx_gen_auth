@@ -10,7 +10,7 @@ defmodule <%= inspect auth_module %> do
   # the token expiry itself in <%= inspect schema.alias %>Token.
   @max_age 60 * 60 * 24 * 60
   @remember_me_cookie "<%= schema.singular %>_remember_me"
-  @remember_me_options [sign: true, max_age: @max_age]
+  @remember_me_options [sign: true, max_age: @max_age, same_site: "Lax"]
 
   @doc """
   Logs the <%= schema.singular %> in.
