@@ -139,16 +139,10 @@ defmodule <%= inspect auth_module %> do
     end
   end
 
-  defp maybe_store_return_to(
-         %{method: "GET", request_path: request_path, query_string: ""} = conn
-       ) do
-    put_session(conn, :<%= schema.singular %>_return_to, request_path)
-  end
-
-  defp maybe_store_return_to(
-         %{method: "GET", request_path: request_path, query_string: query_string} = conn
-       ) do
-    put_session(conn, :<%= schema.singular %>_return_to, request_path <> "?" <> query_string)
+  defp maybe_store_return_to(%{method: "GET"} = conn) do
+    %{request_path: request_path, query_string: query_string} = conn
+    return_to = if query_string == "", do: request_path, else: request_path <> "?" <> query_string
+    put_session(conn, :<%= schema.singular %>_return_to, return_to)
   end
 
   defp maybe_store_return_to(conn), do: conn
