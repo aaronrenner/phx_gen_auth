@@ -483,19 +483,14 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
         {:error, _} -> "use Mix.Config\n"
       end
 
-    with :error <- split_with_self(contents, "use Mix.Config\n"),
-         :error <- split_with_self(contents, "import Config\n") do
+    config_regexp = ~r/(import Config|use Mix.Config)\r?\n/
+    replacement_fn = fn match, _import_statement -> "#{match}\n#{to_inject}" end
+
+    if not Regex.match?(config_regexp, contents) do
       Mix.raise(~s[Could not find "use Mix.Config" or "import Config" in #{inspect(file)}])
     else
-      [left, middle, right] ->
-        File.write!(file, [left, middle, ?\n, String.trim(to_inject), ?\n, right])
-    end
-  end
-
-  defp split_with_self(contents, text) do
-    case :binary.split(contents, text) do
-      [left, right] -> [left, text, right]
-      [_] -> :error
+      new_contents = Regex.replace(config_regexp, contents, replacement_fn, global: false)
+      File.write!(file, new_contents)
     end
   end
 
