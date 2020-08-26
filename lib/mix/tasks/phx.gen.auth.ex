@@ -483,12 +483,12 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
         {:error, _} -> "use Mix.Config\n"
       end
 
-    with :error <- split_with_self(contents, "use Mix.Config\n"),
-         :error <- split_with_self(contents, "import Config\n") do
+    with :error <- split_with_self(contents, "use Mix.Config"),
+         :error <- split_with_self(contents, "import Config") do
       Mix.raise(~s[Could not find "use Mix.Config" or "import Config" in #{inspect(file)}])
     else
       [left, middle, right] ->
-        File.write!(file, [left, middle, ?\n, String.trim(to_inject), ?\n, right])
+        File.write!(file, [left, middle, ?\n, ?\n, String.trim(to_inject), right])
     end
   end
 
