@@ -32,6 +32,13 @@ defmodule Phx.Gen.Auth.IntegrationTests.GeneratorOutputTest do
     assert output =~ "Unable to find GeneratorOutputApp.Repo"
   end
 
+  test "errors on invalid config/test.exs", %{test_app_path: test_app_path} do
+    modify_file(Path.join(test_app_path, "config/test.exs"), fn _file -> "" end)
+
+    {output, 1} = mix_run(~w(phx.gen.auth Accounts User users), cd: test_app_path)
+    assert output =~ "Could not find \"use Mix.Config\" or \"import Config\" in \"config/test.exs\""
+  end
+
   test "prompts the user to add a render call when can't find <body> in app.html.eex",
        %{test_app_path: test_app_path} do
     modify_file(Path.join(test_app_path, "lib/generator_output_app_web/templates/layout/app.html.eex"), fn _file -> "" end)
