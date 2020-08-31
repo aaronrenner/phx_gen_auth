@@ -456,47 +456,39 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     end
   end
 
-  defp inject_config(context, %HashingLibrary{test_config: test_config}) do
-    project_path =
+  defp inject_config(context, %HashingLibrary{} = hashing_library) do
+    file_path =
       if Mix.Phoenix.in_umbrella?(File.cwd!()) do
         Path.expand("../../")
       else
         File.cwd!()
       end
+      |> Path.join("config/test.exs")
 
-    config_inject(project_path, "config/test.exs", """
-    # Only in tests, remove the complexity from the password hashing algorithm
-    #{test_config}
-    """)
-
-    context
-  end
-
-  defp config_inject(path, file, to_inject) do
-    file = Path.join(path, file)
-
-    print_injecting(file)
-
-    contents =
-      case File.read(file) do
-        {:ok, bin} -> bin
-        {:error, _} -> "use Mix.Config\n"
+    file =
+      case read_file(file_path) do
+        {:ok, file} -> file
+        {:error, {:file_read_error, _}} -> "use Mix.Config\n"
       end
 
-    with :error <- split_with_self(contents, "use Mix.Config"),
-         :error <- split_with_self(contents, "import Config") do
-      Mix.raise(~s[Could not find "use Mix.Config" or "import Config" in #{inspect(Path.relative_to_cwd(file))}])
-    else
-      [left, middle, right] ->
-        File.write!(file, [left, middle, ?\n, ?\n, String.trim(to_inject), right])
-    end
-  end
+    case Injectors.Config.inject(file, hashing_library) do
+      {:ok, new_file} ->
+        print_injecting(file_path)
+        File.write!(file_path, new_file)
 
-  defp split_with_self(contents, text) do
-    case :binary.split(contents, text) do
-      [left, right] -> [left, text, right]
-      [_] -> :error
+      :already_injected ->
+        :ok
+
+      {:error, :unable_to_inject} ->
+        help_text = Injectors.Config.help_text(file_path, hashing_library)
+
+        Mix.shell().info("""
+
+        #{help_text}
+        """)
     end
+
+    context
   end
 
   defp print_shell_instructions(%Context{} = context) do
