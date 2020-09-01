@@ -79,6 +79,43 @@ defmodule Mix.Phx.Gen.Auth.Injectors.RouterPlugTest do
                """
     end
 
+    test "respects windows line endings" do
+      schema = Schema.new("Accounts.User", "users", [], [])
+      context = Context.new("Accounts", schema, [])
+
+      input = """
+      defmodule DemoWeb.Router do\r
+        use DemoWeb, :router\r
+      \r
+        pipeline :browser do\r
+          plug :accepts, ["html"]\r
+          plug :fetch_session\r
+          plug :fetch_flash\r
+          plug :protect_from_forgery\r
+          plug :put_secure_browser_headers\r
+        end\r
+      end\r
+      """
+
+      {:ok, injected} = RouterPlug.inject(input, context)
+
+      assert injected ==
+               """
+               defmodule DemoWeb.Router do\r
+                 use DemoWeb, :router\r
+               \r
+                 pipeline :browser do\r
+                   plug :accepts, ["html"]\r
+                   plug :fetch_session\r
+                   plug :fetch_flash\r
+                   plug :protect_from_forgery\r
+                   plug :put_secure_browser_headers\r
+                   plug :fetch_current_user\r
+                 end\r
+               end\r
+               """
+    end
+
     test "errors when :put_secure_browser_headers_is_missing" do
       schema = Schema.new("Accounts.User", "users", [], [])
       context = Context.new("Accounts", schema, [])

@@ -13,9 +13,11 @@ defmodule Mix.Phx.Gen.Auth.Injectors.Config do
       file,
       code_to_inject,
       # Matches the entire line and captures the line ending. In the
-      # replace string, the entire matching line is inserted
-      # with \\0. &2 is the code to inject. Additional newlines are
-      # inserted with \\2.
+      # replace string:
+      #
+      # * the entire matching line is inserted with \\0,
+      # * the actual code is injected with &2,
+      # * and the appropriate newlines are injected using \\2.
       &Regex.replace(~r/(use Mix\.Config|import Config)(\r\n|\n|$)/, &1, "\\0\\2#{&2}\\2", global: false)
     )
   end

@@ -59,6 +59,60 @@ defmodule Mix.Phx.Gen.Auth.Injectors.AppLayoutMenuTest do
                """
     end
 
+    test "injects render user_menu.html at the bottom of nav section when it exists with windows line endings" do
+      schema = Schema.new("Accounts.User", "users", [], [])
+
+      input = """
+      <!DOCTYPE html>\r
+      <html lang="en">\r
+        <head>\r
+          <title>Demo · Phoenix Framework</title>\r
+        </head>\r
+        <body>\r
+          <header>\r
+            <section class="container">\r
+              <nav role="navigation">\r
+                <ul>\r
+                  <li><a href="https://hexdocs.pm/phoenix/overview.html">Get Started</a></li>\r
+                  <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>\r
+                    <li><%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home) %></li>\r
+                  <% end %>\r
+                </ul>\r
+              </nav>\r
+            </section>\r
+          </header>\r
+        </body>\r
+      </html>\r
+      """
+
+      {:ok, injected} = AppLayoutMenu.inject(input, schema)
+
+      assert injected ==
+               """
+               <!DOCTYPE html>\r
+               <html lang="en">\r
+                 <head>\r
+                   <title>Demo · Phoenix Framework</title>\r
+                 </head>\r
+                 <body>\r
+                   <header>\r
+                     <section class="container">\r
+                       <nav role="navigation">\r
+                         <ul>\r
+                           <li><a href="https://hexdocs.pm/phoenix/overview.html">Get Started</a></li>\r
+                           <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>\r
+                             <li><%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home) %></li>\r
+                           <% end %>\r
+                         </ul>\r
+                         <%= render "_user_menu.html", assigns %>\r
+                       </nav>\r
+                     </section>\r
+                   </header>\r
+                 </body>\r
+               </html>\r
+               """
+    end
+
     test "injects render user_menu.html after the opening body tag" do
       schema = Schema.new("Accounts.User", "users", [], [])
 
@@ -96,6 +150,46 @@ defmodule Mix.Phx.Gen.Auth.Injectors.AppLayoutMenuTest do
                    </main>
                  </body>
                </html>
+               """
+    end
+
+    test "works with windows line endings" do
+      schema = Schema.new("Accounts.User", "users", [], [])
+
+      input = """
+      <!DOCTYPE html>\r
+      <html lang="en">\r
+        <head>\r
+          <title>Demo · Phoenix Framework</title>\r
+        </head>\r
+        <body>\r
+          <main role="main" class="container">\r
+            <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>\r
+            <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>\r
+            <%= @inner_content %>\r
+          </main>\r
+        </body>\r
+      </html>\r
+      """
+
+      {:ok, injected} = AppLayoutMenu.inject(input, schema)
+
+      assert injected ==
+               """
+               <!DOCTYPE html>\r
+               <html lang="en">\r
+                 <head>\r
+                   <title>Demo · Phoenix Framework</title>\r
+                 </head>\r
+                 <body>\r
+                   <%= render "_user_menu.html", assigns %>\r
+                   <main role="main" class="container">\r
+                     <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>\r
+                     <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>\r
+                     <%= @inner_content %>\r
+                   </main>\r
+                 </body>\r
+               </html>\r
                """
     end
 
