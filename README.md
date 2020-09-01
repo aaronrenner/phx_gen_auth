@@ -83,7 +83,7 @@ This creates the templates,views, and controllers on the web namespace,
 and a new `MyApp.Accounts` [context][phoenix contexts guide], in the application
 namespace.
 
-Verify the database connection details for the development and test environments in `config/` 
+Verify the database connection details for the development and test environments in `config/`
 so the migrator and tests can run properly. Then run the following to create the database
 
     $ mix ecto.create
@@ -120,6 +120,17 @@ using do
   end
 end
 ```
+
+### Changing id types
+
+By default, this generator uses the same type of id fields as the rest of the
+application. To override this configuration, the generator accepts `--binary-id`
+and `--no-binary-id` flags.
+
+    $ mix phx.gen.auth Accounts User users --binary-id
+
+More information about these options are available in the
+[documentation](https://hexdocs.pm/phx_gen_auth/Mix.Tasks.Phx.Gen.Auth.html#module-binary-ids).
 
 ### Learning more
 
