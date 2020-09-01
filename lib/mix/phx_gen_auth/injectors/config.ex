@@ -7,7 +7,7 @@ defmodule Mix.Phx.Gen.Auth.Injectors.Config do
     code_to_inject =
       hashing_library
       |> code_to_inject()
-      |> String.replace("\n", get_line_ending(file))
+      |> normalize_line_endings_to_file(file)
 
     Injector.inject_unless_contains(
       file,
@@ -44,6 +44,10 @@ defmodule Mix.Phx.Gen.Auth.Injectors.Config do
     |> String.split("\n")
     |> Enum.map(&(indent <> &1))
     |> Enum.join("\n")
+  end
+
+  defp normalize_line_endings_to_file(code, file) do
+    String.replace(code, "\n", get_line_ending(file))
   end
 
   defp get_line_ending(file) do
