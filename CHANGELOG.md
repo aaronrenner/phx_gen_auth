@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Enhancements
+
+* Enabled same-site protection on remember me cookie. Thanks @mikl!
+* Updated `UserAuth.require_athenticated_user/2` to remember query string
+  parameters as part of the return_to path. Thanks @matthewlehner!
+* Changed instances of "e-mail" to "email" to better match AP style guide.
+  Thanks @zorn!
+* Fixed arity in test context descriptions. Thanks @liamwhite!
+* Fixed typos in generated documentation. Thanks @liamwhite!
+
 ## v0.4.0 (2020-06-19)
 
 [Diff of generated code](https://github.com/aaronrenner/phx_gen_auth_output/compare/v0.3.0..v0.4.0)
