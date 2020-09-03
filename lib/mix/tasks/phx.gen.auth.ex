@@ -79,7 +79,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
   alias Mix.Phoenix.{Context, Schema}
   alias Mix.Tasks.Phx.Gen
-  alias Mix.Phx.Gen.Auth.{HashingLibrary, Injector, Injectors, Migration}
+  alias Mix.Phx.Gen.Auth.{HashingLibrary, Injector, Migration}
 
   @switches [web: :string, binary_id: :boolean, hashing_lib: :string, table: :string]
 
@@ -398,7 +398,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     if file_path = get_layout_html_path(context) do
       file = File.read!(file_path)
 
-      case Injectors.AppLayoutMenu.inject(file, schema) do
+      case Injector.app_layout_menu_inject(file, schema) do
         {:ok, new_file} ->
           print_injecting(file_path)
           File.write!(file_path, new_file)
@@ -409,12 +409,12 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
         {:error, :unable_to_inject} ->
           Mix.shell().info("""
 
-          #{Injectors.AppLayoutMenu.help_text(file_path, schema)}
+          #{Injector.app_layout_menu_help_text(file_path, schema)}
           """)
       end
     else
-      menu_name = Injectors.AppLayoutMenu.menu_name(schema)
-      inject = Injectors.AppLayoutMenu.code_to_inject(schema)
+      menu_name = Injector.app_layout_menu_template_name(schema)
+      inject = Injector.app_layout_menu_code_to_inject(schema)
 
       Mix.shell().error("""
 
