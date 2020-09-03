@@ -48,7 +48,7 @@ defmodule Mix.Phx.Gen.Auth.Injectors.AppLayoutMenu do
       # entire matching line is inserted with \\0, then a newline then
       # the indent that was captured using \\1. &2 is the code to
       # inject.
-      &Regex.replace(~r/^(\s*)#{anchor_line}.*$/m, &1, "\\0\n\\1  #{&2}", global: false)
+      &Regex.replace(~r/^(\s*)#{anchor_line}.*(\r\n|\n|$)/Um, &1, "\\0\\1  #{&2}\\2", global: false)
     )
   end
 end

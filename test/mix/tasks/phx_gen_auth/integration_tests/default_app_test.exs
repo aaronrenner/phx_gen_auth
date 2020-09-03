@@ -240,4 +240,26 @@ defmodule Phx.Gen.Auth.IntegrationTests.DefaultAppTest do
 
     assert_passes_formatter_check(test_app_path)
   end
+
+  test "works with windows line endings", %{test_app_path: test_app_path} do
+    convert_project_line_endings(test_app_path, "\r\n")
+
+    mix_run!(~w(phx.gen.auth Accounts User users), cd: test_app_path)
+
+    mix_deps_get_and_compile(test_app_path)
+
+    assert_no_compilation_warnings(test_app_path)
+    assert_mix_test_succeeds(test_app_path)
+  end
+
+  defp convert_project_line_endings(test_app_path, line_ending) do
+    test_app_path
+    |> Path.join("{config,lib,priv,test}/**/*.{ex,exs}")
+    |> Path.wildcard()
+    |> Enum.each(
+      &modify_file(&1, fn content ->
+        String.replace(content, ~r/(\r\n|\r|\n)/, line_ending)
+      end)
+    )
+  end
 end

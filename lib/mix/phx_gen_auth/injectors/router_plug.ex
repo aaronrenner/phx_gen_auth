@@ -11,11 +11,13 @@ defmodule Mix.Phx.Gen.Auth.Injectors.RouterPlug do
       file,
       code_to_inject(schema),
       # Matches the entire line containing `anchor_line` and captures
-      # the whitespace before the anchor. In the replace string, the
-      # entire matching line is inserted with \\0, then a newline then
-      # the indent that was captured using \\1. &2 is the code to
-      # inject.
-      &Regex.replace(~r/^(\s*)#{@anchor_line}.*$/m, &1, "\\0\n\\1#{&2}", global: false)
+      # the whitespace before the anchor. In the replace string
+      #
+      # * the entire matching line is inserted with \\0,
+      # * the captured indent is inserted using \\1,
+      # * the actual code is injected with &2,
+      # * and the appropriate newline is injected using \\2
+      &Regex.replace(~r/^(\s*)#{@anchor_line}.*(\r\n|\n|$)/Um, &1, "\\0\\1#{&2}\\2", global: false)
     )
   end
 
