@@ -38,7 +38,7 @@ After running `mix phx.new`, `cd` into your application's directory (ex. `my_app
     ```elixir
     def deps do
       [
-        {:phx_gen_auth, "~> 0.4.0", only: [:dev], runtime: false},
+        {:phx_gen_auth, "~> 0.5", only: [:dev], runtime: false},
         ...
       ]
     end

@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## v0.5.0 (2020-09-03)
+
+[Diff of generated code](https://github.com/aaronrenner/phx_gen_auth_output/compare/v0.4.0..v0.5.0)
 
 ### Enhancements
 
