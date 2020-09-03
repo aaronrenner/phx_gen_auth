@@ -368,10 +368,10 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   defp maybe_inject_router_plug(%Context{context_app: ctx_app} = context) do
     web_prefix = Mix.Phoenix.web_path(ctx_app)
     file_path = Path.join(web_prefix, "router.ex")
-    help_text = Injectors.RouterPlug.help_text(file_path, context)
+    help_text = Injector.help_text_for_inject_router_plug(file_path, context)
 
     with {:ok, file} <- read_file(file_path),
-         {:ok, new_file} <- Injectors.RouterPlug.inject(file, context) do
+         {:ok, new_file} <- Injector.inject_router_plug(file, context) do
       print_injecting(file_path, " - plug")
       File.write!(file_path, new_file)
     else

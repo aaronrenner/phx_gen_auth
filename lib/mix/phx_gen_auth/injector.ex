@@ -1,7 +1,11 @@
 defmodule Mix.Phx.Gen.Auth.Injector do
   @moduledoc false
 
+  alias Mix.Phoenix.{Context, Schema}
   alias Mix.Phx.Gen.Auth.HashingLibrary
+
+  @type schema :: %Schema{}
+  @type context :: %Context{schema: schema}
 
   @doc """
   Injects a dependency into the contents of mix.exs
@@ -54,6 +58,51 @@ defmodule Mix.Phx.Gen.Auth.Injector do
     # Only in tests, remove the complexity from the password hashing algorithm
     #{test_config}
     """)
+  end
+
+  @router_plug_anchor_line "plug :put_secure_browser_headers"
+
+  @doc """
+  Injects the fetch_current_<schema> plug into router's browser pipeline
+  """
+  @spec inject_router_plug(String.t(), context) :: {:ok, String.t()} | :already_injected | {:error, :unable_to_inject}
+  def inject_router_plug(file, %Context{schema: schema}) when is_binary(file) do
+    inject_unless_contains(
+      file,
+      router_plug_code(schema),
+      # Matches the entire line containing `anchor_line` and captures
+      # the whitespace before the anchor. In the replace string
+      #
+      # * the entire matching line is inserted with \\0,
+      # * the captured indent is inserted using \\1,
+      # * the actual code is injected with &2,
+      # * and the appropriate newline is injected using \\2
+      &Regex.replace(~r/^(\s*)#{@router_plug_anchor_line}.*(\r\n|\n|$)/Um, &1, "\\0\\1#{&2}\\2", global: false)
+    )
+  end
+
+  @doc """
+  Instructions to provide the user when `inject_router_plug/2` fails.
+  """
+  @spec help_text_for_inject_router_plug(String.t(), context) :: String.t()
+  def help_text_for_inject_router_plug(file_path, %Context{schema: schema}) do
+    """
+    Add the #{router_plug_name(schema)} plug to the :browser pipeline in #{Path.relative_to_cwd(file_path)}:
+
+        pipeline :browser do
+          ...
+          #{@router_plug_anchor_line}
+          #{router_plug_code(schema)}
+        end
+    """
+  end
+
+  defp router_plug_code(%Schema{} = schema) do
+    "plug " <> router_plug_name(schema)
+  end
+
+  defp router_plug_name(%Schema{} = schema) do
+    ":fetch_current_#{schema.singular}"
   end
 
   @doc """
