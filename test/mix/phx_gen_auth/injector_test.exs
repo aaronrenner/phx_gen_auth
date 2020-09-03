@@ -4,7 +4,7 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
   alias Mix.Phoenix.{Context, Schema}
   alias Mix.Phx.Gen.Auth.{HashingLibrary, Injector}
 
-  describe "inject_mix_dependency/2" do
+  describe "mix_dependency_inject/2" do
     test "injects before existing dependencies" do
       existing_file = """
       defmodule RainyDay.MixProject do
@@ -70,7 +70,7 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
 
       inject = ~s|{:bcrypt_elixir, "~> 2.0"}|
 
-      assert {:ok, new_file} = Injector.inject_mix_dependency(existing_file, inject)
+      assert {:ok, new_file} = Injector.mix_dependency_inject(existing_file, inject)
 
       assert new_file == """
              defmodule RainyDay.MixProject do
@@ -150,7 +150,7 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
 
       inject = ~s|{:bcrypt_elixir, "~> 2.0"}|
 
-      assert :already_injected = Injector.inject_mix_dependency(existing_file, inject)
+      assert :already_injected = Injector.mix_dependency_inject(existing_file, inject)
     end
 
     test "when unable to automatically inject" do
@@ -161,7 +161,7 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
 
       inject = ~s|{:bcrypt_elixir, "~> 2.0"}|
 
-      assert {:error, :unable_to_inject} = Injector.inject_mix_dependency(existing_file, inject)
+      assert {:error, :unable_to_inject} = Injector.mix_dependency_inject(existing_file, inject)
     end
   end
 
@@ -280,7 +280,7 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
     end
   end
 
-  describe "inject_test_config/2" do
+  describe "test_config_inject/2" do
     test "injects after \"use Mix.Config\" when hashing_library is bcrypt" do
       {:ok, hashing_library} = HashingLibrary.build("bcrypt")
 
@@ -288,7 +288,7 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
       use Mix.Config
       """
 
-      {:ok, injected} = Injector.inject_test_config(input, hashing_library)
+      {:ok, injected} = Injector.test_config_inject(input, hashing_library)
 
       assert injected ==
                """
@@ -306,7 +306,7 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
       use Mix.Config
       """
 
-      {:ok, injected} = Injector.inject_test_config(input, hashing_library)
+      {:ok, injected} = Injector.test_config_inject(input, hashing_library)
 
       assert injected ==
                """
@@ -324,7 +324,7 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
       use Mix.Config
       """
 
-      {:ok, injected} = Injector.inject_test_config(input, hashing_library)
+      {:ok, injected} = Injector.test_config_inject(input, hashing_library)
 
       assert injected ==
                """
@@ -347,7 +347,7 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
       config :logger, level: :warn
       """
 
-      {:ok, injected} = Injector.inject_test_config(input, hashing_library)
+      {:ok, injected} = Injector.test_config_inject(input, hashing_library)
 
       assert injected ==
                """
@@ -371,7 +371,7 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
       config :logger, level: :warn
       """
 
-      {:ok, injected} = Injector.inject_test_config(input, hashing_library)
+      {:ok, injected} = Injector.test_config_inject(input, hashing_library)
 
       assert injected ==
                """
@@ -395,7 +395,7 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
       config :logger, level: :warn\r
       """
 
-      {:ok, injected} = Injector.inject_test_config(input, hashing_library)
+      {:ok, injected} = Injector.test_config_inject(input, hashing_library)
 
       assert injected ==
                """
@@ -423,7 +423,7 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
 
       """
 
-      assert :already_injected = Injector.inject_test_config(input, hashing_library)
+      assert :already_injected = Injector.test_config_inject(input, hashing_library)
     end
 
     test "returns :already_injected when config is already found when using windows line endings" do
@@ -440,7 +440,7 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
       \r
       """
 
-      assert :already_injected = Injector.inject_test_config(input, hashing_library)
+      assert :already_injected = Injector.test_config_inject(input, hashing_library)
     end
 
     test "returns {:error, :unable_to_inject} when file doesn't confine \"import Config\" or \"use Mix.Config\"" do
@@ -448,17 +448,17 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
 
       input = ""
 
-      assert {:error, :unable_to_inject} = Injector.inject_test_config(input, hashing_library)
+      assert {:error, :unable_to_inject} = Injector.test_config_inject(input, hashing_library)
     end
   end
 
-  describe "help_text_for_inject_test_config/2" do
+  describe "test_config_help_text/2" do
     test "returns a string with the expected help text" do
       {:ok, hashing_library} = HashingLibrary.build("bcrypt")
 
       file_path = Path.expand("config/test.exs")
 
-      assert Injector.help_text_for_inject_test_config(file_path, hashing_library) ==
+      assert Injector.test_config_help_text(file_path, hashing_library) ==
                """
                Add the following to config/test.exs:
 
@@ -468,7 +468,7 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
     end
   end
 
-  describe "inject_router_plug/2" do
+  describe "router_plug_inject/2" do
     test "injects after :put_secure_browser_headers" do
       schema = Schema.new("Accounts.User", "users", [], [])
       context = Context.new("Accounts", schema, [])
@@ -487,7 +487,7 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
       end
       """
 
-      {:ok, injected} = Injector.inject_router_plug(input, context)
+      {:ok, injected} = Injector.router_plug_inject(input, context)
 
       assert injected ==
                """
@@ -524,7 +524,7 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
       end
       """
 
-      {:ok, injected} = Injector.inject_router_plug(input, context)
+      {:ok, injected} = Injector.router_plug_inject(input, context)
 
       assert injected ==
                """
@@ -561,7 +561,7 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
       end\r
       """
 
-      {:ok, injected} = Injector.inject_router_plug(input, context)
+      {:ok, injected} = Injector.router_plug_inject(input, context)
 
       assert injected ==
                """
@@ -597,18 +597,18 @@ defmodule Mix.Phx.Gen.Auth.InjectorTest do
       end
       """
 
-      assert {:error, :unable_to_inject} = Injector.inject_router_plug(input, context)
+      assert {:error, :unable_to_inject} = Injector.router_plug_inject(input, context)
     end
   end
 
-  describe "help_text_for_inject_router_plug/2" do
+  describe "router_plug_help_text/2" do
     test "returns a string with the expected help text" do
       schema = Schema.new("Accounts.User", "users", [], [])
       context = Context.new("Accounts", schema, [])
 
       file_path = Path.expand("foo.ex")
 
-      assert Injector.help_text_for_inject_router_plug(file_path, context) ==
+      assert Injector.router_plug_help_text(file_path, context) ==
                """
                Add the :fetch_current_user plug to the :browser pipeline in foo.ex:
 

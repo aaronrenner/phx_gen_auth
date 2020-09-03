@@ -298,7 +298,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
     file = File.read!(file_path)
 
-    case Injector.inject_mix_dependency(file, mix_dependency) do
+    case Injector.mix_dependency_inject(file, mix_dependency) do
       {:ok, new_file} ->
         print_injecting(file_path)
         File.write!(file_path, new_file)
@@ -368,10 +368,10 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
   defp maybe_inject_router_plug(%Context{context_app: ctx_app} = context) do
     web_prefix = Mix.Phoenix.web_path(ctx_app)
     file_path = Path.join(web_prefix, "router.ex")
-    help_text = Injector.help_text_for_inject_router_plug(file_path, context)
+    help_text = Injector.router_plug_help_text(file_path, context)
 
     with {:ok, file} <- read_file(file_path),
-         {:ok, new_file} <- Injector.inject_router_plug(file, context) do
+         {:ok, new_file} <- Injector.router_plug_inject(file, context) do
       print_injecting(file_path, " - plug")
       File.write!(file_path, new_file)
     else
@@ -471,7 +471,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
         {:error, {:file_read_error, _}} -> "use Mix.Config\n"
       end
 
-    case Injector.inject_test_config(file, hashing_library) do
+    case Injector.test_config_inject(file, hashing_library) do
       {:ok, new_file} ->
         print_injecting(file_path)
         File.write!(file_path, new_file)
@@ -480,7 +480,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
         :ok
 
       {:error, :unable_to_inject} ->
-        help_text = Injector.help_text_for_inject_test_config(file_path, hashing_library)
+        help_text = Injector.test_config_help_text(file_path, hashing_library)
 
         Mix.shell().info("""
 

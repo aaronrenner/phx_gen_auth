@@ -188,7 +188,7 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
   defp inject_dependency(file_path, dependency) do
     file = File.read!(file_path)
 
-    case Injector.inject_mix_dependency(file, dependency) do
+    case Injector.mix_dependency_inject(file, dependency) do
       {:ok, new_file} ->
         File.write!(file_path, new_file)
 

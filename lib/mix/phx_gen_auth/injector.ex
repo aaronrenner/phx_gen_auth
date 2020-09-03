@@ -10,19 +10,36 @@ defmodule Mix.Phx.Gen.Auth.Injector do
   @doc """
   Injects a dependency into the contents of mix.exs
   """
-  @spec inject_mix_dependency(String.t(), String.t()) :: {:ok, String.t()} | :already_injected | {:error, :unable_to_inject}
-  def inject_mix_dependency(mixfile, dependency) do
+  @spec mix_dependency_inject(String.t(), String.t()) :: {:ok, String.t()} | :already_injected | {:error, :unable_to_inject}
+  def mix_dependency_inject(mixfile, dependency) do
     with :ok <- ensure_not_already_injected(mixfile, dependency),
-         {:ok, new_mixfile} <- do_inject_dependency(mixfile, dependency) do
+         {:ok, new_mixfile} <- do_mix_dependency_inject(mixfile, dependency) do
       {:ok, new_mixfile}
+    end
+  end
+
+  @spec do_mix_dependency_inject(String.t(), String.t()) :: {:ok, String.t()} | {:error, :unable_to_inject}
+  defp do_mix_dependency_inject(mixfile, dependency) do
+    string_to_split_on = """
+      defp deps do
+        [
+    """
+
+    case split_with_self(mixfile, string_to_split_on) do
+      {beginning, splitter, rest} ->
+        new_mixfile = IO.iodata_to_binary([beginning, splitter, "      ", dependency, ?\,, ?\n, rest])
+        {:ok, new_mixfile}
+
+      _ ->
+        {:error, :unable_to_inject}
     end
   end
 
   @doc """
   Injects configuration for test environment into `file`.
   """
-  @spec inject_test_config(String.t(), HashingLibrary.t()) :: {:ok, String.t()} | :already_injected | {:error, :unable_to_inject}
-  def inject_test_config(file, %HashingLibrary{} = hashing_library) when is_binary(file) do
+  @spec test_config_inject(String.t(), HashingLibrary.t()) :: {:ok, String.t()} | :already_injected | {:error, :unable_to_inject}
+  def test_config_inject(file, %HashingLibrary{} = hashing_library) when is_binary(file) do
     code_to_inject =
       hashing_library
       |> test_config_code()
@@ -42,10 +59,10 @@ defmodule Mix.Phx.Gen.Auth.Injector do
   end
 
   @doc """
-  Instructions to provide the user when `inject_test_config/2` fails.
+  Instructions to provide the user when `test_config_inject/2` fails.
   """
-  @spec help_text_for_inject_test_config(String.t(), HashingLibrary.t()) :: String.t()
-  def help_text_for_inject_test_config(file_path, %HashingLibrary{} = hashing_library) do
+  @spec test_config_help_text(String.t(), HashingLibrary.t()) :: String.t()
+  def test_config_help_text(file_path, %HashingLibrary{} = hashing_library) do
     """
     Add the following to #{Path.relative_to_cwd(file_path)}:
 
@@ -65,8 +82,8 @@ defmodule Mix.Phx.Gen.Auth.Injector do
   @doc """
   Injects the fetch_current_<schema> plug into router's browser pipeline
   """
-  @spec inject_router_plug(String.t(), context) :: {:ok, String.t()} | :already_injected | {:error, :unable_to_inject}
-  def inject_router_plug(file, %Context{schema: schema}) when is_binary(file) do
+  @spec router_plug_inject(String.t(), context) :: {:ok, String.t()} | :already_injected | {:error, :unable_to_inject}
+  def router_plug_inject(file, %Context{schema: schema}) when is_binary(file) do
     inject_unless_contains(
       file,
       router_plug_code(schema),
@@ -84,8 +101,8 @@ defmodule Mix.Phx.Gen.Auth.Injector do
   @doc """
   Instructions to provide the user when `inject_router_plug/2` fails.
   """
-  @spec help_text_for_inject_router_plug(String.t(), context) :: String.t()
-  def help_text_for_inject_router_plug(file_path, %Context{schema: schema}) do
+  @spec router_plug_help_text(String.t(), context) :: String.t()
+  def router_plug_help_text(file_path, %Context{schema: schema}) do
     """
     Add the #{router_plug_name(schema)} plug to the :browser pipeline in #{Path.relative_to_cwd(file_path)}:
 
@@ -211,23 +228,6 @@ defmodule Mix.Phx.Gen.Auth.Injector do
       :already_injected
     else
       :ok
-    end
-  end
-
-  @spec do_inject_dependency(String.t(), String.t()) :: {:ok, String.t()} | {:error, :unable_to_inject}
-  defp do_inject_dependency(mixfile, dependency) do
-    string_to_split_on = """
-      defp deps do
-        [
-    """
-
-    case split_with_self(mixfile, string_to_split_on) do
-      {beginning, splitter, rest} ->
-        new_mixfile = IO.iodata_to_binary([beginning, splitter, "      ", dependency, ?\,, ?\n, rest])
-        {:ok, new_mixfile}
-
-      _ ->
-        {:error, :unable_to_inject}
     end
   end
 
