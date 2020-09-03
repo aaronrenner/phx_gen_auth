@@ -471,7 +471,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
         {:error, {:file_read_error, _}} -> "use Mix.Config\n"
       end
 
-    case Injectors.Config.inject(file, hashing_library) do
+    case Injector.inject_test_config(file, hashing_library) do
       {:ok, new_file} ->
         print_injecting(file_path)
         File.write!(file_path, new_file)
@@ -480,7 +480,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
         :ok
 
       {:error, :unable_to_inject} ->
-        help_text = Injectors.Config.help_text(file_path, hashing_library)
+        help_text = Injector.help_text_for_inject_test_config(file_path, hashing_library)
 
         Mix.shell().info("""
 

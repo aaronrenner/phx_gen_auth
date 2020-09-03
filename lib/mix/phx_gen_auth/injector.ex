@@ -1,6 +1,8 @@
 defmodule Mix.Phx.Gen.Auth.Injector do
   @moduledoc false
 
+  alias Mix.Phx.Gen.Auth.HashingLibrary
+
   @doc """
   Injects a dependency into the contents of mix.exs
   """
@@ -10,6 +12,48 @@ defmodule Mix.Phx.Gen.Auth.Injector do
          {:ok, new_mixfile} <- do_inject_dependency(mixfile, dependency) do
       {:ok, new_mixfile}
     end
+  end
+
+  @doc """
+  Injects configuration for test environment into `file`.
+  """
+  @spec inject_test_config(String.t(), HashingLibrary.t()) :: {:ok, String.t()} | :already_injected | {:error, :unable_to_inject}
+  def inject_test_config(file, %HashingLibrary{} = hashing_library) when is_binary(file) do
+    code_to_inject =
+      hashing_library
+      |> test_config_code()
+      |> normalize_line_endings_to_file(file)
+
+    inject_unless_contains(
+      file,
+      code_to_inject,
+      # Matches the entire line and captures the line ending. In the
+      # replace string:
+      #
+      # * the entire matching line is inserted with \\0,
+      # * the actual code is injected with &2,
+      # * and the appropriate newlines are injected using \\2.
+      &Regex.replace(~r/(use Mix\.Config|import Config)(\r\n|\n|$)/, &1, "\\0\\2#{&2}\\2", global: false)
+    )
+  end
+
+  @doc """
+  Instructions to provide the user when `inject_test_config/2` fails.
+  """
+  @spec help_text_for_inject_test_config(String.t(), HashingLibrary.t()) :: String.t()
+  def help_text_for_inject_test_config(file_path, %HashingLibrary{} = hashing_library) do
+    """
+    Add the following to #{Path.relative_to_cwd(file_path)}:
+
+    #{hashing_library |> test_config_code() |> indent_spaces(4)}
+    """
+  end
+
+  defp test_config_code(%HashingLibrary{test_config: test_config}) do
+    String.trim("""
+    # Only in tests, remove the complexity from the password hashing algorithm
+    #{test_config}
+    """)
   end
 
   @doc """
@@ -80,5 +124,27 @@ defmodule Mix.Phx.Gen.Auth.Injector do
       [left, right] -> {left, text, right}
       [_] -> :error
     end
+  end
+
+  @spec normalize_line_endings_to_file(String.t(), String.t()) :: String.t()
+  defp normalize_line_endings_to_file(code, file) do
+    String.replace(code, "\n", get_line_ending(file))
+  end
+
+  @spec get_line_ending(String.t()) :: String.t()
+  defp get_line_ending(file) do
+    case Regex.run(~r/\r\n|\n|$/, file) do
+      [line_ending] -> line_ending
+      [] -> "\n"
+    end
+  end
+
+  defp indent_spaces(string, number_of_spaces) when is_binary(string) and is_integer(number_of_spaces) do
+    indent = String.duplicate(" ", number_of_spaces)
+
+    string
+    |> String.split("\n")
+    |> Enum.map(&(indent <> &1))
+    |> Enum.join("\n")
   end
 end
