@@ -50,7 +50,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
           }
         })
 
-      assert conn.resp_cookies["<%= schema.singular %>_remember_me"]
+      assert conn.resp_cookies["_<%= web_app_name %>_<%= schema.singular %>_remember_me"]
       assert redirected_to(conn) =~ "/"
     end
 

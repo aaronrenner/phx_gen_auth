@@ -115,6 +115,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
       schema: schema,
       migration: migration,
       hashing_library: hashing_library,
+      web_app_name: Phoenix.Naming.underscore(context.web_module),
       endpoint_module: Module.concat([context.web_module, Endpoint]),
       auth_module: Module.concat([context.web_module, schema.web_namespace, "#{inspect(schema.alias)}Auth"]),
       router_scope: router_scope(context),
