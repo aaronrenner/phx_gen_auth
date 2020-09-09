@@ -4,22 +4,19 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
   import ExUnit.Assertions
 
   alias Mix.Phx.Gen.Auth.Injector
-  alias Phx.Gen.Auth.TestSupport.IntegrationTestHelpers.MixTaskServer
+  alias Phx.Gen.Auth.TestSupport.IntegrationTestHelpers.{DepsCache, MixTaskServer}
 
   def setup_test_app(app_name, opts \\ []) when is_list(opts) do
     File.mkdir_p!(test_apps_path())
+
     test_app_path = Path.join(test_apps_path(), app_name)
+    File.rm_rf!(test_app_path)
 
-    if File.exists?(test_app_path) do
-      revert_to_clean_phoenix_app(test_app_path)
-      mix_deps_get_and_compile(test_app_path)
-    else
-      generate_new_app(app_name, opts)
+    generate_new_app(app_name, opts)
 
-      inject_phx_gen_auth_dependency(test_app_path)
-      mix_deps_get_and_compile(test_app_path)
-      git_init_and_commit(test_app_path)
-    end
+    inject_phx_gen_auth_dependency(test_app_path)
+    mix_deps_get_and_compile(test_app_path)
+    git_init_and_commit(test_app_path)
 
     unless "--no-ecto" in opts, do: ecto_drop(test_app_path)
 
@@ -28,19 +25,16 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
 
   def setup_test_umbrella_app(app_name, opts \\ []) when is_list(opts) do
     File.mkdir_p!(test_apps_path())
+
     umbrella_app_name = "#{app_name}_umbrella"
     test_app_path = Path.join(test_apps_path(), umbrella_app_name)
+    File.rm_rf!(test_app_path)
 
-    if File.exists?(test_app_path) do
-      revert_to_clean_phoenix_app(test_app_path)
-      mix_deps_get_and_compile(test_app_path)
-    else
-      generate_new_app(app_name, ["--umbrella" | opts])
+    generate_new_app(app_name, ["--umbrella" | opts])
 
-      inject_phx_gen_auth_dependency_in_umbrella(test_app_path, app_name)
-      mix_deps_get_and_compile(test_app_path)
-      git_init_and_commit(test_app_path)
-    end
+    inject_phx_gen_auth_dependency_in_umbrella(test_app_path, app_name)
+    mix_deps_get_and_compile(test_app_path)
+    git_init_and_commit(test_app_path)
 
     unless "--no-ecto" in opts, do: ecto_drop(test_app_path)
 
@@ -50,23 +44,31 @@ defmodule Phx.Gen.Auth.TestSupport.IntegrationTestHelpers do
   def setup_test_mix_app(app_name, opts \\ []) when is_list(opts) do
     File.mkdir_p!(test_apps_path())
     test_app_path = Path.join(test_apps_path(), app_name)
+    File.rm_rf!(test_app_path)
 
-    if File.exists?(test_app_path) do
-      revert_to_clean_phoenix_app(test_app_path)
-      mix_deps_get_and_compile(test_app_path)
-    else
-      mix_run!(~w(new #{app_name}), cd: test_apps_path())
+    mix_run!(~w(new #{app_name}), cd: test_apps_path())
 
-      inject_phx_gen_auth_dependency(test_app_path)
-      mix_deps_get_and_compile(test_app_path)
-      git_init_and_commit(test_app_path)
-    end
+    inject_phx_gen_auth_dependency(test_app_path)
+    mix_deps_get_and_compile(test_app_path)
+    git_init_and_commit(test_app_path)
 
     test_app_path
   end
 
   def mix_deps_get_and_compile(app_path) do
-    mix_run!(["do", "deps.get", "--no-archives-check,", "compile"], cd: app_path)
+    mix_run!(["deps.get", "--no-archives-check"], cd: app_path)
+
+    case DepsCache.restore_compiled_deps(app_path) do
+      :ok ->
+        :ok
+
+      :not_cached ->
+        # Remove the application code. Only cache the deps
+        mix_run!(["clean"], cd: app_path)
+        mix_run!(["deps.compile"], cd: app_path)
+
+        DepsCache.store_compiled_deps(app_path)
+    end
   end
 
   def mix_run!(args, opts \\ []) when is_list(args) and is_list(opts) do

@@ -33,7 +33,7 @@ jobs:
           otp-version: ${{ matrix.otp }}
           elixir-version: ${{ matrix.elixir }}
       - name: Cache deps
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: deps
           key: ${{ env.CACHE_VERSION }}-deps-build-${{ env.MIX_ENV }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('mix.lock') }}
@@ -41,7 +41,7 @@ jobs:
             ${{ env.CACHE_VERSION }}-deps-build-${{ env.MIX_ENV }}-${{ matrix.otp }}-${{ matrix.elixir }}-
 
       - name: Cache _build
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: _build/${{ env.MIX_ENV }}
           key: ${{ env.CACHE_VERSION }}-_build-${{ env.MIX_ENV }}-${{ matrix.otp }}-${{ matrix.elixir }}-
@@ -97,17 +97,22 @@ jobs:
           otp-version: ${{ matrix.otp }}
           elixir-version: ${{ matrix.elixir }}
       - name: Cache deps
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: deps
           key: ${{ env.CACHE_VERSION }}-deps-build-${{ env.MIX_ENV }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('mix.lock') }}
           restore-keys: |
             ${{ env.CACHE_VERSION }}-deps-build-${{ env.MIX_ENV }}-${{ matrix.otp }}-${{ matrix.elixir }}-
       - name: Cache _build
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: _build/${{ env.MIX_ENV }}
           key: ${{ env.CACHE_VERSION }}-_build-${{ env.MIX_ENV }}-${{ matrix.otp }}-${{ matrix.elixir }}-
+      - name: Cache deps_cache
+        uses: actions/cache@v2
+        with:
+          path: tmp/deps_cache/compiled-deps
+          key: ${{ env.CACHE_VERSION }}-deps_cache-${{ matrix.otp }}-${{ matrix.elixir }}-
       - name: Install Dependencies
         run: mix deps.get
       - name: Compile app
