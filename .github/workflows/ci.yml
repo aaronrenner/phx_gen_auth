@@ -61,7 +61,7 @@ jobs:
       OTP_VERSION: ${{ matrix.otp }}
     services:
       postgres:
-        image: postgres
+        image: postgres:alpine
         ports:
           - 5432:5432
         env:
