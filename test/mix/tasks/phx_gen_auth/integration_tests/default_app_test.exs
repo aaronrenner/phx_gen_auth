@@ -26,6 +26,10 @@ defmodule Phx.Gen.Auth.IntegrationTests.DefaultAppTest do
       assert file =~ "Bcrypt.verify_pass(password, hashed_password)"
     end)
 
+    assert_file(Path.join(test_app_path, "lib/demo_web/controllers/user_auth.ex"), fn file ->
+      assert file =~ "_demo_web_user_remember_me"
+    end)
+
     assert_file(Path.join(test_app_path, "lib/demo_web/controllers/user_confirmation_controller.ex"))
     assert_file(Path.join(test_app_path, "lib/demo_web/controllers/user_reset_password_controller.ex"))
     assert_file(Path.join(test_app_path, "lib/demo_web/controllers/user_registration_controller.ex"))

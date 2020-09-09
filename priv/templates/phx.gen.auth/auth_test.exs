@@ -5,6 +5,8 @@ defmodule <%= inspect auth_module %>Test do
   alias <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web_namespace, schema.alias) %>Auth
   import <%= inspect context.module %>Fixtures
 
+  @remember_me_cookie "_<%= web_app_name %>_<%= schema.singular %>_remember_me"
+
   setup %{conn: conn} do
     conn =
       conn
@@ -35,9 +37,9 @@ defmodule <%= inspect auth_module %>Test do
 
     test "writes a cookie if remember_me is configured", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
       conn = conn |> fetch_cookies() |> <%= inspect schema.alias %>Auth.log_in_<%= schema.singular %>(<%= schema.singular %>, %{"remember_me" => "true"})
-      assert get_session(conn, :<%= schema.singular %>_token) == conn.cookies["<%= schema.singular %>_remember_me"]
+      assert get_session(conn, :<%= schema.singular %>_token) == conn.cookies[@remember_me_cookie]
 
-      assert %{value: signed_token, max_age: max_age} = conn.resp_cookies["<%= schema.singular %>_remember_me"]
+      assert %{value: signed_token, max_age: max_age} = conn.resp_cookies[@remember_me_cookie]
       assert signed_token != get_session(conn, :<%= schema.singular %>_token)
       assert max_age == 5_184_000
     end
@@ -50,13 +52,13 @@ defmodule <%= inspect auth_module %>Test do
       conn =
         conn
         |> put_session(:<%= schema.singular %>_token, <%= schema.singular %>_token)
-        |> put_req_cookie("<%= schema.singular %>_remember_me", <%= schema.singular %>_token)
+        |> put_req_cookie(@remember_me_cookie, <%= schema.singular %>_token)
         |> fetch_cookies()
         |> <%= inspect schema.alias %>Auth.log_out_<%= schema.singular %>()
 
       refute get_session(conn, :<%= schema.singular %>_token)
-      refute conn.cookies["<%= schema.singular %>_remember_me"]
-      assert %{max_age: 0} = conn.resp_cookies["<%= schema.singular %>_remember_me"]
+      refute conn.cookies[@remember_me_cookie]
+      assert %{max_age: 0} = conn.resp_cookies[@remember_me_cookie]
       assert redirected_to(conn) == "/"
       refute <%= inspect context.alias %>.get_<%= schema.singular %>_by_session_token(<%= schema.singular %>_token)
     end
@@ -78,7 +80,7 @@ defmodule <%= inspect auth_module %>Test do
     test "works even if <%= schema.singular %> is already logged out", %{conn: conn} do
       conn = conn |> fetch_cookies() |> <%= inspect schema.alias %>Auth.log_out_<%= schema.singular %>()
       refute get_session(conn, :<%= schema.singular %>_token)
-      assert %{max_age: 0} = conn.resp_cookies["<%= schema.singular %>_remember_me"]
+      assert %{max_age: 0} = conn.resp_cookies[@remember_me_cookie]
       assert redirected_to(conn) == "/"
     end
   end
@@ -94,12 +96,12 @@ defmodule <%= inspect auth_module %>Test do
       logged_in_conn =
         conn |> fetch_cookies() |> <%= inspect schema.alias %>Auth.log_in_<%= schema.singular %>(<%= schema.singular %>, %{"remember_me" => "true"})
 
-      <%= schema.singular %>_token = logged_in_conn.cookies["<%= schema.singular %>_remember_me"]
-      %{value: signed_token} = logged_in_conn.resp_cookies["<%= schema.singular %>_remember_me"]
+      <%= schema.singular %>_token = logged_in_conn.cookies[@remember_me_cookie]
+      %{value: signed_token} = logged_in_conn.resp_cookies[@remember_me_cookie]
 
       conn =
         conn
-        |> put_req_cookie("<%= schema.singular %>_remember_me", signed_token)
+        |> put_req_cookie(@remember_me_cookie, signed_token)
         |> <%= inspect schema.alias %>Auth.fetch_current_<%= schema.singular %>([])
 
       assert get_session(conn, :<%= schema.singular %>_token) == <%= schema.singular %>_token
