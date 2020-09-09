@@ -115,7 +115,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
       schema: schema,
       migration: migration,
       hashing_library: hashing_library,
-      web_app_name: Phoenix.Naming.underscore(context.web_module),
+      web_app_name: web_app_name(context),
       endpoint_module: Module.concat([context.web_module, Endpoint]),
       auth_module: Module.concat([context.web_module, schema.web_namespace, "#{inspect(schema.alias)}Auth"]),
       router_scope: router_scope(context),
@@ -137,6 +137,12 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     |> maybe_inject_router_plug()
     |> maybe_inject_app_layout_menu()
     |> print_shell_instructions()
+  end
+
+  defp web_app_name(%Context{} = context) do
+    context.web_module
+    |> inspect()
+    |> Phoenix.Naming.underscore()
   end
 
   defp validate_args!([_, _, _]), do: :ok
