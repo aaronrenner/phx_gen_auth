@@ -75,7 +75,11 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
       assert get_flash(conn, :error) =~ "Account confirmation link is invalid or it has expired"
 
       # When logged in
-      conn = build_conn() |> login_<%= schema.singular %>(<%= schema.singular %>) |> get(Routes.<%= schema.route_helper %>_confirmation_path(conn, :confirm, token))
+      conn =
+        build_conn()
+        |> log_in_<%= schema.singular %>(<%= schema.singular %>)
+        |> get(Routes.<%= schema.route_helper %>_confirmation_path(conn, :confirm, token))
+
       assert redirected_to(conn) == "/"
       refute get_flash(conn, :error)
     end
