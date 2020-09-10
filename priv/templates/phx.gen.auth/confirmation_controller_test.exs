@@ -69,15 +69,25 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
       refute get_session(conn, :<%= schema.singular %>_token)
       assert Repo.all(<%= inspect context.alias %>.<%= inspect schema.alias %>Token) == []
 
+      # When not logged in
       conn = get(conn, Routes.<%= schema.route_helper %>_confirmation_path(conn, :confirm, token))
       assert redirected_to(conn) == "/"
-      assert get_flash(conn, :error) =~ "Confirmation link is invalid or it has expired"
+      assert get_flash(conn, :error) =~ "Account confirmation link is invalid or it has expired"
+
+      # When logged in
+      conn =
+        build_conn()
+        |> log_in_<%= schema.singular %>(<%= schema.singular %>)
+        |> get(Routes.<%= schema.route_helper %>_confirmation_path(conn, :confirm, token))
+
+      assert redirected_to(conn) == "/"
+      refute get_flash(conn, :error)
     end
 
     test "does not confirm email with invalid token", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
       conn = get(conn, Routes.<%= schema.route_helper %>_confirmation_path(conn, :confirm, "oops"))
       assert redirected_to(conn) == "/"
-      assert get_flash(conn, :error) =~ "Confirmation link is invalid or it has expired"
+      assert get_flash(conn, :error) =~ "Account confirmation link is invalid or it has expired"
       refute <%= inspect context.alias %>.get_<%= schema.singular %>!(<%= schema.singular %>.id).confirmed_at
     end
   end
