@@ -7,7 +7,7 @@
 ### Enhancements
 
 * Enabled same-site protection on remember me cookie. Thanks @mikl!
-* Updated `UserAuth.require_athenticated_user/2` to remember query string
+* Updated `UserAuth.require_authenticated_user/2` to remember query string
   parameters as part of the return_to path. Thanks @matthewlehner!
 * Changed instances of "e-mail" to "email" to better match AP style guide.
   Thanks @zorn!
