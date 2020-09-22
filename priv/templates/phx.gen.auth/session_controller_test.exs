@@ -54,6 +54,20 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
       assert redirected_to(conn) =~ "/"
     end
 
+    test "logs the <%= schema.singular %> in with return to", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
+      conn =
+        conn
+        |> init_test_session(<%= schema.singular %>_return_to: "/foo/bar")
+        |> post(Routes.<%= schema.route_helper %>_session_path(conn, :create), %{
+          "<%= schema.singular %>" => %{
+            "email" => <%= schema.singular %>.email,
+            "password" => valid_<%= schema.singular %>_password()
+          }
+        })
+
+      assert redirected_to(conn) == "/foo/bar"
+    end
+
     test "emits error message with invalid credentials", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
       conn =
         post(conn, Routes.<%= schema.route_helper %>_session_path(conn, :create), %{
