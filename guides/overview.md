@@ -72,8 +72,16 @@ from the workflow for most applications.
 ## Case sensitiveness
 
 The email lookup is made to be case insensitive. Case insensitive
-lookups are the default in MySQL and MSSQL but require the
-citext extension in Postgres.
+lookups are the default in MySQL and MSSQL but use the
+[`citext` extension in PostgreSQL](https://www.postgresql.org/docs/current/citext.html).
+
+Note `citext` is part of Postgres itself and is bundled with it in
+most operating systems and package managers. `phx.gen.auth` takes
+care of creating the extension and no extra work is necessary in
+the majority of cases. If by any chance your package manager splits
+`citext` into a separate package, you will get an error while
+migrating and you can most likely solve it by installing the
+`postgres-contrib` package.
 
 ## Concurrent tests
 
