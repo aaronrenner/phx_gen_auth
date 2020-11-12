@@ -43,12 +43,22 @@ After running `mix phx.new`, `cd` into your application's directory (ex. `my_app
       ]
     end
     ```
-1. Install and compile the dependencies
+2. Install and compile the dependencies
 
     ```
     $ mix do deps.get, deps.compile
     ```
-
+3. Ensure `make` is installed
+    
+    ```
+    $ which make
+    ```
+    If this comes up empty, you need to install `make`. 
+    On Ubuntu, for example, you can do this by simply running
+    ```
+    $ sudo apt-get install make
+    ```
+    
 #### Umbrella installation
 
 1. `cd` into your project's web app directory (ex. `apps/my_app_web`)
