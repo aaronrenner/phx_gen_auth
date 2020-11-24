@@ -94,6 +94,19 @@
       assert %Ecto.Changeset{} = changeset = <%= inspect context.alias %>.change_<%= schema.singular %>_registration(%<%= inspect schema.alias %>{})
       assert changeset.required == [:password, :email]
     end
+
+    test "allows fields to be set" do
+      email = unique_<%= schema.singular %>_email()
+      password = valid_<%= schema.singular %>_password()
+
+      changeset =
+        <%= inspect context.alias %>.change_<%= schema.singular %>_registration(%<%= inspect schema.alias %>{}, %{"email" => email, "password" => password})
+
+      assert changeset.valid?
+      assert get_change(changeset, :email) == email
+      assert get_change(changeset, :password) == password
+      assert is_nil(get_change(changeset, :hashed_password))
+    end
   end
 
   describe "change_<%= schema.singular %>_email/2" do
@@ -219,6 +232,17 @@
     test "returns a <%= schema.singular %> changeset" do
       assert %Ecto.Changeset{} = changeset = <%= inspect context.alias %>.change_<%= schema.singular %>_password(%<%= inspect schema.alias %>{})
       assert changeset.required == [:password]
+    end
+
+    test "allows fields to be set" do
+      changeset =
+        <%= inspect context.alias %>.change_<%= schema.singular %>_password(%<%= inspect schema.alias %>{}, %{
+          "password" => "new valid password"
+        })
+
+      assert changeset.valid?
+      assert get_change(changeset, :password) == "new valid password"
+      assert is_nil(get_change(changeset, :hashed_password))
     end
   end
 

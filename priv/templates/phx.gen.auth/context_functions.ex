@@ -82,7 +82,7 @@
 
   """
   def change_<%= schema.singular %>_registration(%<%= inspect schema.alias %>{} = <%= schema.singular %>, attrs \\ %{}) do
-    <%= inspect schema.alias %>.registration_changeset(<%= schema.singular %>, attrs)
+    <%= inspect schema.alias %>.registration_changeset(<%= schema.singular %>, attrs, hash_password: false)
   end
 
   ## Settings
@@ -173,7 +173,7 @@
 
   """
   def change_<%= schema.singular %>_password(<%= schema.singular %>, attrs \\ %{}) do
-    <%= inspect schema.alias %>.password_changeset(<%= schema.singular %>, attrs)
+    <%= inspect schema.alias %>.password_changeset(<%= schema.singular %>, attrs, hash_password: false)
   end
 
   @doc """
