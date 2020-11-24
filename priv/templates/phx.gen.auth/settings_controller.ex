@@ -10,7 +10,8 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     render(conn, "edit.html")
   end
 
-  def update_email(conn, %{"current_password" => password, "<%= schema.singular %>" => <%= schema.singular %>_params}) do
+  def update(conn, %{"action" => "update_email"} = params) do
+    %{"current_password" => password, "<%= schema.singular %>" => <%= schema.singular %>_params} = params
     <%= schema.singular %> = conn.assigns.current_<%= schema.singular %>
 
     case <%= inspect context.alias %>.apply_<%= schema.singular %>_email(<%= schema.singular %>, password, <%= schema.singular %>_params) do
@@ -33,21 +34,8 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     end
   end
 
-  def confirm_email(conn, %{"token" => token}) do
-    case <%= inspect context.alias %>.update_<%= schema.singular %>_email(conn.assigns.current_<%= schema.singular %>, token) do
-      :ok ->
-        conn
-        |> put_flash(:info, "Email changed successfully.")
-        |> redirect(to: Routes.<%= schema.route_helper %>_settings_path(conn, :edit))
-
-      :error ->
-        conn
-        |> put_flash(:error, "Email change link is invalid or it has expired.")
-        |> redirect(to: Routes.<%= schema.route_helper %>_settings_path(conn, :edit))
-    end
-  end
-
-  def update_password(conn, %{"current_password" => password, "<%= schema.singular %>" => <%= schema.singular %>_params}) do
+  def update(conn, %{"action" => "update_password"} = params) do
+    %{"current_password" => password, "<%= schema.singular %>" => <%= schema.singular %>_params} = params
     <%= schema.singular %> = conn.assigns.current_<%= schema.singular %>
 
     case <%= inspect context.alias %>.update_<%= schema.singular %>_password(<%= schema.singular %>, password, <%= schema.singular %>_params) do
@@ -59,6 +47,20 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
 
       {:error, changeset} ->
         render(conn, "edit.html", password_changeset: changeset)
+    end
+  end
+
+  def confirm_email(conn, %{"token" => token}) do
+    case <%= inspect context.alias %>.update_<%= schema.singular %>_email(conn.assigns.current_<%= schema.singular %>, token) do
+      :ok ->
+        conn
+        |> put_flash(:info, "Email changed successfully.")
+        |> redirect(to: Routes.<%= schema.route_helper %>_settings_path(conn, :edit))
+
+      :error ->
+        conn
+        |> put_flash(:error, "Email change link is invalid or it has expired.")
+        |> redirect(to: Routes.<%= schema.route_helper %>_settings_path(conn, :edit))
     end
   end
 

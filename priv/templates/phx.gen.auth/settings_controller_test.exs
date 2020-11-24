@@ -20,10 +20,11 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     end
   end
 
-  describe "PUT <%= web_path_prefix %>/<%= schema.plural %>/settings/update_password" do
+  describe "PUT <%= web_path_prefix %>/<%= schema.plural %>/settings (change password form)" do
     test "updates the <%= schema.singular %> password and resets tokens", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
       new_password_conn =
-        put(conn, Routes.<%= schema.route_helper %>_settings_path(conn, :update_password), %{
+        put(conn, Routes.<%= schema.route_helper %>_settings_path(conn, :update), %{
+          "action" => "update_password",
           "current_password" => valid_<%= schema.singular %>_password(),
           "<%= schema.singular %>" => %{
             "password" => "new valid password",
@@ -39,7 +40,8 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
 
     test "does not update password on invalid data", %{conn: conn} do
       old_password_conn =
-        put(conn, Routes.<%= schema.route_helper %>_settings_path(conn, :update_password), %{
+        put(conn, Routes.<%= schema.route_helper %>_settings_path(conn, :update), %{
+          "action" => "update_password",
           "current_password" => "invalid",
           "<%= schema.singular %>" => %{
             "password" => "too short",
@@ -57,11 +59,12 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
     end
   end
 
-  describe "PUT <%= web_path_prefix %>/<%= schema.plural %>/settings/update_email" do
+  describe "PUT <%= web_path_prefix %>/<%= schema.plural %>/settings (change email form)" do
     @tag :capture_log
     test "updates the <%= schema.singular %> email", %{conn: conn, <%= schema.singular %>: <%= schema.singular %>} do
       conn =
-        put(conn, Routes.<%= schema.route_helper %>_settings_path(conn, :update_email), %{
+        put(conn, Routes.<%= schema.route_helper %>_settings_path(conn, :update), %{
+          "action" => "update_email",
           "current_password" => valid_<%= schema.singular %>_password(),
           "<%= schema.singular %>" => %{"email" => unique_<%= schema.singular %>_email()}
         })
@@ -73,7 +76,8 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
 
     test "does not update email on invalid data", %{conn: conn} do
       conn =
-        put(conn, Routes.<%= schema.route_helper %>_settings_path(conn, :update_email), %{
+        put(conn, Routes.<%= schema.route_helper %>_settings_path(conn, :update), %{
+          "action" => "update_email",
           "current_password" => "invalid",
           "<%= schema.singular %>" => %{"email" => "with spaces"}
         })

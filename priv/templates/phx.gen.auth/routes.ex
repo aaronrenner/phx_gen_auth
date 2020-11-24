@@ -18,8 +18,7 @@
     pipe_through [:browser, :require_authenticated_<%= schema.singular %>]
 
     get "/<%= schema.plural %>/settings", <%= inspect schema.alias %>SettingsController, :edit
-    put "/<%= schema.plural %>/settings/update_password", <%= inspect schema.alias %>SettingsController, :update_password
-    put "/<%= schema.plural %>/settings/update_email", <%= inspect schema.alias %>SettingsController, :update_email
+    put "/<%= schema.plural %>/settings", <%= inspect schema.alias %>SettingsController, :update
     get "/<%= schema.plural %>/settings/confirm_email/:token", <%= inspect schema.alias %>SettingsController, :confirm_email
   end
 
