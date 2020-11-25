@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.6.0 (2020-11-24)
+
+[Diff of generated code](https://github.com/aaronrenner/phx_gen_auth_output/compare/v0.5.0..v0.6.0)
+
+### Enhancements
+
+* Remember me cookie is now scoped to the app name. Thanks @LostKobrakai!
+* Improved user experience on confirmation messages. Thanks @josevalim and @Ian-GL!
+* Return_to logic now uses `current_path/1` helper instead of reimplementing it.
+  Thanks @josevalim!
+* Password hashing no longer occurs while database transaction is open. #87
+* User settings forms now submit to `/users/settings` to prevent 404 errors on refresh. #95
+
 ## v0.5.0 (2020-09-03)
 
 [Diff of generated code](https://github.com/aaronrenner/phx_gen_auth_output/compare/v0.4.0..v0.5.0)

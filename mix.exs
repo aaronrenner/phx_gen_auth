@@ -1,7 +1,7 @@
 defmodule Phx.Gen.Auth.MixProject do
   use Mix.Project
 
-  @version "0.5.0"
+  @version "0.6.0"
 
   def project do
     [
@@ -11,7 +11,7 @@ defmodule Phx.Gen.Auth.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       preferred_cli_env: [docs: :docs],
-      description: "An authentication system generator for Phoenix 1.5+",
+      description: "An authentication system generator for Phoenix 1.5",
       docs: docs(),
       deps: deps(),
       package: package()
