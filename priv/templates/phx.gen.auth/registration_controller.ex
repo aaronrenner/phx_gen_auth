@@ -20,7 +20,7 @@ defmodule <%= inspect context.web_module %>.<%= inspect Module.concat(schema.web
           )
 
         conn
-        |> put_flash(:info, "<%= schema.human_singular %> created successfully.")
+        |> put_flash(:info, "Account created successfully.")
         |> <%= inspect schema.alias %>Auth.log_in_<%= schema.singular %>(<%= schema.singular %>)
 
       {:error, %Ecto.Changeset{} = changeset} ->
