@@ -98,7 +98,7 @@ expected.
 
     $ mix test
 
-Finally, let's start the our phoenix server and try it out.
+Finally, let's start our phoenix server and try it out.
 
     $ mix phx.server
 
