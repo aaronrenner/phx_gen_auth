@@ -1,6 +1,6 @@
 # Overview
 
-The purpose of `mix phx.gen.auth` is to generate a pre-built authentication system into a Phoenix 1.5+ application that follows both security and elixir best practices. By generating code into the user's application instead of using a library, the user has complete freedom to modify the authentication system so it works best with their app. The following links have more information regarding the motivation and design of the code this generates.
+The purpose of `mix phx.gen.auth` is to generate a pre-built authentication system into a Phoenix 1.5+ application that follows both security and Elixir best practices. By generating code into the user's application instead of using a library, the user has complete freedom to modify the authentication system so it works best with their app. The following links have more information regarding the motivation and design of the code this generates.
 
 * José Valim's blog post - [An upcoming authentication solution for Phoenix](https://dashbit.co/blog/a-new-authentication-solution-for-phoenix)
 * [Original pull request on bare phoenix app][auth pr]
@@ -26,7 +26,7 @@ named `DemoWeb.UserAuth` with plugs such as:
     available
 
   * `require_authenticated_user` - must be invoked after
-    `fetch_current_user` and requires that a current exists and is
+    `fetch_current_user` and requires that a current user exists and is
     authenticated
 
   * `redirect_if_user_is_authenticated` - used for the few
@@ -44,7 +44,7 @@ the plugs generated in the Auth module.
 ## Notifiers
 
 The generated code is not integrated with any system to send
-SMSs or emails for confirming accounts, reseting passwords,
+SMS or email messages for confirming accounts, resetting passwords,
 etc. Instead it simply logs a message to the terminal. It is
 your responsibility to integrate with the proper system after
 generation.
