@@ -32,7 +32,7 @@ defmodule Phx.Gen.Auth.MixProject do
   defp deps do
     [
       {:phoenix, "~> 1.5.2"},
-      {:phx_new, "~> 1.5.2", only: [:dev, :test]},
+      {:phx_new, "~> 1.5.6", only: [:dev, :test]},
       # Docs dependencies
       {:ex_doc, "~> 0.20", only: :docs}
     ]

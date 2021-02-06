@@ -83,8 +83,8 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
   @switches [web: :string, binary_id: :boolean, hashing_lib: :string, table: :string]
 
-  @doc false
-  def run(args) do
+  @impl true
+  def run(args, test_opts \\ []) do
     if Mix.Project.umbrella?() do
       Mix.raise("mix phx.gen.auth can only be run inside an application directory")
     end
@@ -98,16 +98,21 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
     {context, schema} = Gen.Context.build(context_args, __MODULE__)
     Gen.Context.prompt_for_code_injection(context)
 
-    # Needed so we can get the ecto adapter and ensure other
-    # libraries are loaded.
-    #
-    # As far as I can tell, everything after this must be tested with an
-    # integration test.
-    Mix.Task.run("compile")
+    if Keyword.get(test_opts, :validate_dependencies?, true) do
+      # Needed so we can get the ecto adapter and ensure other
+      # libraries are loaded.
+      Mix.Task.run("compile")
 
-    validate_required_dependencies!()
+      validate_required_dependencies!()
+    end
 
-    ecto_adapter = get_ecto_adapter!(schema)
+    ecto_adapter =
+      Keyword.get_lazy(
+        test_opts,
+        :ecto_adapter,
+        fn -> get_ecto_adapter!(schema) end
+      )
+
     migration = Migration.build(ecto_adapter)
 
     binding = [
@@ -316,7 +321,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
       {:error, :unable_to_inject} ->
         Mix.shell().info("""
 
-        Add your #{inspect(mix_dependency)} dependency to #{file_path}:
+        Add your #{mix_dependency} dependency to #{file_path}:
 
             defp deps do
               [
