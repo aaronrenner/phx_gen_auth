@@ -281,6 +281,7 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
 
     paths
     |> Mix.Phoenix.eval_from("priv/templates/phx.gen.auth/context_fixtures_functions.ex", binding)
+    |> prepend_newline()
     |> inject_before_final_end(test_fixtures_file)
   end
 
@@ -573,6 +574,8 @@ defmodule Mix.Tasks.Phx.Gen.Auth do
       {:error, reason} -> {:error, {:file_read_error, reason}}
     end
   end
+
+  defp prepend_newline(string), do: "\n" <> string
 
   # This can be replaced with Context.pre_exisiting_test_fixtures?/1
   # in phoenix 1.6

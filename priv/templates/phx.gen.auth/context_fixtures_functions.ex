@@ -1,4 +1,3 @@
-
   def unique_<%= schema.singular %>_email, do: "<%= schema.singular %>#{System.unique_integer()}@example.com"
   def valid_<%= schema.singular %>_password, do: "hello world!"
 
