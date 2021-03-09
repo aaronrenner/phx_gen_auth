@@ -1,115 +1,54 @@
-name: Continuous Integration
-
+name: CI
 on: [push, pull_request]
-
-env:
-  CACHE_VERSION: 3
-
 jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      MIX_ENV: "test"
-      ELIXIR_VERSION: ${{ matrix.elixir }}
-      OTP_VERSION: ${{ matrix.otp }}
+      FORCE_COLOR: 1
+
     strategy:
       fail-fast: false
       matrix:
-        elixir: ["1.11.2", "1.9.4", "1.8.2"]
+        elixir: [1.11.4, 1.9.4, 1.8.2]
         include:
-          - elixir: "1.11.2"
-            otp: "23.1.1"
-            check_formatting: true
-          - elixir: "1.9.4"
-            otp: "22.2.8"
-            check_formatting: true
-          - elixir: "1.8.2"
-            otp: "22.2.8"
-            check_formatting: false
+          - elixir: 1.11.4
+            otp: 23.2.7.1
+            alpine: 3.13.3
+          - elixir: 1.9.4
+            otp: 21.3.8.21
+            alpine: 3.13.1
+          - elixir: 1.8.2
+            otp: 21.3.8.21
+            alpine: 3.13.1
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-elixir@v1
-        with:
-          otp-version: ${{ matrix.otp }}
-          elixir-version: ${{ matrix.elixir }}
-      - name: Cache deps
-        uses: actions/cache@v1
-        with:
-          path: deps
-          key: ${{ env.CACHE_VERSION }}-deps-build-${{ env.MIX_ENV }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('mix.lock') }}
-          restore-keys: |
-            ${{ env.CACHE_VERSION }}-deps-build-${{ env.MIX_ENV }}-${{ matrix.otp }}-${{ matrix.elixir }}-
+      - name: Download released earth
+        run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/download/v0.5.8/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
+      - name: Execute tests
+        run: earthly -P --build-arg ELIXIR=${{ matrix.elixir }} --build-arg OTP=${{ matrix.otp }} --build-arg ALPINE=${{ matrix.alpine}} +test
 
-      - name: Cache _build
-        uses: actions/cache@v1
-        with:
-          path: _build/${{ env.MIX_ENV }}
-          key: ${{ env.CACHE_VERSION }}-_build-${{ env.MIX_ENV }}-${{ matrix.otp }}-${{ matrix.elixir }}-
-      - name: Install Dependencies
-        run: mix deps.get
-      - name: Compile app
-        run: mix compile --force --warnings-as-errors
-      - run: mix test --exclude integration
-      - run: mix format --check-formatted
-        if: matrix.check_formatting
-
-  integration_test:
+  integration-test:
     runs-on: ubuntu-latest
     env:
-      MIX_ENV: "test"
-      ELIXIR_VERSION: ${{ matrix.elixir }}
-      OTP_VERSION: ${{ matrix.otp }}
-    services:
-      postgres:
-        image: postgres
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_PASSWORD: postgres
-      mysql:
-        image: mysql
-        ports:
-          - 3306:3306
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-      mssql:
-        image: mcr.microsoft.com/mssql/server:2019-latest
-        env:
-          ACCEPT_EULA: Y
-          SA_PASSWORD: some!Password
-        ports:
-          - 1433:1433
+      FORCE_COLOR: 1
+
     strategy:
       fail-fast: false
       matrix:
-        elixir: ["1.11.2", "1.9.4", "1.8.2"]
+        elixir: [1.11.4, 1.9.4, 1.8.2]
         include:
-          - elixir: "1.11.2"
-            otp: "23.1.1"
-          - elixir: "1.9.4"
-            otp: "22.2.8"
-          - elixir: "1.8.2"
-            otp: "22.2.8"
+          - elixir: 1.11.4
+            otp: 23.2.7.1
+            alpine: 3.13.3
+          - elixir: 1.9.4
+            otp: 21.3.8.21
+            alpine: 3.13.1
+          - elixir: 1.8.2
+            otp: 21.3.8.21
+            alpine: 3.13.1
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-elixir@v1
-        with:
-          otp-version: ${{ matrix.otp }}
-          elixir-version: ${{ matrix.elixir }}
-      - name: Cache deps
-        uses: actions/cache@v1
-        with:
-          path: deps
-          key: ${{ env.CACHE_VERSION }}-deps-build-${{ env.MIX_ENV }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('mix.lock') }}
-          restore-keys: |
-            ${{ env.CACHE_VERSION }}-deps-build-${{ env.MIX_ENV }}-${{ matrix.otp }}-${{ matrix.elixir }}-
-      - name: Cache _build
-        uses: actions/cache@v1
-        with:
-          path: _build/${{ env.MIX_ENV }}
-          key: ${{ env.CACHE_VERSION }}-_build-${{ env.MIX_ENV }}-${{ matrix.otp }}-${{ matrix.elixir }}-
-      - name: Install Dependencies
-        run: mix deps.get
-      - name: Compile app
-        run: mix compile --force --warnings-as-errors
-      - run: mix test --only integration
+      - name: Download released earth
+        run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/download/v0.5.8/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
+      - name: Execute tests
+        run: earthly -P --build-arg ELIXIR=${{ matrix.elixir }} --build-arg OTP=${{ matrix.otp }} --build-arg ALPINE=${{ matrix.alpine}} +integration-test
