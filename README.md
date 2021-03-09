@@ -1,11 +1,14 @@
 # Phx.Gen.Auth
 
-An authentication system generator for Phoenix 1.5+ applications.
+An authentication system generator for Phoenix 1.5 applications.
+
+_`mix phx.gen.auth` has also been merged into phoenix master and will be built
+in to Phoenix 1.6.__
 
 ## Overview
 
 The purpose of `phx.gen.auth` is to generate a pre-built authentication system into
-a Phoenix 1.5+ application that follows both security and elixir best practices. By generating
+a Phoenix 1.5 application that follows both security and elixir best practices. By generating
 code into the user's application instead of using a library, the user has complete freedom
 to modify the authentication system so it works best with their app. The following links
 have more information regarding the motivation and design of the code this generates.
@@ -38,7 +41,7 @@ After running `mix phx.new`, `cd` into your application's directory (ex. `my_app
     ```elixir
     def deps do
       [
-        {:phx_gen_auth, "~> 0.6", only: [:dev], runtime: false},
+        {:phx_gen_auth, "~> 0.7", only: [:dev], runtime: false},
         ...
       ]
     end
@@ -61,7 +64,7 @@ After running `mix phx.new`, `cd` into your application's directory (ex. `my_app
     ```elixir
     def deps do
       [
-        {:phx_gen_auth, "~> 0.6", only: [:dev], runtime: false},
+        {:phx_gen_auth, "~> 0.7", only: [:dev], runtime: false},
         ...
       ]
     end

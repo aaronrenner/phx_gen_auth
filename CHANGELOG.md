@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.7.0 (2021-03-27)
+[Diff of generated code](https://github.com/aaronrenner/phx_gen_auth_output/compare/v0.6.0..v0.7.0)
+
+### Enhancements
+
+* Generates new `valid_<schema>_attrs/1` fixture function. Reduces the number of
+  places to update when manually adding additional attributes to your generated
+  schema. Thanks @chargio for bringing up this issue!
+
+### Bug Fixes
+
+* Fixes flash messages that were hard-coded to use "Account" instead of the
+  schema name. Thanks @jrdnull!
+* Fixes arity in test description for `confirm_<schema>` tests. Thanks @bhtabor!
+
 ## v0.6.0 (2020-11-24)
 
 [Diff of generated code](https://github.com/aaronrenner/phx_gen_auth_output/compare/v0.5.0..v0.6.0)
