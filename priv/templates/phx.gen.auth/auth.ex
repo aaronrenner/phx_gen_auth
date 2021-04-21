@@ -28,12 +28,14 @@ defmodule <%= inspect auth_module %> do
     token = <%= inspect context.alias %>.generate_<%= schema.singular %>_session_token(<%= schema.singular %>)
     <%= schema.singular %>_return_to = get_session(conn, :<%= schema.singular %>_return_to)
 
-    conn
-    |> renew_session()
-    |> put_session(:<%= schema.singular %>_token, token)
-    |> put_session(:live_socket_id, "<%= schema.plural %>_sessions:#{Base.url_encode64(token)}")
-    |> maybe_write_remember_me_cookie(token, params)
-    |> redirect(to: <%= schema.singular %>_return_to || signed_in_path(conn))
+    conn = 
+      conn
+      |> renew_session()
+      |> put_session(:<%= schema.singular %>_token, token)
+      |> put_session(:live_socket_id, "<%= schema.plural %>_sessions:#{Base.url_encode64(token)}")
+      |> maybe_write_remember_me_cookie(token, params)
+    
+    redirect(conn, to: <%= schema.singular %>_return_to || signed_in_path(conn))
   end
 
   defp maybe_write_remember_me_cookie(conn, token, %{"remember_me" => "true"}) do
