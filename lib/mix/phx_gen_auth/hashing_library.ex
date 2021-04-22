@@ -3,6 +3,20 @@ defmodule Mix.Phx.Gen.Auth.HashingLibrary do
 
   defstruct [:module, :mix_dependency, :test_config]
 
+  def build("argon2") do
+    lib = %__MODULE__{
+      module: Argon2,
+      mix_dependency: ~s|{:argon2_elixir, "~> 2.0\"}|,
+      test_config: """
+      config :argon2_elixir,
+        t_cost: 1,
+        m_cost: 8
+      """
+    }
+
+    {:ok, lib}
+  end
+
   def build("bcrypt") do
     lib = %__MODULE__{
       module: Bcrypt,
@@ -21,20 +35,6 @@ defmodule Mix.Phx.Gen.Auth.HashingLibrary do
       mix_dependency: ~s|{:pbkdf2_elixir, "~> 1.0\"}|,
       test_config: """
       config :pbkdf2_elixir, :rounds, 1
-      """
-    }
-
-    {:ok, lib}
-  end
-
-  def build("argon2") do
-    lib = %__MODULE__{
-      module: Argon2,
-      mix_dependency: ~s|{:argon2_elixir, "~> 2.0\"}|,
-      test_config: """
-      config :argon2_elixir,
-        t_cost: 1,
-        m_cost: 8
       """
     }
 
