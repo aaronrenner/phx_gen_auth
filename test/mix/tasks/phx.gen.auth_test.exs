@@ -84,7 +84,7 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
       )
 
       assert_file("config/test.exs", fn file ->
-        assert file =~ "config :bcrypt_elixir, :log_rounds, 1"
+        assert file =~ "config :argon2_elixir, :log_rounds, 1"
       end)
 
       assert_file("lib/my_app/accounts.ex")
@@ -129,7 +129,7 @@ defmodule Mix.Tasks.Phx.Gen.AuthTest do
       end)
 
       assert_file("mix.exs", fn file ->
-        assert file =~ ~s|{:bcrypt_elixir, "~> 2.0"},|
+        assert file =~ ~s|{:argon2_elixir, "~> 2.0"},|
       end)
 
       assert_file("lib/my_app_web/router.ex", fn file ->

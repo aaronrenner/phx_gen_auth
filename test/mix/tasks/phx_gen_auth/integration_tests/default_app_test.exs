@@ -19,7 +19,7 @@ defmodule Phx.Gen.Auth.IntegrationTests.DefaultAppTest do
     mix_run!(~w(phx.gen.auth Accounts User users), cd: test_app_path)
 
     assert_file(Path.join(test_app_path, "config/test.exs"), fn file ->
-      assert file =~ "config :bcrypt_elixir, :log_rounds, 1"
+      assert file =~ "config :argon2_elixir, :log_rounds, 1"
     end)
 
     assert_file(Path.join(test_app_path, "lib/demo/accounts/user.ex"), fn file ->
