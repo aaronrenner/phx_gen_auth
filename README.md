@@ -2,8 +2,7 @@
 
 An authentication system generator for Phoenix 1.5 applications.
 
-_`mix phx.gen.auth` has also been merged into phoenix master and will be built
-in to Phoenix 1.6.__
+**Note: This project is no longer maintained as `mix phx.gen.auth` has been merged into Phoenix v1.6.**
 
 ## Overview
 
